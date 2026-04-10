@@ -50,6 +50,30 @@ namespace E_commerce_Project.Services.Implementations
             user.City = dto.City ?? user.City;
             user.Street = dto.Street ?? user.Street;
 
+            // Handle image upload
+            if (dto.ProfileImage != null && dto.ProfileImage.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                var ext = Path.GetExtension(dto.ProfileImage.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(ext))
+                    return GeneralResponse<string>.Fail("Invalid file type");
+
+                var folder = Path.Combine(_env.WebRootPath, "images");
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                var fileName = Guid.NewGuid() + ext;
+                var path = Path.Combine(folder, fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await dto.ProfileImage.CopyToAsync(stream);
+                }
+
+                user.ProfileImageUrl = "/images/" + fileName;
+            }
+
             await _userManager.UpdateAsync(user);
 
             return GeneralResponse<string>.Success("Profile updated");
