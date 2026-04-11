@@ -33,7 +33,8 @@ namespace E_commerce_Project.Controllers
         }
         [Authorize]
         [HttpPut("profile")]
-        public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileDto dto)
             => Ok(await _userService.UpdateProfileAsync(User, dto));
 
         [Authorize]

@@ -38,6 +38,9 @@ namespace E_commerce_Project
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             // ================= JWT Authentication =================
             builder.Services.AddAuthentication(options =>
@@ -69,6 +72,7 @@ namespace E_commerce_Project
 
             // ================= Swagger + JWT =================
             builder.Services.AddEndpointsApiExplorer();
+            
 
             builder.Services.AddSwaggerGen(options =>
             {
@@ -98,7 +102,7 @@ namespace E_commerce_Project
             });
 
             var app = builder.Build();
-
+            
             // ================= SEED ROLES =================
             var roles = new[] { "Admin", "Customer", "Seller" };
 
@@ -121,6 +125,7 @@ namespace E_commerce_Project
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

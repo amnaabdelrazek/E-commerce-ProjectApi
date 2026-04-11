@@ -5,5 +5,6 @@
         public string? FullName { get; set; }
         public string? City { get; set; }
         public string? Street { get; set; }
+        public IFormFile? ProfileImage { get; set; } // Add this line
     }
 }
