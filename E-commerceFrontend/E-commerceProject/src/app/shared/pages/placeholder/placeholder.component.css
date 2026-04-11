@@ -1,0 +1,27 @@
+.placeholder {
+  padding: 64px 20px;
+  display: grid;
+  place-items: center;
+}
+
+.placeholder__inner {
+  width: min(760px, 100%);
+  text-align: center;
+  background: color-mix(in srgb, var(--app-surface) 70%, white);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  padding: 40px 22px;
+  box-shadow: var(--app-shadow-sm);
+}
+
+.placeholder h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: 0.2px;
+}
+
+.placeholder p {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 13px;
+}

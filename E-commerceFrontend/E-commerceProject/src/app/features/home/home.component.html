@@ -1,0 +1,101 @@
+<section class="hero">
+  <div class="container hero__inner">
+    <div class="hero__left">
+      <div class="hero__kicker">CURATED COLLECTIONS</div>
+      <h1 class="hero__title">Timeless Pieces, Modern Living</h1>
+      <p class="hero__desc">
+        Discover handcrafted furniture and decor that fits into every space. Carefully selected for quality and
+        character.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" routerLink="/shop">Shop Now</a>
+        <a class="btn btn--secondary" routerLink="/shop">Browse Catalog</a>
+      </div>
+    </div>
+
+    <div class="hero__right">
+      <img class="hero__img" src="/hero-sofa.svg" alt="Featured sofa" />
+    </div>
+  </div>
+</section>
+
+<section class="container page">
+    <div class="perks">
+      <div class="perk card">
+        <div class="perk__icon">🚚</div>
+        <div class="perk__title">Free Shipping</div>
+        <div class="perk__text muted">Orders over $50</div>
+      </div>
+      <div class="perk card">
+        <div class="perk__icon">🔒</div>
+        <div class="perk__title">Secure Payment</div>
+        <div class="perk__text muted">Protected checkout</div>
+      </div>
+      <div class="perk card">
+        <div class="perk__icon">⚡</div>
+        <div class="perk__title">Easy Returns</div>
+        <div class="perk__text muted">30-day policy</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__head">
+        <h2>Shop by Category</h2>
+      </div>
+      <div class="cats">
+        <a class="cat card" routerLink="/furniture"><span>🪑</span><b>Furniture</b></a>
+        <a class="cat card" routerLink="/lighting"><span>💡</span><b>Lighting</b></a>
+        <a class="cat card" routerLink="/shop"><span>🧺</span><b>Textiles</b></a>
+        <a class="cat card" routerLink="/decor"><span>🖼️</span><b>Decor</b></a>
+        <a class="cat card" routerLink="/shop"><span>🍽️</span><b>Kitchen</b></a>
+        <a class="cat card" routerLink="/shop"><span>🌿</span><b>Garden</b></a>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__head">
+        <h2>Featured Products</h2>
+        <a class="link" routerLink="/shop">View all →</a>
+      </div>
+
+      <div class="grid" *ngIf="state() !== 'error'; else errTpl">
+        <ng-container *ngIf="state() === 'loaded'; else loadingTpl">
+          <app-product-card *ngFor="let p of featured" [product]="p" />
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="banner">
+      <div class="banner__inner">
+        <div>
+          <div class="banner__kicker">LIMITED TIME</div>
+          <div class="banner__title">Spring Sale — Up to 30% Off</div>
+          <div class="banner__text muted">Save on best sellers & essentials.</div>
+          <a class="btn btn--secondary banner__btn" routerLink="/shop">Shop the sale</a>
+        </div>
+        <div class="banner__badge">New</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__head">
+        <h2>New Arrivals</h2>
+      </div>
+
+      <div class="grid" *ngIf="state() !== 'error'; else errTpl">
+        <ng-container *ngIf="state() === 'loaded'; else loadingTpl">
+          <app-product-card *ngFor="let p of arrivals" [product]="p" />
+        </ng-container>
+      </div>
+    </div>
+
+    <ng-template #loadingTpl>
+      <div class="skeleton" *ngFor="let _ of [1, 2, 3, 4]"></div>
+    </ng-template>
+
+    <ng-template #errTpl>
+      <div class="card error">
+        Failed to load products. Please make sure the API is running and try again.
+      </div>
+    </ng-template>
+  </section>

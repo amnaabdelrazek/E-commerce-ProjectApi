@@ -63,7 +63,20 @@ namespace E_commerce_Project.Services.Implementations
             var roles = await _userManager.GetRolesAsync(user);
             var token = _jwt.GenerateToken(user, roles);
 
-            return GeneralResponse<object>.Success(new { token }, "Login Success");
+            // Build the response object as required
+            var response = new
+            {
+                token,
+                user = new
+                {
+                    id = user.Id,
+                    name = user.FullName,
+                    email = user.Email,
+                    role = roles.FirstOrDefault() // or string.Join(",", roles) if multiple roles
+                }
+            };
+
+            return GeneralResponse<object>.Success(response, "Login Success");
         }
 
         public async Task<GeneralResponse<string>> ConfirmEmailAsync(string userId, string token)

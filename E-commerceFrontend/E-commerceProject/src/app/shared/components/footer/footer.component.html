@@ -1,0 +1,36 @@
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__col footer__brand">
+      <div class="footer__title">Maison</div>
+      <p class="footer__text">Curated vintage &amp; artisan home goods for the modern collector.</p>
+    </div>
+
+    <div class="footer__col">
+      <div class="footer__head">Shop</div>
+      <a routerLink="/shop">All Products</a>
+      <a routerLink="/furniture">Furniture</a>
+      <a routerLink="/decor">Decor</a>
+      <a routerLink="/lighting">Lighting</a>
+    </div>
+
+    <div class="footer__col">
+      <div class="footer__head">Account</div>
+      <a routerLink="/login">Login</a>
+      <a routerLink="/register">Register</a>
+      <a routerLink="/orders">Orders</a>
+      <a routerLink="/wishlist">Wishlist</a>
+    </div>
+
+    <div class="footer__col footer__newsletter">
+      <div class="footer__head">Newsletter</div>
+      <p class="footer__text">Get updates on new arrivals &amp; exclusive offers.</p>
+      <form class="footer__form" (submit)="$event.preventDefault()">
+        <input type="email" placeholder="Your email" aria-label="Email" />
+        <button type="submit">Join</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer__bottom">© {{ year }} Maison. All rights reserved.</div>
+</footer>
+

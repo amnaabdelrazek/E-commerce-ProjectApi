@@ -1,0 +1,15 @@
+<section class="confirm">
+  <div class="card" [class.card--success]="status() === 'success'" [class.card--error]="status() === 'error'">
+    <div class="pill" [class.pill--success]="status() === 'success'" [class.pill--error]="status() === 'error'">
+      {{ status() === 'success' ? 'Success' : 'Error' }}
+    </div>
+
+    <h1>Confirm Email</h1>
+    <p>{{ message() }}</p>
+
+    <div class="actions">
+      <a class="btn btn--primary" routerLink="/login">Go to Login</a>
+      <a class="btn btn--secondary" routerLink="/register">Back to Register</a>
+    </div>
+  </div>
+</section>
