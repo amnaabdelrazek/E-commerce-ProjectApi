@@ -1,0 +1,107 @@
+.footer {
+  background: var(--app-dark);
+  color: var(--app-dark-text);
+  padding: 52px 20px 18px;
+}
+
+.footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+  gap: 28px;
+}
+
+.footer__title {
+  font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.footer__head {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+}
+
+.footer__text {
+  color: color-mix(in srgb, var(--app-dark-text) 78%, transparent);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.footer__col a {
+  display: block;
+  color: color-mix(in srgb, var(--app-dark-text) 72%, transparent);
+  text-decoration: none;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.footer__col a:hover {
+  color: var(--app-dark-text);
+}
+
+.footer__form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.footer__form input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--app-dark-text);
+  outline: none;
+}
+
+.footer__form input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.footer__form button {
+  border: 0;
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--app-dark-text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background var(--app-transition), transform var(--app-transition);
+}
+
+.footer__form button:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.footer__form button:active {
+  transform: translateY(1px);
+}
+
+.footer__bottom {
+  max-width: 1100px;
+  margin: 18px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+@media (max-width: 900px) {
+  .footer__inner {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .footer__inner {
+    grid-template-columns: 1fr;
+  }
+}

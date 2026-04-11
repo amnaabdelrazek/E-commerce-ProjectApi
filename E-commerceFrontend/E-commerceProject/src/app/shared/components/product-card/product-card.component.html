@@ -1,0 +1,29 @@
+<article class="pcard" [routerLink]="['/products', product.id]" role="link" tabindex="0">
+  <div class="pcard__media">
+    <img
+      class="pcard__img"
+      [src]="product.imageUrl || placeholder"
+      [alt]="product.name"
+      loading="lazy"
+      (error)="onImgError($event)"
+    />
+    <span class="pcard__badge" *ngIf="product.stockQuantity === 0">Out of stock</span>
+    <span class="pcard__badge pcard__badge--ok" *ngIf="product.stockQuantity > 0">In stock</span>
+  </div>
+
+  <div class="pcard__body">
+    <div class="pcard__meta">{{ product.categoryName }}</div>
+    <div class="pcard__title" [title]="product.name">{{ product.name }}</div>
+    <div class="pcard__desc" [title]="product.description">{{ product.description }}</div>
+    <div class="pcard__row">
+      <div class="pcard__price">{{ product.price | currency: 'USD' : 'symbol' : '1.0-2' }}</div>
+      <button
+        type="button"
+        class="btn btn--secondary pcard__btn"
+        (click)="$event.stopPropagation()"
+      >
+        Add
+      </button>
+    </div>
+  </div>
+</article>

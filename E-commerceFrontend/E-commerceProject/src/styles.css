@@ -1,0 +1,170 @@
+:root {
+  --app-bg: #f6f1ea;
+  --app-surface: #fbf7f1;
+  --app-surface-2: #ffffff;
+
+  --app-text: #2b2118;
+  --app-muted: #7a6b5f;
+  --app-border: color-mix(in srgb, var(--app-text) 12%, transparent);
+
+  --app-accent: #6f4127;
+  --app-accent-2: #a26a3f;
+
+  --app-success: #16a34a;
+  --app-danger: #b42318;
+
+  --app-dark: #3b2a22;
+  --app-dark-text: #f5efe8;
+
+  --app-radius-sm: 10px;
+  --app-radius-md: 14px;
+
+  --app-shadow-sm: 0 10px 24px rgba(19, 12, 6, 0.08);
+  --app-shadow-md: 0 18px 52px rgba(19, 12, 6, 0.12);
+
+  --app-nav-height: 72px;
+  --app-footer-min: 240px;
+  --app-container: 1100px;
+
+  --app-focus: 0 0 0 4px color-mix(in srgb, var(--app-accent) 22%, transparent);
+  --app-transition: 160ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--app-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  line-height: 1.5;
+  background:
+    radial-gradient(1200px 800px at 10% -10%, rgba(162, 106, 63, 0.12), transparent 55%),
+    radial-gradient(900px 700px at 90% 0%, rgba(111, 65, 39, 0.1), transparent 55%),
+    var(--app-bg);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--app-accent) 18%, transparent);
+}
+
+a {
+  color: var(--app-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+:where(button, a, input, textarea, select):focus-visible {
+  outline: none;
+  box-shadow: var(--app-focus);
+  border-color: color-mix(in srgb, var(--app-accent) 55%, transparent);
+}
+
+.container {
+  width: min(var(--app-container), 100%);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page {
+  padding: 56px 0 72px;
+}
+
+.page--center {
+  min-height: calc(100dvh - var(--app-nav-height) - var(--app-footer-min));
+  display: grid;
+  place-items: center;
+}
+
+.card {
+  background: color-mix(in srgb, var(--app-surface) 70%, white);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--app-radius-sm);
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform var(--app-transition),
+    box-shadow var(--app-transition),
+    background var(--app-transition),
+    border-color var(--app-transition),
+    opacity var(--app-transition);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--app-accent) 92%, #000) 0%, var(--app-accent) 100%);
+  color: white;
+}
+
+.btn--primary:hover {
+  box-shadow: 0 12px 28px rgba(111, 65, 39, 0.25);
+  text-decoration: none;
+}
+
+.btn--secondary {
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+.btn--secondary:hover {
+  background: color-mix(in srgb, var(--app-text) 2%, white);
+  text-decoration: none;
+}
+
+.input {
+  width: 100%;
+  border-radius: var(--app-radius-sm);
+  border: 1px solid var(--app-border);
+  padding: 10px 12px;
+  outline: none;
+  background: var(--app-surface-2);
+  font-size: 13px;
+  transition:
+    border-color var(--app-transition),
+    box-shadow var(--app-transition),
+    background var(--app-transition);
+}
+
+.input::placeholder {
+  color: color-mix(in srgb, var(--app-muted) 70%, transparent);
+}
+
+.muted {
+  color: var(--app-muted);
+}

@@ -1,0 +1,53 @@
+<div class="page">
+  <div class="container">
+    <ng-container *ngIf="state() === 'loaded' && product() as p; else otherTpl">
+      <div class="crumbs">
+        <a routerLink="/home">Home</a>
+        <span>/</span>
+        <a routerLink="/shop">Shop</a>
+        <span>/</span>
+        <span class="muted">{{ p.name }}</span>
+      </div>
+
+      <div class="wrap card">
+        <div class="media">
+          <img
+            [src]="p.imageUrl || placeholder"
+            [alt]="p.name"
+            loading="lazy"
+            (error)="onImgError($event)"
+          />
+        </div>
+
+        <div class="info">
+          <div class="meta">{{ p.categoryName }}</div>
+          <h1 class="title">{{ p.name }}</h1>
+          <p class="desc">{{ p.description }}</p>
+
+          <div class="price-row">
+            <div class="price">{{ p.price | currency: 'USD' : 'symbol' : '1.0-2' }}</div>
+            <span class="badge" [class.badge--ok]="p.stockQuantity > 0" [class.badge--no]="p.stockQuantity === 0">
+              {{ p.stockQuantity > 0 ? 'In stock' : 'Out of stock' }}
+            </span>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn--primary" type="button" [disabled]="p.stockQuantity === 0">Add to cart</button>
+            <a class="btn btn--secondary" routerLink="/shop">Back to shop</a>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #otherTpl>
+      <div class="card state">
+        <ng-container *ngIf="state() === 'loading'">Loading…</ng-container>
+        <ng-container *ngIf="state() === 'error'">Product not found.</ng-container>
+        <div class="state__actions">
+          <a class="btn btn--secondary" routerLink="/shop">Back to shop</a>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+

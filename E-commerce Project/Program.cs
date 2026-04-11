@@ -101,6 +101,17 @@ namespace E_commerce_Project
     });
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
             var app = builder.Build();
             
             // ================= SEED ROLES =================
@@ -125,6 +136,7 @@ namespace E_commerce_Project
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowAll");
             app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseAuthentication();
