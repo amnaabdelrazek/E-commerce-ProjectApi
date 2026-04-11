@@ -1,0 +1,53 @@
+<div class="page">
+  <div class="container">
+    <div class="head">
+      <h1>{{ title }}</h1>
+    </div>
+
+    <form class="search card" [formGroup]="form" (ngSubmit)="apply()">
+      <div class="search__row">
+        <div class="search__input">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M10.5 3a7.5 7.5 0 0 1 5.96 12.06l3.24 3.24a1 1 0 1 1-1.42 1.42l-3.24-3.24A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z"
+            />
+          </svg>
+          <input class="input" type="text" formControlName="name" placeholder="Search products..." />
+        </div>
+        <button class="btn btn--secondary" type="button" (click)="clear()">Filters</button>
+      </div>
+    </form>
+
+    <div class="meta muted">{{ totalCount() }} products found</div>
+
+    <div class="grid" *ngIf="state() !== 'error'; else errTpl">
+      <ng-container *ngIf="state() === 'loaded'; else loadingTpl">
+        <app-product-card *ngFor="let p of pageItems()" [product]="p" />
+      </ng-container>
+    </div>
+
+    <div class="pager" *ngIf="state() === 'loaded' && totalCount() > pageSize()">
+      <button class="btn btn--secondary" type="button" (click)="prev()" [disabled]="pageNumber() === 1">
+        Prev
+      </button>
+      <div class="pager__num">Page {{ pageNumber() }}</div>
+      <button
+        class="btn btn--secondary"
+        type="button"
+        (click)="next()"
+        [disabled]="pageNumber() * pageSize() >= totalCount()"
+      >
+        Next
+      </button>
+    </div>
+
+    <ng-template #loadingTpl>
+      <div class="skeleton" *ngFor="let _ of [1, 2, 3, 4]"></div>
+    </ng-template>
+
+    <ng-template #errTpl>
+      <div class="card error">Failed to load products.</div>
+    </ng-template>
+  </div>
+</div>
+

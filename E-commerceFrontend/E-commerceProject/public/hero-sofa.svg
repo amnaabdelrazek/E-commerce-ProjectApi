@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="650" viewBox="0 0 980 650" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="980" y2="650" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBF7F1"/>
+      <stop offset="1" stop-color="#F2E8DD"/>
+    </linearGradient>
+    <linearGradient id="sofa" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1E6B63"/>
+      <stop offset="1" stop-color="#14554F"/>
+    </linearGradient>
+  </defs>
+  <rect width="980" height="650" rx="22" fill="url(#bg)"/>
+  <rect x="110" y="350" width="760" height="160" rx="28" fill="url(#sofa)"/>
+  <rect x="160" y="265" width="300" height="120" rx="26" fill="url(#sofa)"/>
+  <rect x="520" y="265" width="300" height="120" rx="26" fill="url(#sofa)"/>
+  <rect x="155" y="510" width="80" height="18" rx="9" fill="#2B2118" fill-opacity=".28"/>
+  <rect x="745" y="510" width="80" height="18" rx="9" fill="#2B2118" fill-opacity=".28"/>
+  <rect x="120" y="520" width="740" height="40" rx="20" fill="#2B2118" fill-opacity=".08"/>
+  <circle cx="285" cy="330" r="10" fill="#FFFFFF" fill-opacity=".25"/>
+  <circle cx="700" cy="330" r="10" fill="#FFFFFF" fill-opacity=".25"/>
+</svg>
+

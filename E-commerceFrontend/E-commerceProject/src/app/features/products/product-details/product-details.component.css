@@ -1,0 +1,126 @@
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 14px;
+  color: var(--app-muted);
+}
+
+.crumbs a {
+  color: var(--app-muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.crumbs a:hover {
+  color: var(--app-text);
+  text-decoration: underline;
+}
+
+.wrap {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 18px;
+  padding: 16px;
+}
+
+.media {
+  border-radius: var(--app-radius-md);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--app-bg) 40%, white);
+  border: 1px solid var(--app-border);
+  aspect-ratio: 4 / 3;
+}
+
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.info {
+  padding: 6px 6px 10px;
+}
+
+.meta {
+  color: var(--app-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.title {
+  margin: 10px 0 8px;
+  font-size: 28px;
+  letter-spacing: 0.2px;
+}
+
+.desc {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.price-row {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.price {
+  font-weight: 1000;
+  font-size: 18px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.badge--ok {
+  color: color-mix(in srgb, var(--app-success) 88%, #000);
+  border-color: color-mix(in srgb, var(--app-success) 22%, transparent);
+  background: color-mix(in srgb, var(--app-success) 8%, white);
+}
+
+.badge--no {
+  color: var(--app-danger);
+  border-color: color-mix(in srgb, var(--app-danger) 22%, transparent);
+  background: color-mix(in srgb, var(--app-danger) 8%, white);
+}
+
+.actions {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.state {
+  padding: 18px;
+  font-weight: 800;
+  color: var(--app-muted);
+}
+
+.state__actions {
+  margin-top: 14px;
+}
+
+@media (max-width: 980px) {
+  .wrap {
+    grid-template-columns: 1fr;
+  }
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
+

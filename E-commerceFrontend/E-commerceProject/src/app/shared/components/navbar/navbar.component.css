@@ -1,0 +1,91 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--app-bg) 86%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--app-text) 10%, transparent);
+}
+
+.nav__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px 20px;
+  min-height: var(--app-nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nav__brand {
+  font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--app-text);
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.nav__links a {
+  color: var(--app-muted);
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+}
+
+.nav__links a.is-active,
+.nav__links a:hover {
+  color: var(--app-text);
+}
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--app-text) 8%, transparent);
+  background: color-mix(in srgb, #fff 35%, transparent);
+  color: var(--app-text);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background var(--app-transition),
+    border-color var(--app-transition),
+    transform var(--app-transition);
+}
+
+.icon-btn:hover {
+  border-color: color-mix(in srgb, var(--app-text) 14%, transparent);
+  background: color-mix(in srgb, var(--app-text) 6%, white);
+}
+
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+@media (max-width: 760px) {
+  .nav__links {
+    display: none;
+  }
+}

@@ -1,0 +1,61 @@
+<div class="page">
+  <div class="container">
+    <div class="head">
+      <div>
+        <h1>Shop</h1>
+        <p class="muted">Browse products and filter by name and price.</p>
+      </div>
+    </div>
+
+    <form class="filters card" [formGroup]="form" (ngSubmit)="apply()">
+      <div class="filters__grid">
+        <div class="f">
+          <label>Name</label>
+          <input class="input" type="text" formControlName="name" placeholder="Search..." />
+        </div>
+        <div class="f">
+          <label>Min price</label>
+          <input class="input" type="number" formControlName="minPrice" placeholder="0" />
+        </div>
+        <div class="f">
+          <label>Max price</label>
+          <input class="input" type="number" formControlName="maxPrice" placeholder="1000" />
+        </div>
+        <div class="filters__actions">
+          <button class="btn btn--primary" type="submit">Apply</button>
+          <button class="btn btn--secondary" type="button" (click)="clear()">Clear</button>
+        </div>
+      </div>
+    </form>
+
+    <div class="bar">
+      <div class="muted">Total: {{ totalCount() }}</div>
+      <div class="pager">
+        <button class="btn btn--secondary" type="button" (click)="prev()" [disabled]="pageNumber() === 1">
+          Prev
+        </button>
+        <div class="pager__num">Page {{ pageNumber() }}</div>
+        <button class="btn btn--secondary" type="button" (click)="next()" [disabled]="products().length < pageSize()">
+          Next
+        </button>
+      </div>
+    </div>
+
+    <div class="grid" *ngIf="state() !== 'error'; else errTpl">
+      <ng-container *ngIf="state() === 'loaded'; else loadingTpl">
+        <app-product-card *ngFor="let p of products()" [product]="p" />
+      </ng-container>
+    </div>
+
+    <ng-template #loadingTpl>
+      <div class="skeleton" *ngFor="let _ of [1, 2, 3, 4, 5, 6]"></div>
+    </ng-template>
+
+    <ng-template #errTpl>
+      <div class="card error">
+        Failed to load products. Please make sure the API is running and try again.
+      </div>
+    </ng-template>
+  </div>
+</div>
+
