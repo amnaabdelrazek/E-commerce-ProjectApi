@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
+import { TokenStorageService } from '../../../core/services/token-storage.service';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -15,7 +16,9 @@ type LoadState = 'loading' | 'loaded' | 'error';
 })
 export class ProductDetailsComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
+  private readonly tokenStorage = inject(TokenStorageService);
 
   readonly state = signal<LoadState>('loading');
   readonly product = signal<Product | null>(null);
@@ -42,6 +45,15 @@ export class ProductDetailsComponent {
     const img = event.target as HTMLImageElement | null;
     if (!img) return;
     img.src = this.placeholder;
+  }
+
+  onAddToCart() {
+    const token = this.tokenStorage.getToken();
+    if (!token) {
+      void this.router.navigate(['/login']);
+      return;
+    }
+    // TODO: integrate add-to-cart API when available.
   }
 }
 

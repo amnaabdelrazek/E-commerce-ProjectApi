@@ -8,6 +8,7 @@ import { HomeComponent } from './features/home/home.component';
 import { ProductsComponent } from './features/products/products.component';
 import { CategoryProductsComponent } from './features/products/category-products/category-products.component';
 import { ProductDetailsComponent } from './features/products/product-details/product-details.component';
+import { ProfileComponent } from './features/profile/profile.component';
 
 export const routes: Routes = [
   {
@@ -32,6 +33,7 @@ export const routes: Routes = [
       },
       { path: 'lighting', component: PlaceholderComponent, data: { title: 'Lighting' } },
       { path: 'products/:id', component: ProductDetailsComponent },
+      { path: 'profile', component: ProfileComponent },
       { path: 'forgot-password', component: PlaceholderComponent, data: { title: 'Forgot Password' } },
       { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
       { path: 'wishlist', component: PlaceholderComponent, data: { title: 'Wishlist' } }

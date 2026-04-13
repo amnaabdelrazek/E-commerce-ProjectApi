@@ -15,11 +15,8 @@ namespace E_commerce_Project.Controllers
         {
             _userService = userService;
         }
-        [HttpGet("ping")]
-        public IActionResult Ping()
-        {
-            return Ok("pong");
-        }
+       
+
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
