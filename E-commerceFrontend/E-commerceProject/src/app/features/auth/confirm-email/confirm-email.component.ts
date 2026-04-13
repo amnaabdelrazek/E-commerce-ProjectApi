@@ -4,6 +4,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
+
 @Component({
   selector: 'app-confirm-email',
   standalone: true,
