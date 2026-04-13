@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="GitHub.Copilot.SDK" Version="0.2.2" />
+    <PackageReference Include="MailKit" Version="4.15.1" />
     <PackageReference Include="Microsoft.Agents.CopilotStudio.Client" Version="1.4.83" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.25" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.25" />

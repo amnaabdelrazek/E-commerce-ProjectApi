@@ -52,8 +52,8 @@ namespace E_commerce_Project.Services.Implementations
             if (user == null)
                 return GeneralResponse<object>.Fail("Invalid Email");
 
-            if (!user.EmailConfirmed)
-                return GeneralResponse<object>.Fail("Email not confirmed");
+            //if (!user.EmailConfirmed)
+            //    return GeneralResponse<object>.Fail("Email not confirmed");
 
             var valid = await _userManager.CheckPasswordAsync(user, dto.Password);
 
