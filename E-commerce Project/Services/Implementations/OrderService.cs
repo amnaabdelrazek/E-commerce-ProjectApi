@@ -6,6 +6,7 @@ using E_commerce_Project.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace E_commerce_Project.Services.Implementations
 {
@@ -14,6 +15,8 @@ namespace E_commerce_Project.Services.Implementations
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICartService _cartService;
+        private readonly IEmailService _emailService;
+        private readonly ILogger<OrderService> _logger;
         private const decimal DEFAULT_SHIPPING_COST = 10m;
         private const decimal FREE_SHIPPING_THRESHOLD = 100m;
         private const decimal TAX_RATE = 0.10m; // 10%
@@ -21,11 +24,15 @@ namespace E_commerce_Project.Services.Implementations
         public OrderService(
             AppDbContext context,
             UserManager<ApplicationUser> userManager,
-            ICartService cartService)
+            ICartService cartService,
+            IEmailService emailService,
+            ILogger<OrderService> logger)
         {
             _context = context;
             _userManager = userManager;
             _cartService = cartService;
+            _emailService = emailService;
+            _logger = logger;
         }
         public async Task<GeneralResponse<OrderSummaryDto>> CalculateOrderSummaryAsync(
             int cartId,
@@ -209,6 +216,15 @@ namespace E_commerce_Project.Services.Implementations
 
                 await _context.SaveChangesAsync();
 
+                try
+                {
+                    await _emailService.SendEmailAsyc(user.Email!, checkoutDto.FirstName, order.Id);
+                }
+                catch (Exception ex)
+                {
+                   
+                     _logger.LogError(ex, "Failed to send confirmation email"); 
+                }
                 var orderDto = MapOrderToDto(order, new List<OrderItem>(
                     cart.CartItems
                         .Where(ci => !ci.IsDeleted)
