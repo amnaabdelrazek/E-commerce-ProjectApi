@@ -10,6 +10,11 @@ import { CategoryProductsComponent } from './features/products/category-products
 import { ProductDetailsComponent } from './features/products/product-details/product-details.component';
 import {CartComponent} from './features/cart-component/cart-component'
 import { CheckoutCpmponent } from './features/checkout-cpmponent/checkout-cpmponent';
+import { ProfileComponent } from './features/profile/profile.component';
+import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
+import { DashboardComponent } from './features/admin/dashboard/dashboard.component';
+import { adminGuard } from './core/guards/admin.guard';
+
 export const routes: Routes = [
   {
     path: '',
@@ -35,9 +40,23 @@ export const routes: Routes = [
       },
       { path: 'lighting', component: PlaceholderComponent, data: { title: 'Lighting' } },
       { path: 'products/:id', component: ProductDetailsComponent },
+      { path: 'profile', component: ProfileComponent },
       { path: 'forgot-password', component: PlaceholderComponent, data: { title: 'Forgot Password' } },
       { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
       { path: 'wishlist', component: PlaceholderComponent, data: { title: 'Wishlist' } }
+    ]
+  },
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'products', component: PlaceholderComponent, data: { title: 'Products' } },
+      { path: 'categories', component: PlaceholderComponent, data: { title: 'Categories' } },
+      { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
+      { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } }
     ]
   },
   { path: '**', redirectTo: 'login' }

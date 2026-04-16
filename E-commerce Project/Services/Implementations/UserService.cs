@@ -3,6 +3,7 @@ using E_commerce_Project.Models;
 using E_commerce_Project.Responses;
 using E_commerce_Project.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace E_commerce_Project.Services.Implementations
@@ -20,22 +21,28 @@ namespace E_commerce_Project.Services.Implementations
 
         public async Task<GeneralResponse<object>> GetProfileAsync(ClaimsPrincipal userPrincipal)
         {
-            if (userPrincipal == null)
-                return GeneralResponse<object>.Fail("No user principal");
+            var userId = _userManager.GetUserId(userPrincipal);
+            var user = await _userManager.Users
+                .Include(u => u.Orders)
+                .Include(u => u.Wishlists)
+                .Include(u => u.Reviews)
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
-            var user = await _userManager.GetUserAsync(userPrincipal);
 
             if (user == null)
                 return GeneralResponse<object>.Fail("User not found");
 
             return GeneralResponse<object>.Success(new
             {
-                user.Id,
-                user.FullName,
-                user.Email,
-                user.City,
-                user.Street,
-                user.ProfileImageUrl
+                id = user.Id,
+                fullName = user.FullName,
+                email = user.Email,
+                city = user.City,
+                street = user.Street,
+                profileImageUrl = user.ProfileImageUrl,
+                ordersCount = user.Orders.Count,
+                wishlistCount = user.Wishlists.Count,
+                reviewsCount = user.Reviews.Count
             });
         }
 

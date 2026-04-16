@@ -4,6 +4,10 @@ import { RouterLink } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart-service';
 import { AddToCartResquest } from '../../../core/models/cart';
+import { Component, Input, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { Product } from '../../../core/models/product.model';
+import { TokenStorageService } from '../../../core/services/token-storage.service';
 
 @Component({
   selector: 'app-product-card',
@@ -13,6 +17,9 @@ import { AddToCartResquest } from '../../../core/models/cart';
   styleUrl: './product-card.component.css'
 })
 export class ProductCardComponent {
+  private readonly router = inject(Router);
+  private readonly tokenStorage = inject(TokenStorageService);
+
   @Input({ required: true }) product!: Product;
   private readonly cartService = inject(CartService)
 
@@ -27,7 +34,11 @@ export class ProductCardComponent {
   onAddToCart(product: Product)
   {
     
-
+    const token = this.tokenStorage.getToken();
+    if (!token) {
+      void this.router.navigate(['/login']);
+      return;
+    }
     const request: AddToCartResquest = {
       productId: this.product.id,
       quantity: 1

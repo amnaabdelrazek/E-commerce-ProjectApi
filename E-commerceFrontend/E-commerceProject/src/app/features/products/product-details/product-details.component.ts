@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart-service';
 import { AddToCartResquest } from '../../../core/models/cart';
+import { TokenStorageService } from '../../../core/services/token-storage.service';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -17,8 +18,10 @@ type LoadState = 'loading' | 'loaded' | 'error';
 })
 export class ProductDetailsComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
   private readonly cartService = inject(CartService)
+  private readonly tokenStorage = inject(TokenStorageService);
 
   readonly state = signal<LoadState>('loading');
   readonly product = signal<Product | null>(null);
@@ -48,6 +51,11 @@ export class ProductDetailsComponent {
   }
   onAddToCart(product: Product)
     {
+       const token = this.tokenStorage.getToken();
+    if (!token) {
+      void this.router.navigate(['/login']);
+      return;
+    }
       const request: AddToCartResquest = {
         productId: product.id,
         quantity: 1

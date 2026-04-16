@@ -1,4 +1,4 @@
-﻿using E_commerce_Project.DTOs;
+using E_commerce_Project.DTOs;
 using E_commerce_Project.Helpers;
 using E_commerce_Project.Models;
 using E_commerce_Project.Responses;
@@ -31,7 +31,10 @@ namespace E_commerce_Project.Services.Implementations
             var result = await _userManager.CreateAsync(user, dto.Password);
 
             if (!result.Succeeded)
-                return GeneralResponse<object>.Fail("Registration failed");
+            {
+                var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                return GeneralResponse<object>.Fail($"Registration failed: {errors}");
+            }
 
             await _userManager.AddToRoleAsync(user, "Customer");
 
@@ -51,6 +54,14 @@ namespace E_commerce_Project.Services.Implementations
 
             if (user == null)
                 return GeneralResponse<object>.Fail("Invalid Email");
+
+            // Admin soft-delete should prevent login (do not issue JWT).
+            if (user.IsDeleted)
+                return GeneralResponse<object>.Fail("User is deleted");
+
+            // Respect Identity lockout to prevent login for restricted users.
+            if (user.LockoutEnabled && user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.UtcNow)
+                return GeneralResponse<object>.Fail("User is locked");
 
             //if (!user.EmailConfirmed)
             //    return GeneralResponse<object>.Fail("Email not confirmed");

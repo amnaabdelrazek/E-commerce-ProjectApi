@@ -1,4 +1,4 @@
-﻿namespace E_commerce_Project.Responses
+namespace E_commerce_Project.Responses
 {
     public class GeneralResponse<T>
     {
