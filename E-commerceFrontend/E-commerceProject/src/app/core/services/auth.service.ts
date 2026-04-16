@@ -6,6 +6,7 @@ import { ConfirmEmailApiResponse } from '../models/confirm-email.model';
 import { RegisterApiResponse, RegisterRequest } from '../models/register.model';
 import { API_BASE_URL } from '../tokens/api-base-url.token';
 import { TokenStorageService } from './token-storage.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -61,4 +62,27 @@ export class AuthService {
 
     return undefined;
   }
+
+  // getUserFromToken(){
+  //   const token = this.tokenStorage.getToken();
+  //   if(!token)
+  //     return null;
+
+  //   try{
+  //     const decoded: any = jwtDecode(token);
+
+  //     return {
+  //     email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || decoded.email,
+  //     fullName: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.fullName || 'User',
+  //   };
+  // }catch (error) {
+  //   console.error('Error decoding token', error);
+  //   return null;
+  // }
+  // }
+
+  getProfile(){
+    return this.http.get<any>(`${this.apiBaseUrl}/api/Users/profile`)
+  }
 }
+

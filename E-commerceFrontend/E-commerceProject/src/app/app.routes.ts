@@ -8,7 +8,8 @@ import { HomeComponent } from './features/home/home.component';
 import { ProductsComponent } from './features/products/products.component';
 import { CategoryProductsComponent } from './features/products/category-products/category-products.component';
 import { ProductDetailsComponent } from './features/products/product-details/product-details.component';
-
+import {CartComponent} from './features/cart-component/cart-component'
+import { CheckoutCpmponent } from './features/checkout-cpmponent/checkout-cpmponent';
 export const routes: Routes = [
   {
     path: '',
@@ -20,6 +21,8 @@ export const routes: Routes = [
       { path: 'confirm-email', component: ConfirmEmailComponent },
       { path: 'home', component: HomeComponent },
       { path: 'shop', component: ProductsComponent },
+      {path:'checkout', component:CheckoutCpmponent},
+      {path: 'cart', component: CartComponent},
       {
         path: 'furniture',
         component: CategoryProductsComponent,

@@ -1,0 +1,106 @@
+<div class="checkout-page">
+  <div class="checkout-header">
+    <h1 class="page-title">Checkout</h1>
+    <div class="stepper-buttons">
+  <button class="btn-step active">
+    <i class="bi bi-truck"></i> Shipping
+  </button>
+
+  <div class="step-line"></div>
+
+  <button class="btn-step inactive">
+    <i class="bi bi-credit-card"></i> Payment
+  </button>
+</div>
+  </div>
+
+  <div class="checkout-container">
+    <div class="shipping-section card">
+      <h2 class="card-title">Shipping Address</h2>
+      <div class="form-grid">
+        <div class="row split-row">
+          <input type="text" [value]="checkoutForm().firstName" (input)="updateFirstName($event)"
+            placeholder="First Name" class="styled-input">
+          <input type="text" [value]="checkoutForm().lastName" (input)="updateLastName($event)" placeholder="Last Name"
+            class="styled-input">
+        </div>
+
+        <input type="email" [value]="checkoutForm().email" readonly class="styled-input locked">
+
+        <input type="text" placeholder="Address" class="styled-input" [value]="checkoutForm().address"
+          (input)="updateField('address', $event)">
+
+        <div class="row triple-split">
+          <input type="text" placeholder="City" class="styled-input" (input)="updateField('city', $event)">
+          <input type="text" [value]="checkoutForm().state" placeholder="State" class="styled-input"
+            (input)="updateField('state', $event)">
+          <input type="text" placeholder="ZIP" class="styled-input" (input)="updateField('postalCode', $event)">
+        </div>
+
+        <input type="text" placeholder="Phone Number" class="styled-input" (input)="updateField('phoneNumber', $event)">
+
+        <button class="main-action-btn" (click)="confirmOrder()">
+          Continue to Payment
+        </button>
+      </div>
+    </div>
+
+    <div class="summary-section card">
+      <h2 class="card-title">Summary</h2>
+
+      <div class="items-list">
+        @for (item of summary()?.items; track item.id) {
+        <div class="summary-item">
+          <div class="item-thumb">
+            <img [src]="item.imageUrl || 'assets/default.png'" alt="product">
+          </div>
+          <div class="item-details">
+            <span class="p-name">{{item.productName}}</span>
+            <span class="p-qty">Qty: {{item.quantity}}</span>
+          </div>
+          <span class="p-price-black">{{item.price * item.quantity | currency}}</span>
+        </div>
+        }
+      </div>
+
+      <div class="summary-divider"></div>
+
+      <div class="summary-costs">
+        <div class="cost-line">
+          <span>Subtotal</span>
+          <span class="bold-value-black">{{ summary()?.subTotal | currency }}</span>
+        </div>
+
+        @if (summary()?.discountAmount! > 0) {
+        <div class="cost-line promo-row">
+          <span>Discount ({{ summary()?.appliedPromoCode }})</span>
+          <span class="discount-val">-{{ summary()?.discountAmount | currency }}</span>
+        </div>
+        }
+
+        <div class="cost-line">
+          <span>Tax ({{ (summary()?.taxRate! * 100) }}%)</span>
+          <span class="bold-value-black">{{ summary()?.taxAmount | currency }}</span>
+        </div>
+
+        <div class="cost-line">
+          <span>Shipping</span>
+          <span class="free-badge">{{ summary()?.shippingCost === 0 ? 'Free' : (summary()?.shippingCost | currency)
+            }}</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="cost-line total-line">
+          <strong>Total</strong>
+          <strong class="grand-total-black">{{ summary()?.total | currency }}</strong>
+        </div>
+      </div>
+      <div class="summary-divider"></div>
+
+      <button class="checkout-action-btn" (click)="placeOrder()">
+        <i class="bi bi-shield-check"></i> Complete Checkout
+      </button>
+    </div>
+  </div>
+</div>

@@ -3,6 +3,8 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
+import { CartService } from '../../../core/services/cart-service';
+import { AddToCartResquest } from '../../../core/models/cart';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -16,6 +18,7 @@ type LoadState = 'loading' | 'loaded' | 'error';
 export class ProductDetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly productsService = inject(ProductsService);
+  private readonly cartService = inject(CartService)
 
   readonly state = signal<LoadState>('loading');
   readonly product = signal<Product | null>(null);
@@ -43,5 +46,24 @@ export class ProductDetailsComponent {
     if (!img) return;
     img.src = this.placeholder;
   }
+  onAddToCart(product: Product)
+    {
+      const request: AddToCartResquest = {
+        productId: product.id,
+        quantity: 1
+    };
+  
+     this.cartService.addItem(request).subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+        
+          this.cartService.cartCount.update(count => count + 1);
+          alert(res.message);
+          console.log("Product"+this.product.name);
+        }
+      },
+      error: (err) => console.error('Error adding to cart', err)
+    });
+    }
 }
 
