@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --primary-brown: #8b5e3c;
+  --bg-cream: #f4eee8;
+  --text-dark: #1a1a1a; /* أسود صريح */
+}
+
+.checkout-page {
+  background-color: var(--bg-cream);
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--text-dark);
+}
+
+/* Stepper Styling */
+.stepper-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.btn-step {
+  padding: 10px 25px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  pointer-events: auto !important;
+}
+
+.btn-step.active { background: #8b5e3c !important; color: white; }
+.btn-step.inactive { background: #e2d9d0; color: #777; cursor: pointer; }
+
+.step-line { width: 50px; height: 2px; background: #dcd4cc; }
+
+/* Layout Grid */
+.checkout-container {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 30px;
+  max-width: 1150px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 20px;
+  border: 1px solid #e2d9d0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+}
+
+.card-title { margin-bottom: 25px; font-size: 1.4rem; font-weight: 600; }
+
+/* Inputs Styling */
+.styled-input {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #e2d9d0;
+  border-radius: 12px;
+  background: #fdfaf7;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  color: var(--text-dark);
+}
+
+.styled-input.locked {
+  background-color: #f8f9fa !important; /* رمادي فاتح جداً */
+  border-color: #dee2e6 !important;
+  color: #6c757d !important;
+  cursor: not-allowed;
+  font-style: italic;
+}
+.summary-section {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+}
+.checkout-action-btn {
+  background:#8b5e3c; /* لون أخضر للـ Checkout */
+  color: white;
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+}
+
+.checkout-action-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+.row { display: flex; gap: 15px; }
+.split-row > *, .triple-split > * { flex: 1; }
+
+.main-action-btn {
+  background: #8b5e3c;
+  color: white;
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.2s;
+}
+
+.main-action-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+/* Summary List Styling */
+.summary-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.item-thumb img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
+.item-details { flex-grow: 1; }
+.p-name { display: block; font-weight: 500; font-size: 0.95rem; }
+.p-qty { font-size: 0.85rem; color: #777; }
+
+/* الحل النهائي لمشكلة الأرقام المختفية */
+.p-price-black, .bold-value-black, .grand-total-black {
+  color: #000000 !important; 
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+.summary-costs { margin-top: 20px; }
+.cost-line { display: flex; justify-content: space-between; padding: 8px 0; color: #444; font-size: 1rem; }
+
+.promo-row { color: #28a745 !important; font-weight: 600; }
+.discount-val { color: #d9534f; }
+.free-badge { color: #28a745; font-weight: 700; }
+
+.summary-divider { height: 1px; background: #eee; margin: 15px 0; }
+
+.total-line {
+  border-top: 2px solid var(--primary-brown);
+  padding-top: 15px;
+  margin-top: 10px;
+}
+
+.grand-total-black { font-size: 1.6rem !important; }
+
+/* Responsive */
+@media (max-width: 992px) {
+  .checkout-container { grid-template-columns: 1fr; }
+}

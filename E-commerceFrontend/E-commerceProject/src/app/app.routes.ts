@@ -8,6 +8,8 @@ import { HomeComponent } from './features/home/home.component';
 import { ProductsComponent } from './features/products/products.component';
 import { CategoryProductsComponent } from './features/products/category-products/category-products.component';
 import { ProductDetailsComponent } from './features/products/product-details/product-details.component';
+import {CartComponent} from './features/cart-component/cart-component'
+import { CheckoutCpmponent } from './features/checkout-cpmponent/checkout-cpmponent';
 import { ProfileComponent } from './features/profile/profile.component';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
 import { DashboardComponent } from './features/admin/dashboard/dashboard.component';
@@ -24,6 +26,8 @@ export const routes: Routes = [
       { path: 'confirm-email', component: ConfirmEmailComponent },
       { path: 'home', component: HomeComponent },
       { path: 'shop', component: ProductsComponent },
+      {path:'checkout', component:CheckoutCpmponent},
+      {path: 'cart', component: CartComponent},
       {
         path: 'furniture',
         component: CategoryProductsComponent,

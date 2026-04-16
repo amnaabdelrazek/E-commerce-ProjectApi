@@ -20,9 +20,9 @@
       <button
         type="button"
         class="btn btn--secondary pcard__btn"
-        (click)="onAddToCart($event)"
-      >
-        Add
+        (click)="$event.stopPropagation(); onAddToCart(product)"
+        [disabled]="product.stockQuantity === 0">
+        Add To Cart
       </button>
     </div>
   </div>

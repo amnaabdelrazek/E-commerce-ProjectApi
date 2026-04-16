@@ -24,12 +24,17 @@
           />
         </svg>
       </button>
-      <button type="button" class="icon-btn" aria-label="Cart">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
+<button type="button" class="icon-btn cart-btn" aria-label="Cart" routerLink="/cart">
+         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M7 6h14l-1.6 8.1a2 2 0 0 1-2 1.6H9a2 2 0 0 1-2-1.6L5 3H2a1 1 0 1 1 0-2h3a1 1 0 0 1 1 .8L7 6Zm2.2 9.7h8.2a.5.5 0 0 0 .5-.4L19 8H7.4l1.3 7.3a.5.5 0 0 0 .5.4ZM9 22a2 2 0 1 1 0-4a2 2 0 0 1 0 4Zm8 0a2 2 0 1 1 0-4a2 2 0 0 1 0 4Z"
           />
         </svg>
+  <span class="cart-badge" *ngIf="cartService.cartCount() > 0">
+    {{ cartService.cartCount() }}
+  </span>
+</button>
+      <a class="icon-btn" routerLink="/login" aria-label="Account">
       </button>
       <a class="icon-btn" routerLink="/profile" aria-label="Account">
         <svg viewBox="0 0 24 24" aria-hidden="true">
