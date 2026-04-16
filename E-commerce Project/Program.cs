@@ -139,11 +139,16 @@ namespace E_commerce_Project
                 app.UseSwaggerUI();
             }
 
-            app.UseCors("AllowAll");
-            app.UseStaticFiles();
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAll"); // 👈 لازم تيجي هنا
+
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseStaticFiles();
+
+            app.MapControllers();
 
             app.MapControllers();
 

@@ -13,6 +13,9 @@ namespace E_commerce_Project.DTOs
         public string Email { get; set; }
 
         [Required]
+        public string Role { get; set; }
+
+        [Required]
         [MinLength(6)]
         public string Password { get; set; }
     }
