@@ -1,0 +1,77 @@
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <aside [class.sidebar-open]="sidebarOpen" class="sidebar">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Admin Panel</h2>
+      <button title="Toggle Sidebar" class="sidebar-toggle-mobile" (click)="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/products" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">📦</span>
+            <span class="nav-text">Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/categories" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">🏷️</span>
+            <span class="nav-text">Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/orders" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">📋</span>
+            <span class="nav-text">Orders</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/users" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">👥</span>
+            <span class="nav-text">Users</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+        <span class="user-name">{{ userName }}</span>
+      </div>
+      <button (click)="logout()" class="btn btn-logout">Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="main-header">
+      <button title="Toggle Sidebar" class="toggle-sidebar-btn" (click)="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <h1 class="page-title">Admin Dashboard</h1>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="main-body">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div *ngIf="sidebarOpen" class="sidebar-overlay" (click)="toggleSidebar()">
+  </div>
+</div>
