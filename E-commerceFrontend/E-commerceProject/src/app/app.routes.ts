@@ -8,7 +8,12 @@ import { HomeComponent } from './features/home/home.component';
 import { ProductsComponent } from './features/products/products.component';
 import { CategoryProductsComponent } from './features/products/category-products/category-products.component';
 import { ProductDetailsComponent } from './features/products/product-details/product-details.component';
+import {CartComponent} from './features/cart-component/cart-component'
+import { CheckoutCpmponent } from './features/checkout-cpmponent/checkout-cpmponent';
 import { ProfileComponent } from './features/profile/profile.component';
+import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
+import { DashboardComponent } from './features/admin/dashboard/dashboard.component';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -21,6 +26,8 @@ export const routes: Routes = [
       { path: 'confirm-email', component: ConfirmEmailComponent },
       { path: 'home', component: HomeComponent },
       { path: 'shop', component: ProductsComponent },
+      {path:'checkout', component:CheckoutCpmponent},
+      {path: 'cart', component: CartComponent},
       {
         path: 'furniture',
         component: CategoryProductsComponent,
@@ -37,6 +44,19 @@ export const routes: Routes = [
       { path: 'forgot-password', component: PlaceholderComponent, data: { title: 'Forgot Password' } },
       { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
       { path: 'wishlist', component: PlaceholderComponent, data: { title: 'Wishlist' } }
+    ]
+  },
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'products', component: PlaceholderComponent, data: { title: 'Products' } },
+      { path: 'categories', component: PlaceholderComponent, data: { title: 'Categories' } },
+      { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
+      { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } }
     ]
   },
   { path: '**', redirectTo: 'login' }

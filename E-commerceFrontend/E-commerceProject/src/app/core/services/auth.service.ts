@@ -6,6 +6,14 @@ import { ConfirmEmailApiResponse } from '../models/confirm-email.model';
 import { RegisterApiResponse, RegisterRequest } from '../models/register.model';
 import { API_BASE_URL } from '../tokens/api-base-url.token';
 import { TokenStorageService } from './token-storage.service';
+import { jwtDecode } from 'jwt-decode';
+
+export interface CurrentUser {
+  id: string;
+  email: string;
+  userName?: string;
+  role: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -41,6 +49,35 @@ export class AuthService {
     this.tokenStorage.clearToken();
   }
 
+  getCurrentUser(): CurrentUser | null {
+    const token = this.tokenStorage.getToken();
+    if (!token) return null;
+
+    try {
+      const decoded = this.decodeToken(token);
+      return {
+        id: decoded['sub'] || decoded['id'] || '',
+        email: decoded['email'] || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || '',
+        userName: decoded['name'] || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || '',
+        role: decoded['role'] || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || ''
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private decodeToken(token: string): any {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) throw new Error('Invalid token format');
+
+      const decoded = JSON.parse(atob(parts[1]));
+      return decoded;
+    } catch {
+      throw new Error('Failed to decode token');
+    }
+  }
+
   private extractToken(res: LoginResponse | LoginApiResponse): string | undefined {
     if (typeof res === 'string') return res;
     if (!res || typeof res !== 'object') return undefined;
@@ -61,4 +98,27 @@ export class AuthService {
 
     return undefined;
   }
+
+  // getUserFromToken(){
+  //   const token = this.tokenStorage.getToken();
+  //   if(!token)
+  //     return null;
+
+  //   try{
+  //     const decoded: any = jwtDecode(token);
+
+  //     return {
+  //     email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || decoded.email,
+  //     fullName: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.fullName || 'User',
+  //   };
+  // }catch (error) {
+  //   console.error('Error decoding token', error);
+  //   return null;
+  // }
+  // }
+
+  getProfile(){
+    return this.http.get<any>(`${this.apiBaseUrl}/api/Users/profile`)
+  }
 }
+

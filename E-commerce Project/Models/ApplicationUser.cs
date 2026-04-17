@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace E_commerce_Project.Models
 {
@@ -9,6 +9,10 @@ namespace E_commerce_Project.Models
         public string? City { get; set; }
         public string? Street { get; set; }
         public string? PaymentCustomerId { get; set; }
+
+        // soft delete (admin).
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
 
         public virtual Cart? Cart { get; set; } 
         public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();

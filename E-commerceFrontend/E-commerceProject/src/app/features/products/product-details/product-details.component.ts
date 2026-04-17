@@ -3,6 +3,8 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
+import { CartService } from '../../../core/services/cart-service';
+import { AddToCartResquest } from '../../../core/models/cart';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 
 type LoadState = 'loading' | 'loaded' | 'error';
@@ -18,6 +20,7 @@ export class ProductDetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
+  private readonly cartService = inject(CartService)
   private readonly tokenStorage = inject(TokenStorageService);
 
   readonly state = signal<LoadState>('loading');
@@ -46,14 +49,29 @@ export class ProductDetailsComponent {
     if (!img) return;
     img.src = this.placeholder;
   }
-
-  onAddToCart() {
-    const token = this.tokenStorage.getToken();
+  onAddToCart(product: Product)
+    {
+       const token = this.tokenStorage.getToken();
     if (!token) {
       void this.router.navigate(['/login']);
       return;
     }
-    // TODO: integrate add-to-cart API when available.
-  }
+      const request: AddToCartResquest = {
+        productId: product.id,
+        quantity: 1
+    };
+  
+     this.cartService.addItem(request).subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+        
+          this.cartService.cartCount.update(count => count + 1);
+          alert(res.message);
+          console.log("Product"+this.product.name);
+        }
+      },
+      error: (err) => console.error('Error adding to cart', err)
+    });
+    }
 }
 
