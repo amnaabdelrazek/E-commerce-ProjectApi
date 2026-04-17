@@ -1,16 +1,49 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CartService } from '../../../core/services/cart-service';
 import { CommonModule } from '@angular/common';
+import { CategoriesService } from '../../../core/services/categories.service';
+import { Category } from '../../../core/models/category.model';
+import { FormsModule } from '@angular/forms';
+
+type CategoriesState = 'loading' | 'loaded' | 'error';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive,CommonModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule, FormsModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   public readonly cartService = inject(CartService);
+  private readonly router = inject(Router);
+  private readonly categoriesService = inject(CategoriesService);
+
+  public readonly categories = signal<Category[]>([]);
+  public readonly categoriesState = signal<CategoriesState>('loading');
+  public searchTerm = '';
+
+  public ngOnInit(): void {
+    this.categoriesService.getCategories().subscribe({
+      next: (res) => {
+        this.categories.set(res?.data?.data ?? []);
+        this.categoriesState.set('loaded');
+      },
+      error: () => {
+        this.categoriesState.set('error');
+      }
+    });
+  }
+
+  public submitSearch(): void {
+    const term = this.searchTerm.trim();
+    void this.router.navigate(['/shop'], {
+      queryParams: {
+        name: term || null,
+        categoryId: null
+      }
+    });
+  }
 }
 

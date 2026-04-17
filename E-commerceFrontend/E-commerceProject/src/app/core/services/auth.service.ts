@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
 import { LoginApiResponse, LoginRequest, LoginResponse } from '../models/login.model';
 import { ConfirmEmailApiResponse } from '../models/confirm-email.model';
 import { RegisterApiResponse, RegisterRequest } from '../models/register.model';
 import { API_BASE_URL } from '../tokens/api-base-url.token';
 import { TokenStorageService } from './token-storage.service';
-import { jwtDecode } from 'jwt-decode';
 
 export interface CurrentUser {
   id: string;
@@ -20,6 +19,11 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly tokenStorage = inject(TokenStorageService);
+  readonly currentUser = signal<CurrentUser | null>(null);
+
+  constructor() {
+    this.currentUser.set(this.readCurrentUserFromToken());
+  }
 
   login(dto: LoginRequest, rememberMe: boolean) {
     return this.http
@@ -30,6 +34,7 @@ export class AuthService {
 
           if (token && typeof token === 'string') {
             this.tokenStorage.setToken(token, rememberMe);
+            this.currentUser.set(this.readCurrentUserFromToken());
           }
         })
       );
@@ -47,9 +52,14 @@ export class AuthService {
 
   logout(): void {
     this.tokenStorage.clearToken();
+    this.currentUser.set(null);
   }
 
   getCurrentUser(): CurrentUser | null {
+    return this.currentUser();
+  }
+
+  private readCurrentUserFromToken(): CurrentUser | null {
     const token = this.tokenStorage.getToken();
     if (!token) return null;
 

@@ -5,7 +5,6 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { AddToCartResquest, Cart } from '../models/cart';
-import { CartComponent } from '../../features/cart-component/cart-component';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +31,8 @@ getCartCount(): void {
       if (res.isSuccess) {
         this.cartCount.set(res.data); 
       }
-    }
+    },
+    error: () => this.cartCount.set(0)
   });
 }
 

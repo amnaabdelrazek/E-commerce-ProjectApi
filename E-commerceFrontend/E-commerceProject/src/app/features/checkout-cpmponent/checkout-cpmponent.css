@@ -21,6 +21,26 @@
   color: var(--text-dark);
 }
 
+.checkout-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: 0 auto 18px;
+  max-width: 1150px;
+}
+
+.checkout-links a {
+  color: var(--primary-brown);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.checkout-links a:hover {
+  text-decoration: underline;
+}
+
 /* Stepper Styling */
 .stepper-buttons {
   display: flex;
@@ -163,4 +183,45 @@
 /* Responsive */
 @media (max-width: 992px) {
   .checkout-container { grid-template-columns: 1fr; }
+  .card { padding: 24px; }
+}
+
+@media (max-width: 640px) {
+  .checkout-page {
+    padding: 28px 14px 44px;
+  }
+
+  .page-title {
+    font-size: 2.1rem;
+    margin-bottom: 20px;
+  }
+
+  .stepper-buttons,
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .step-line {
+    width: 100%;
+  }
+
+  .btn-step {
+    justify-content: center;
+  }
+
+  .card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .styled-input,
+  .main-action-btn,
+  .checkout-action-btn {
+    font-size: 0.95rem;
+  }
+
+  .summary-item {
+    align-items: flex-start;
+  }
 }

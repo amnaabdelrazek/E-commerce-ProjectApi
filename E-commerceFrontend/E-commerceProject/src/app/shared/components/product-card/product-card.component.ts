@@ -1,13 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Product } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart-service';
 import { AddToCartResquest } from '../../../core/models/cart';
-import { Component, Input, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-product-card',
@@ -19,6 +17,7 @@ import { TokenStorageService } from '../../../core/services/token-storage.servic
 export class ProductCardComponent {
   private readonly router = inject(Router);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly notification = inject(NotificationService);
 
   @Input({ required: true }) product!: Product;
   private readonly cartService = inject(CartService)
@@ -33,9 +32,9 @@ export class ProductCardComponent {
 
   onAddToCart(product: Product)
   {
-    
     const token = this.tokenStorage.getToken();
     if (!token) {
+      this.notification.info('Please sign in first to add products to your cart.');
       void this.router.navigate(['/login']);
       return;
     }
@@ -47,13 +46,11 @@ export class ProductCardComponent {
    this.cartService.addItem(request).subscribe({
     next: (res) => {
       if (res.isSuccess) {
-      
-        this.cartService.cartCount.update(count => count + 1);
-        alert(res.message);
-        console.log("Product"+this.product.name);
+        this.cartService.getCartCount();
+        this.notification.success(res.message || `${product.name} added to cart.`);
       }
     },
-    error: (err) => console.error('Error adding to cart', err)
+    error: () => this.notification.error('Could not add this product to the cart.')
   });
   }
 }

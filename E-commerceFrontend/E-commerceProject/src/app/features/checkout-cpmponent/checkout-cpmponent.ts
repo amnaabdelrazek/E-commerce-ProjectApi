@@ -4,19 +4,22 @@ import { AuthService } from '../../core/services/auth.service';
 import { OrderService } from './../../core/services/order-service';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-checkout-cpmponent',
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, RouterLink],
   templateUrl: './checkout-cpmponent.html',
   styleUrl: './checkout-cpmponent.css',
 })
 export class CheckoutCpmponent implements OnInit{
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private OrderService = inject(OrderService);
   private authService = inject(AuthService);
   private cartService = inject(CartService)
+  private notification = inject(NotificationService);
   summary = signal<OrderSummary | null>(null);
   checkoutForm = signal<CheckoutRequest>({
   email: '', firstName: '', lastName: '', address: '',
@@ -63,6 +66,7 @@ loadSummary() {
     },
     error: (err) => {
       console.error('Error fetching summary:', err);
+      this.notification.error('Could not load checkout summary.');
     }
   });
 }
@@ -75,15 +79,7 @@ updateField(field: keyof CheckoutRequest, event: Event) {
   }
 
   confirmOrder() {
-    this.OrderService.placeOrder(this.checkoutForm()).subscribe({
-      next: (res) => {
-        if (res.isSuccess) {
-          alert('Order Placed Successfully!');
-          
-        }
-      },
-      error: (err) => console.error('Order failed', err)
-    });
+    this.notification.info('Review your details, then use Complete Checkout to place the order.');
   }
 
 updateFirstName(event: any) {
@@ -96,19 +92,19 @@ updateLastName(event: any) {
 
   placeOrder() {
   if (!this.checkoutForm().address || !this.checkoutForm().phoneNumber) {
-    alert('Please fill in your shipping details');
+    this.notification.error('Please fill in your shipping details.');
     return;
   }
 
   this.OrderService.placeOrder(this.checkoutForm()).subscribe({
     next: (res) => {
       if (res.isSuccess) {
-        alert('Order placed successfully!');
+        this.notification.success('Order placed successfully!');
         this.cartService.clearCart();
-        
+        void this.router.navigate(['/home']);
       }
     },
-    error: (err) => console.error('Checkout failed', err)
+    error: () => this.notification.error('Checkout failed. Please try again.')
   });
 }
 }
