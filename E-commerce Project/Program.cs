@@ -44,7 +44,7 @@ namespace E_commerce_Project
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
+            builder.Services.AddScoped<IPayPalService, PayPalService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
 
             // ================= JWT Authentication =================
@@ -116,6 +116,8 @@ namespace E_commerce_Project
                         .AllowAnyHeader();
                 });
             });
+            builder.Services.Configure<PayPalSettings>(
+            builder.Configuration.GetSection("PayPal"));
 
             var app = builder.Build();
 
