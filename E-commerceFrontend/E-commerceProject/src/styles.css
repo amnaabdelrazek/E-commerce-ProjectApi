@@ -1,33 +1,27 @@
 :root {
-  --app-bg: #f6f1ea;
-  --app-surface: #fbf7f1;
+  --app-bg: #f5efe7;
+  --app-surface: #fbf8f3;
   --app-surface-2: #ffffff;
-
-  --app-text: #2b2118;
-  --app-muted: #7a6b5f;
-  --app-border: color-mix(in srgb, var(--app-text) 12%, transparent);
-
-  --app-accent: #6f4127;
-  --app-accent-2: #a26a3f;
-
-  --app-success: #16a34a;
+  --app-surface-3: #efe5d7;
+  --app-text: #23170f;
+  --app-muted: #756456;
+  --app-border: color-mix(in srgb, var(--app-text) 10%, transparent);
+  --app-accent: #8a5634;
+  --app-accent-2: #d1a16c;
+  --app-success: #1f8f55;
   --app-danger: #b42318;
-
-  --app-dark: #3b2a22;
-  --app-dark-text: #f5efe8;
-
-  --app-radius-sm: 10px;
-  --app-radius-md: 14px;
-
-  --app-shadow-sm: 0 10px 24px rgba(19, 12, 6, 0.08);
-  --app-shadow-md: 0 18px 52px rgba(19, 12, 6, 0.12);
-
+  --app-dark: #241813;
+  --app-dark-text: #f6efe8;
+  --app-radius-sm: 12px;
+  --app-radius-md: 22px;
+  --app-radius-lg: 32px;
+  --app-shadow-sm: 0 14px 32px rgba(36, 24, 19, 0.08);
+  --app-shadow-md: 0 24px 64px rgba(36, 24, 19, 0.12);
   --app-nav-height: 72px;
   --app-footer-min: 240px;
-  --app-container: 1100px;
-
-  --app-focus: 0 0 0 4px color-mix(in srgb, var(--app-accent) 22%, transparent);
-  --app-transition: 160ms ease;
+  --app-container: 1180px;
+  --app-focus: 0 0 0 4px color-mix(in srgb, var(--app-accent) 20%, transparent);
+  --app-transition: 180ms ease;
 }
 
 * {
@@ -42,12 +36,11 @@ body {
 body {
   margin: 0;
   color: var(--app-text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-    'Apple Color Emoji', 'Segoe UI Emoji';
+  font-family: 'Segoe UI', ui-sans-serif, system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   background:
-    radial-gradient(1200px 800px at 10% -10%, rgba(162, 106, 63, 0.12), transparent 55%),
-    radial-gradient(900px 700px at 90% 0%, rgba(111, 65, 39, 0.1), transparent 55%),
+    radial-gradient(1200px 800px at 0% 0%, rgba(209, 161, 108, 0.18), transparent 50%),
+    radial-gradient(900px 700px at 100% 0%, rgba(138, 86, 52, 0.12), transparent 45%),
     var(--app-bg);
 }
 
@@ -93,7 +86,7 @@ input {
 }
 
 .card {
-  background: color-mix(in srgb, var(--app-surface) 70%, white);
+  background: color-mix(in srgb, var(--app-surface) 72%, white);
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-md);
   box-shadow: var(--app-shadow-sm);
@@ -103,10 +96,10 @@ input {
   appearance: none;
   border: 1px solid transparent;
   border-radius: var(--app-radius-sm);
-  padding: 10px 12px;
+  padding: 11px 15px;
   font-weight: 800;
   font-size: 13px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.02em;
   cursor: pointer;
   text-decoration: none;
   transition:
@@ -127,7 +120,11 @@ input {
 }
 
 .btn--primary {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--app-accent) 92%, #000) 0%, var(--app-accent) 100%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--app-accent) 92%, #000),
+    color-mix(in srgb, var(--app-accent) 76%, var(--app-accent-2))
+  );
   color: white;
 }
 
@@ -151,7 +148,7 @@ input {
   width: 100%;
   border-radius: var(--app-radius-sm);
   border: 1px solid var(--app-border);
-  padding: 10px 12px;
+  padding: 12px 14px;
   outline: none;
   background: var(--app-surface-2);
   font-size: 13px;
@@ -167,4 +164,12 @@ input {
 
 .muted {
   color: var(--app-muted);
+}
+
+h1,
+h2,
+h3,
+.display-serif {
+  font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  letter-spacing: -0.02em;
 }

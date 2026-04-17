@@ -24,4 +24,14 @@
   margin: 0;
   color: var(--app-muted);
   font-size: 13px;
+  max-width: 52ch;
+  margin-inline: auto;
+}
+
+.placeholder__actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }

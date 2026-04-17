@@ -17,6 +17,10 @@
   <div class="checkout-container">
     <div class="shipping-section card">
       <h2 class="card-title">Shipping Address</h2>
+      <div class="checkout-links">
+        <a routerLink="/cart">Back to cart</a>
+        <a routerLink="/profile">Profile</a>
+      </div>
       <div class="form-grid">
         <div class="row split-row">
           <input type="text" [value]="checkoutForm().firstName" (input)="updateFirstName($event)"
@@ -39,7 +43,7 @@
 
         <input type="text" placeholder="Phone Number" class="styled-input" (input)="updateField('phoneNumber', $event)">
 
-        <button class="main-action-btn" (click)="confirmOrder()">
+        <button class="main-action-btn" type="button" (click)="confirmOrder()">
           Continue to Payment
         </button>
       </div>

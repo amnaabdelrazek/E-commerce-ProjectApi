@@ -38,12 +38,49 @@ export const routes: Routes = [
         component: CategoryProductsComponent,
         data: { title: 'Decor', categoryName: 'Decor' }
       },
-      { path: 'lighting', component: PlaceholderComponent, data: { title: 'Lighting' } },
+      {
+        path: 'lighting',
+        component: CategoryProductsComponent,
+        data: { title: 'Lighting', categoryName: 'Lighting' }
+      },
       { path: 'products/:id', component: ProductDetailsComponent },
       { path: 'profile', component: ProfileComponent },
-      { path: 'forgot-password', component: PlaceholderComponent, data: { title: 'Forgot Password' } },
-      { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
-      { path: 'wishlist', component: PlaceholderComponent, data: { title: 'Wishlist' } }
+      {
+        path: 'forgot-password',
+        component: PlaceholderComponent,
+        data: {
+          title: 'Forgot Password',
+          description: 'Password reset flow is not connected yet, but you can still sign in, register, or return to shopping.',
+          primaryLabel: 'Back to Login',
+          primaryLink: '/login',
+          secondaryLabel: 'Create Account',
+          secondaryLink: '/register'
+        }
+      },
+      {
+        path: 'orders',
+        component: PlaceholderComponent,
+        data: {
+          title: 'Orders',
+          description: 'Your order history endpoint is not connected yet. You can continue shopping or review your profile information.',
+          primaryLabel: 'Go to Shop',
+          primaryLink: '/shop',
+          secondaryLabel: 'Open Profile',
+          secondaryLink: '/profile'
+        }
+      },
+      {
+        path: 'wishlist',
+        component: PlaceholderComponent,
+        data: {
+          title: 'Wishlist',
+          description: 'Wishlist data is not available yet. Browse products and save your favorite picks manually for now.',
+          primaryLabel: 'Browse Products',
+          primaryLink: '/shop',
+          secondaryLabel: 'Back Home',
+          secondaryLink: '/home'
+        }
+      }
     ]
   },
   {

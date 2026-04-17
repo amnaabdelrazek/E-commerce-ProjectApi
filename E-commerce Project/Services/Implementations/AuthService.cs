@@ -36,7 +36,13 @@ namespace E_commerce_Project.Services.Implementations
                 return GeneralResponse<object>.Fail($"Registration failed: {errors}");
             }
 
-            await _userManager.AddToRoleAsync(user, "Customer");
+            var allowedRoles = new[] { "Customer", "Seller" };
+
+            if (!allowedRoles.Contains(dto.Role))
+                return GeneralResponse<object>.Fail("Invalid role");
+
+            // Assign Role
+            await _userManager.AddToRoleAsync(user, dto.Role);
 
             // Email Confirmation Token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);

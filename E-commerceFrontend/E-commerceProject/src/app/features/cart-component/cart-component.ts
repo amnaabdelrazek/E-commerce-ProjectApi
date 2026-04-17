@@ -3,6 +3,7 @@ import { Cart, PromoCodeRequest } from '../../core/models/cart';
 import { CartService } from '../../core/services/cart-service';
 import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { NotificationService } from '../../core/services/notification.service';
 @Component({
   selector: 'app-cart-component',
   imports: [CurrencyPipe, RouterLink],
@@ -12,6 +13,7 @@ import { Router, RouterLink } from '@angular/router';
 export class CartComponent {
   constructor(private router: Router, private sendcartService: CartService) {}
   private readonly cartService = inject(CartService);
+  private readonly notification = inject(NotificationService);
   cartData = signal<Cart | null>(null);
   isLoading = signal(true);
   promoCode = signal('');
@@ -42,6 +44,7 @@ export class CartComponent {
       },
       error: (err) => {
         console.error(err);
+        this.notification.error('Could not load your cart right now.');
         this.isLoading.set(false); 
       }
     })
@@ -51,16 +54,12 @@ removeItem(productId: number) {
   this.cartService.removeCartItem(productId).subscribe({
     next: (res) => {
       if (res.isSuccess) {
-       
         this.loadCart();
-        
-       
-        this.cartService.cartCount.update(count => Math.max(0, count - 1));
-        
-        console.log('Deleted');
+        this.cartService.getCartCount();
+        this.notification.success(res.message || 'Item removed from your cart.');
       }
     },
-    error: (err) => console.error('error in deleting', err)
+    error: () => this.notification.error('Could not remove this item.')
   });
 }
 
@@ -85,17 +84,18 @@ if (!code) return;
           const discount = res.data.discountAmount;
           this.discountedTotal.set(currentSubtotal - discount);
           this.promoError.set(null);
-          console.log('Discount Applied:', discount);
-          //this.loadCart(); 
+          this.notification.success('Promo code applied successfully.');
         } else {
           this.promoError.set(res.message);
           this.discountedTotal.set(null);
+          this.notification.error(res.message || 'Promo code is invalid.');
         }
       },
       error: () => {
       this.isApplyingPromo.set(false);
       this.promoError.set('Invalid promo code');
       this.discountedTotal.set(null);
+      this.notification.error('Invalid promo code.');
     }
   })
 } 
@@ -111,6 +111,10 @@ onCheckout(): void{
 }
 
 goToCheckout() {
+    if (!this.cartData()?.items?.length) {
+      this.notification.info('Your cart is empty.');
+      return;
+    }
    
     const appliedPromo = this.promoCode().trim();
 

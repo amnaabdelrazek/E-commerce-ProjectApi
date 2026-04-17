@@ -165,13 +165,17 @@ namespace E_commerce_Project
                     app.UseSwaggerUI();
                 }
 
-                app.UseCors("AllowAll");
-                app.UseStaticFiles();
-                app.UseHttpsRedirection();
-                app.UseAuthentication();
-                app.UseAuthorization();
+            app.UseCors("AllowAll"); // 👈 لازم تيجي هنا
+            app.UseHttpsRedirection();
 
-                app.MapControllers();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseStaticFiles();
+
+
+            app.MapControllers();
 
                 app.Run();
             }

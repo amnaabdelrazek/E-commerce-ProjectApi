@@ -12,7 +12,10 @@
   </div>
 
   <div class="pcard__body">
-    <div class="pcard__meta">{{ product.categoryName }}</div>
+    <div class="pcard__meta-row">
+      <div class="pcard__meta">{{ product.categoryName }}</div>
+      <div class="pcard__stock">{{ product.stockQuantity }} left</div>
+    </div>
     <div class="pcard__title" [title]="product.name">{{ product.name }}</div>
     <div class="pcard__desc" [title]="product.description">{{ product.description }}</div>
     <div class="pcard__row">

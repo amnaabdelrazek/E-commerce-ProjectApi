@@ -6,6 +6,7 @@ import { Product } from '../../../core/models/product.model';
 import { CartService } from '../../../core/services/cart-service';
 import { AddToCartResquest } from '../../../core/models/cart';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -22,6 +23,7 @@ export class ProductDetailsComponent {
   private readonly productsService = inject(ProductsService);
   private readonly cartService = inject(CartService)
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly notification = inject(NotificationService);
 
   readonly state = signal<LoadState>('loading');
   readonly product = signal<Product | null>(null);
@@ -51,8 +53,9 @@ export class ProductDetailsComponent {
   }
   onAddToCart(product: Product)
     {
-       const token = this.tokenStorage.getToken();
+    const token = this.tokenStorage.getToken();
     if (!token) {
+      this.notification.info('Please sign in first to add products to your cart.');
       void this.router.navigate(['/login']);
       return;
     }
@@ -64,13 +67,11 @@ export class ProductDetailsComponent {
      this.cartService.addItem(request).subscribe({
       next: (res) => {
         if (res.isSuccess) {
-        
-          this.cartService.cartCount.update(count => count + 1);
-          alert(res.message);
-          console.log("Product"+this.product.name);
+          this.cartService.getCartCount();
+          this.notification.success(res.message || `${product.name} added to cart.`);
         }
       },
-      error: (err) => console.error('Error adding to cart', err)
+      error: () => this.notification.error('Error adding this product to the cart.')
     });
     }
 }
