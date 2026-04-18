@@ -117,37 +117,49 @@ namespace E_commerce_Project.Services.Implementations
         //new
         public async Task<GeneralResponse<object>> RegisterSellerAsync(RegisterSellerDto dto)
         {
-            var user = new ApplicationUser
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
             {
-                UserName = dto.Email,
-                Email = dto.Email,
-                FullName = dto.FullName
-            };
+                var user = new ApplicationUser
+                {
+                    UserName = dto.Email,
+                    Email = dto.Email,
+                    FullName = dto.FullName
+                };
 
-            var result = await _userManager.CreateAsync(user, dto.Password);
-            if (!result.Succeeded)
-                return GeneralResponse<object>.Fail("Seller user creation failed.");
+                var result = await _userManager.CreateAsync(user, dto.Password);
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                    return GeneralResponse<object>.Fail(errors);
+                }
 
-            await _userManager.AddToRoleAsync(user, "Seller");
+                await _userManager.AddToRoleAsync(user, "Seller");
 
-            var seller = new Seller
+                var seller = new Seller
+                {
+                    UserId = user.Id,
+                    StoreName = dto.StoreName,
+                    StoreDescription = dto.StoreDescription  ?? "No description provided",
+                    BusinessAddress = dto.BusinessAddress ?? "No address provided",
+                    Balance = 0,
+                    IsApproved = true // Stays false until Admin approves
+                };
+
+                await _dbContext.Sellers.AddAsync(seller);
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                return GeneralResponse<object>.Success(new { UserId = user.Id, Token = token }, "Seller registered successfully.");
+            }
+            catch (Exception ex)
             {
-                UserId = user.Id,
-                StoreName = dto.StoreName,
-                IsApproved = false
-            };
-
-            await _dbContext.Sellers.AddAsync(seller);
-            await _dbContext.SaveChangesAsync();
-
-            // Optionally generate email confirmation token here like you did for generic users
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            return GeneralResponse<object>.Success(new
-            {
-                UserId = user.Id,
-                Token = token
-            }, "Seller registered successfully. Please complete profile setup.");
+                await transaction.RollbackAsync();
+                // This will show exactly which field or role is causing the crash
+                return GeneralResponse<object>.Fail($"Debug Error: {ex.Message} | Inner: {ex.InnerException?.Message}");
+            }
         }
     }
 }

@@ -6,5 +6,7 @@
         public string Email { get; set; }
         public string Password { get; set; }
         public string StoreName { get; set; }
+        public string BusinessAddress { get; set; }
+        public string StoreDescription { get; set; }
     }
 }
