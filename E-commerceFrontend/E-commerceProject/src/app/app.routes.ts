@@ -17,12 +17,16 @@ import { AdminProductsComponent } from './features/admin/products/admin-products
 import { AdminCategoriesComponent } from './features/admin/categories/admin-categories.component';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile.component';
 import { adminGuard } from './core/guards/admin.guard';
+import { PaymentSuccessComponent } from './features/Payment/success.component/success.component';
+import { CancelComponent } from './features/Payment/cancel.component/cancel.component';
+import { PaymentComponent } from './features/Payment/payment.component/payment.component';
 import { sellerGuard } from './core/guards/seller.guard';
 import { SellerModule } from './features/seller/seller.module';
 import { OrdersComponent } from './features/profile/orders/orders.component';
 import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
 import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
 import { ReviewsComponent } from './features/profile/reviews/reviews.component';
+
 
 
 export const routes: Routes = [
@@ -87,6 +91,11 @@ export const routes: Routes = [
       { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } }
     ]
   },
+
+  { path: 'success', component: PaymentSuccessComponent },
+  { path: 'cancel', component: CancelComponent },
+  { path: 'payment', component: PaymentComponent },
+
   {
     path: 'seller',
     canActivate: [sellerGuard],

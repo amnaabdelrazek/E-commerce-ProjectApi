@@ -13,64 +13,73 @@ import { NotificationService } from '../../core/services/notification.service';
   templateUrl: './checkout-cpmponent.html',
   styleUrl: './checkout-cpmponent.css',
 })
-export class CheckoutCpmponent implements OnInit{
+export class CheckoutCpmponent implements OnInit {
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private OrderService = inject(OrderService);
+  private orderService = inject(OrderService);
   private authService = inject(AuthService);
-  private cartService = inject(CartService)
+  private cartService = inject(CartService);
   private notification = inject(NotificationService);
+
   summary = signal<OrderSummary | null>(null);
+
   checkoutForm = signal<CheckoutRequest>({
-  email: '', firstName: '', lastName: '', address: '',
-  city: '', state: 'Confirmed', postalCode: '00000', country: 'Egypt',
-  phoneNumber: '', paymentMethod: 'PayPal', 
-  promoCode: '', sessionId: '', orderNotes: ''
-});
-
-ngOnInit(): void {
-  // 1. استلام البرومو من اللينك
-  const promoFromUrl = this.route.snapshot.queryParamMap.get('promo');
-  if (promoFromUrl) {
-    this.checkoutForm.update(prev => ({ ...prev, promoCode: promoFromUrl }));
-  }
-
- 
-this.authService.getProfile().subscribe({
-  next: (res) => {
-    if (res.isSuccess) {
-      this.checkoutForm.update(prev => ({
-        ...prev,
-        firstName: res.data.firstName || res.data.fullName?.split(' ')[0] || '',
-        lastName: res.data.lastName || res.data.fullName?.split(' ').slice(1).join(' ') || '',
-        email: res.data.email || ''
-      }));
-    }
-  }
-});
-
-  
-  this.loadSummary();
-}
-
-loadSummary() {
-  const cartId = 1; 
-  const promo = this.checkoutForm().promoCode || '';
-
-  
-  this.OrderService.getOrderSummary(cartId, promo).subscribe({
-    next: (res) => {
-      if (res.isSuccess) {
-        this.summary.set(res.data);
-      }
-    },
-    error: (err) => {
-      console.error('Error fetching summary:', err);
-      this.notification.error('Could not load checkout summary.');
-    }
+    email: '',
+    firstName: '',
+    lastName: '',
+    address: '',
+    city: '',
+    state: 'Confirmed',
+    postalCode: '00000',
+    country: 'Egypt',
+    phoneNumber: '',
+    paymentMethod: 'PayPal',
+    promoCode: '',
+    sessionId: '',
+    orderNotes: ''
   });
-}
-updateField(field: keyof CheckoutRequest, event: Event) {
+
+  ngOnInit(): void {
+
+    const promoFromUrl = this.route.snapshot.queryParamMap.get('promo');
+    if (promoFromUrl) {
+      this.checkoutForm.update(p => ({ ...p, promoCode: promoFromUrl }));
+    }
+
+    this.authService.getProfile().subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+          this.checkoutForm.update(prev => ({
+            ...prev,
+            firstName: res.data.firstName || res.data.fullName?.split(' ')[0] || '',
+            lastName: res.data.lastName || res.data.fullName?.split(' ').slice(1).join(' ') || '',
+            email: res.data.email || ''
+          }));
+        }
+      }
+    });
+
+    this.loadSummary();
+  }
+
+  loadSummary() {
+    const cartId = this.cartService.getCartId();
+    const promo = this.checkoutForm().promoCode || '';
+
+    this.orderService.getOrderSummary(cartId, promo).subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+          this.summary.set(res.data);
+        }
+      },
+      error: () => {
+        this.notification.error('Could not load checkout summary.');
+      }
+    });
+  }
+
+  updateField(field: keyof CheckoutRequest, event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.checkoutForm.update(prev => ({
       ...prev,
@@ -78,34 +87,57 @@ updateField(field: keyof CheckoutRequest, event: Event) {
     }));
   }
 
-  confirmOrder() {
-    this.notification.info('Review your details, then use Complete Checkout to place the order.');
+  updateFirstName(event: any) {
+    this.checkoutForm.update(p => ({ ...p, firstName: event.target.value }));
   }
 
-updateFirstName(event: any) {
-  this.checkoutForm.update(prev => ({ ...prev, firstName: event.target.value }));
-}
+  updateLastName(event: any) {
+    this.checkoutForm.update(p => ({ ...p, lastName: event.target.value }));
+  }
 
-updateLastName(event: any) {
-  this.checkoutForm.update(prev => ({ ...prev, lastName: event.target.value }));
-}
+  confirmOrder() {
+    this.notification.info('Review your details, then complete checkout.');
+  }
 
   placeOrder() {
-  if (!this.checkoutForm().address || !this.checkoutForm().phoneNumber) {
-    this.notification.error('Please fill in your shipping details.');
-    return;
-  }
 
-  this.OrderService.placeOrder(this.checkoutForm()).subscribe({
-    next: (res) => {
-      if (res.isSuccess) {
-        this.notification.success('Order placed successfully!');
-        this.cartService.clearCart();
-        void this.router.navigate(['/home']);
+    const form = this.checkoutForm();
+
+    if (!form.address || !form.phoneNumber) {
+      this.notification.error('Please fill in your shipping details.');
+      return;
+    }
+
+    this.orderService.placeOrder(form).subscribe({
+      next: (res) => {
+
+        if (!res.isSuccess) {
+          this.notification.error('Order failed');
+          return;
+        }
+
+        const orderId =
+          typeof res.data === 'object'
+            ? res.data.orderId
+            : res.data;
+
+        // ================= PAYPAL FLOW =================
+        if (form.paymentMethod === 'PayPal') {
+
+          this.router.navigate(['/payment'], {
+            queryParams: { orderId: orderId }
+          });
+
+        } else {
+
+          this.notification.success('Order placed successfully!');
+          this.cartService.clearCart();
+          this.router.navigate(['/home']);
+        }
+      },
+      error: () => {
+        this.notification.error('Checkout failed. Please try again.');
       }
-    },
-    error: () => this.notification.error('Checkout failed. Please try again.')
-  });
+    });
+  }
 }
-}
-
