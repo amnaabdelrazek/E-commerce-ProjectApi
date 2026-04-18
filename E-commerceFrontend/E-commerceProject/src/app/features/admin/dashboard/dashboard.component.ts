@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AdminService, DashboardData } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Subscription } from 'rxjs';
@@ -40,7 +41,7 @@ interface StatCard {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })

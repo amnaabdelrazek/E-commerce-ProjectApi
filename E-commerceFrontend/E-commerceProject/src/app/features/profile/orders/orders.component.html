@@ -1,0 +1,119 @@
+<div class="orders-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <button mat-button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Profile
+    </button>
+    <div class="header-content">
+      <span class="header-eyebrow">Account</span>
+      <h1 class="header-title">My Orders</h1>
+      <p class="header-subtitle">Manage and track all your purchases</p>
+    </div>
+    <div class="header-stats" *ngIf="(orders() || []).length > 0">
+      <div class="stat-item">
+        <span class="stat-value">{{ (orders() || []).length }}</span>
+        <span class="stat-label">Total Orders</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="state-container loading-state" *ngIf="isLoading()">
+    <mat-spinner></mat-spinner>
+    <p>Loading your orders...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="state-container error-state" *ngIf="error()">
+    <mat-icon class="state-icon">error_outline</mat-icon>
+    <p class="state-message">{{ error() }}</p>
+    <button mat-raised-button color="primary" (click)="loadUserOrders()">
+      <mat-icon>refresh</mat-icon>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="state-container empty-state" *ngIf="(orders() || []).length === 0 && !isLoading() && !error()">
+    <mat-icon class="state-icon">shopping_bag</mat-icon>
+    <h2>No orders yet</h2>
+    <p>You haven't made any purchases yet. Start exploring our collection!</p>
+    <a mat-raised-button color="primary" routerLink="/shop">
+      <mat-icon>storefront</mat-icon>
+      Browse Products
+    </a>
+  </div>
+
+  <!-- Orders List -->
+  <div class="orders-list" *ngIf="(orders() || []).length > 0 && !isLoading() && !error()">
+    <div class="order-card" *ngFor="let order of orders()">
+      <!-- Order Header -->
+      <div class="order-header">
+        <div class="order-id-section">
+          <div class="order-number">Order #{{ order.id }}</div>
+          <div class="order-date">{{ order.createdAt | date: 'MMM dd, yyyy · hh:mm a' }}</div>
+        </div>
+        <mat-chip class="status-badge" [ngClass]="'status-' + order.status.toLowerCase()">
+          <mat-icon class="status-icon">
+            {{ getStatusIcon(order.status) }}
+          </mat-icon>
+          {{ order.status }}
+        </mat-chip>
+      </div>
+
+      <!-- Order Items -->
+      <div class="order-items">
+        <div class="items-header">
+          <span class="items-title">Items ({{ (order.orderItems || order.items || []).length }})</span>
+        </div>
+        <div class="items-list">
+          <div class="item" *ngFor="let item of order.orderItems || order.items">
+            <div class="item-name">{{ item.product?.name || item.name }}</div>
+            <div class="item-meta">
+              <span class="item-qty">Qty: <strong>{{ item.quantity }}</strong></span>
+              <span class="item-price">${{ item.unitPrice || item.price | number: '1.2-2' }}</span>
+              <span class="item-total"><strong>${{ (item.quantity * (item.unitPrice || item.price)) | number: '1.2-2' }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="order-summary">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-value">${{ order.subTotal | number: '1.2-2' }}</span>
+        </div>
+        <div class="summary-row" *ngIf="order.discountAmount && order.discountAmount > 0">
+          <span class="summary-label discount">Discount</span>
+          <span class="summary-value discount">-${{ order.discountAmount | number: '1.2-2' }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Shipping</span>
+          <span class="summary-value">${{ order.shippingCost | number: '1.2-2' }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Tax</span>
+          <span class="summary-value">${{ order.taxAmount | number: '1.2-2' }}</span>
+        </div>
+        <div class="summary-row total">
+          <span class="summary-label">Total</span>
+          <span class="summary-value">${{ order.totalPrice | number: '1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Order Actions -->
+      <div class="order-actions">
+        <button mat-button class="action-btn" (click)="viewOrderDetails(order.id)">
+          <mat-icon>visibility</mat-icon>
+          <span>View Details</span>
+        </button>
+        <button mat-button class="action-btn" *ngIf="order.status === 'Pending'" (click)="cancelOrder(order.id)">
+          <mat-icon>cancel</mat-icon>
+          <span>Cancel Order</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

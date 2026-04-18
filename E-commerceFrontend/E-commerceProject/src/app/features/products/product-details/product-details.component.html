@@ -30,7 +30,10 @@
             <button class="btn btn--primary" type="button" [disabled]="p.stockQuantity === 0"
               (click)="onAddToCart(product()!)">Add to cart</button>
             <button class="btn btn--secondary" routerLink="/shop">Back to shop</button>
-            
+            <button class="btn btn--favorite" type="button" [class.btn--favorite-active]="isInWishlist()" 
+              [disabled]="isFavLoading()" (click)="toggleWishlist(p)" matTooltip="Add to wishlist">
+              <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+            </button>
           </div>
         </div>
       </div>

@@ -101,8 +101,38 @@
 .actions {
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr auto;
   gap: 10px;
+}
+
+.btn--favorite {
+  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--app-muted);
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: var(--app-radius-md);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn--favorite:hover:not(:disabled) {
+  border-color: #e91e63;
+  background: rgba(233, 30, 99, 0.05);
+  color: #e91e63;
+}
+
+.btn--favorite-active {
+  border-color: #e91e63;
+  background: rgba(233, 30, 99, 0.1);
+  color: #e91e63;
+}
+
+.btn--favorite:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .state {
@@ -120,7 +150,7 @@
     grid-template-columns: 1fr;
   }
   .actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
   }
 }
 
@@ -145,6 +175,10 @@
   .price-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
   }
 }
 

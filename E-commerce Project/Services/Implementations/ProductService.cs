@@ -184,9 +184,12 @@ namespace E_commerce_Project.Services.Implementations
             if (product == null)
                 return GeneralResponse<string>.Fail("Product not found");
 
+
             // 🔐 تأكد إن صاحب المنتج
             if (product.SellerId.ToString() != user.Id)
                 return GeneralResponse<string>.Fail("Unauthorized");
+
+           
 
             if (file == null || file.Length == 0)
                 return GeneralResponse<string>.Fail("Invalid file");

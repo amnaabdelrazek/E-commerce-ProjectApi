@@ -24,7 +24,7 @@ namespace E_commerce_Project.Controllers
             => Ok(await _service.CreateProductAsync(User, dto));
 
 
-        [Authorize]
+        [Authorize(Roles = "Seller,Admin")]
         [HttpPost("{id}/upload-image")]
         public async Task<IActionResult> UploadImage(int id, IFormFile file)
         {

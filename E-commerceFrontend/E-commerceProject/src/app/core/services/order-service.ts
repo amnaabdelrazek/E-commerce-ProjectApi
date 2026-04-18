@@ -29,4 +29,16 @@ export class OrderService {
   {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/api/Checkout/user-checkout`,data);
   }
+
+  getUserOrders(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/api/Checkout/my-orders`);
+  }
+
+  getOrderById(orderId: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/api/Checkout/order/${orderId}`);
+  }
+
+  cancelOrder(orderId: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/api/Checkout/cancel-order/${orderId}`, {});
+  }
 }

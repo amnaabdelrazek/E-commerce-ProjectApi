@@ -5,6 +5,7 @@ using E_commerce_Project.Repositories.Implementations;
 using E_commerce_Project.Repositories.Interfaces;
 using E_commerce_Project.Services.Implementations;
 using E_commerce_Project.Services.Interfaces;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,7 +24,7 @@ namespace E_commerce_Project
 
             // ================= DB =================
             builder.Services.AddDbContext<AppDbContext>(opt =>
-                opt.UseSqlServer(builder.Configuration.GetConnectionString("Default2")));
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
             // ================= Identity =================
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -43,7 +44,12 @@ namespace E_commerce_Project
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+
             builder.Services.AddScoped<ISellerService, SellerService>();
+
+            builder.Services.AddScoped<IWishlistService, WishlistService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IPayPalService, PayPalService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
@@ -68,7 +74,7 @@ namespace E_commerce_Project
                     ValidAudience = builder.Configuration["Jwt:Audience"],
 
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured"))
                     )
                 };
             });

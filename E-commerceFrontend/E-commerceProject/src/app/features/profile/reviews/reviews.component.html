@@ -1,0 +1,92 @@
+<div class="reviews-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <button mat-button (click)="goBack()" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Profile
+      </button>
+      <h1>My Reviews</h1>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner></mat-spinner>
+    <p>Loading your reviews...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error()">
+    <mat-icon class="error-icon">error</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-raised-button color="primary" (click)="loadReviews()">
+      <mat-icon>refresh</mat-icon>
+      Retry
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="(reviews() || []).length === 0 && !isLoading() && !error()">
+    <mat-icon class="empty-icon">rate_review</mat-icon>
+    <h2>No reviews yet</h2>
+    <p>Share your thoughts by reviewing products you've purchased</p>
+    <a mat-raised-button color="primary" routerLink="/shop">
+      <mat-icon>storefront</mat-icon>
+      Shop Now
+    </a>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="reviews-list" *ngIf="(reviews() || []).length > 0 && !isLoading() && !error()">
+    <mat-card class="review-card" *ngFor="let review of reviews()">
+      <mat-card-header>
+        <div class="review-header-content">
+          <div class="product-info">
+            <h3 class="product-name">{{ review.product?.name || review.productName }}</h3>
+            <p class="review-date">
+              <mat-icon inline>calendar_today</mat-icon>
+              {{ review.createdAt | date: 'MMM dd, yyyy' }}
+            </p>
+          </div>
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="editReview(review.id)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit Review</span>
+            </button>
+            <button mat-menu-item (click)="deleteReview(review.id)">
+              <mat-icon>delete</mat-icon>
+              <span>Delete Review</span>
+            </button>
+          </mat-menu>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="review-rating">
+          <mat-icon class="star" *ngFor="let n of [1,2,3,4,5]" [class.filled]="n <= review.rating">
+            star
+          </mat-icon>
+          <span class="rating-text">{{ review.rating }}/5</span>
+        </div>
+
+        <div class="review-title">{{ review.title || review.comment }}</div>
+
+        <p class="review-text">{{ review.comment || review.text }}</p>
+
+        <div class="review-stats">
+          <button mat-button>
+            <mat-icon>thumb_up</mat-icon>
+            {{ review.helpful || 0 }} Helpful
+          </button>
+          <button mat-button>
+            <mat-icon>flag</mat-icon>
+            Report
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

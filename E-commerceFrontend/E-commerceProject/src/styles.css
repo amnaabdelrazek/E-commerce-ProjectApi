@@ -1,3 +1,22 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Material Icons Font */
+.material-icons,
+mat-icon {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+}
+
 :root {
   --app-bg: #f5efe7;
   --app-surface: #fbf8f3;
