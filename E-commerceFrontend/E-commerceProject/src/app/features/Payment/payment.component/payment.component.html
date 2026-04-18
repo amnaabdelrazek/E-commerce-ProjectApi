@@ -1,0 +1,60 @@
+<div class="checkout-page">
+
+  <!-- Stepper -->
+  <div class="stepper-buttons">
+    <button class="btn-step inactive">
+      🚚 Shipping
+    </button>
+
+    <div class="step-line"></div>
+
+    <button class="btn-step active">
+      💳 Payment
+    </button>
+  </div>
+
+  <div class="checkout-container">
+
+    <div class="card">
+
+      <h2 class="card-title">Payment Method</h2>
+
+      <!-- Payment Options -->
+      <label class="payment-option active">
+        <input type="radio" name="payment" checked />
+        <span>Credit / Debit Card</span>
+      </label>
+
+      <label class="payment-option">
+        <input type="radio" name="payment" />
+        <span>PayPal</span>
+      </label>
+
+      <label class="payment-option">
+        <input type="radio" name="payment" />
+        <span>Cash on Delivery</span>
+      </label>
+
+      <!-- Card Inputs -->
+      <input class="styled-input" placeholder="Card Number" />
+
+      <div class="row">
+        <input class="styled-input" placeholder="MM/YY" />
+        <input class="styled-input" placeholder="CVV" />
+      </div>
+
+      <input class="styled-input" placeholder="Cardholder Name" />
+
+      <!-- Buttons -->
+      <div class="row">
+        <button class="back-btn" routerLink="/checkout">Back</button>
+
+        <button class="main-action-btn">
+          Place Order
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
