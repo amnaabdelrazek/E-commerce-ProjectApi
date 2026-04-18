@@ -1,4 +1,6 @@
-﻿namespace E_commerce_Project.Models
+﻿using GitHub.Copilot.SDK.Rpc;
+
+namespace E_commerce_Project.Models
 {
     public class Product:BaseEntity
     {
@@ -12,8 +14,9 @@
         public int CategoryId { get; set; }
         public Category Category { get; set; }
 
-        public string SellerId { get; set; } 
-        public ApplicationUser Seller { get; set; }
+        public int SellerId { get; set; }
+        public Seller Seller { get; set; }
+
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }

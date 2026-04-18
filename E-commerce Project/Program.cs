@@ -44,8 +44,12 @@ namespace E_commerce_Project
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+
+            builder.Services.AddScoped<ISellerService, SellerService>();
+
             builder.Services.AddScoped<IWishlistService, WishlistService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IPayPalService, PayPalService>();
             builder.Services.AddScoped<IAdminService, AdminService>();

@@ -1,3 +1,5 @@
+
+using E_commerce_Project.Data;
 using E_commerce_Project.DTOs;
 using E_commerce_Project.Helpers;
 using E_commerce_Project.Models;
@@ -12,11 +14,13 @@ namespace E_commerce_Project.Services.Implementations
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly JwtHelper _jwt;
+        private readonly AppDbContext _dbContext;
 
-        public AuthService(UserManager<ApplicationUser> userManager, JwtHelper jwt)
+        public AuthService(UserManager<ApplicationUser> userManager, JwtHelper jwt, AppDbContext dbContext)
         {
             _userManager = userManager;
             _jwt = jwt;
+            _dbContext = dbContext;
         }
 
         public async Task<GeneralResponse<object>> RegisterAsync(RegisterDto dto)
@@ -109,6 +113,41 @@ namespace E_commerce_Project.Services.Implementations
                 return GeneralResponse<string>.Fail("Invalid token");
 
             return GeneralResponse<string>.Success("Email confirmed");
+        }
+        //new
+        public async Task<GeneralResponse<object>> RegisterSellerAsync(RegisterSellerDto dto)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = dto.Email,
+                Email = dto.Email,
+                FullName = dto.FullName
+            };
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+            if (!result.Succeeded)
+                return GeneralResponse<object>.Fail("Seller user creation failed.");
+
+            await _userManager.AddToRoleAsync(user, "Seller");
+
+            var seller = new Seller
+            {
+                UserId = user.Id,
+                StoreName = dto.StoreName,
+                IsApproved = false
+            };
+
+            await _dbContext.Sellers.AddAsync(seller);
+            await _dbContext.SaveChangesAsync();
+
+            // Optionally generate email confirmation token here like you did for generic users
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            return GeneralResponse<object>.Success(new
+            {
+                UserId = user.Id,
+                Token = token
+            }, "Seller registered successfully. Please complete profile setup.");
         }
     }
 }

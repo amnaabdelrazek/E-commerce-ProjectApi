@@ -17,10 +17,13 @@ import { AdminProductsComponent } from './features/admin/products/admin-products
 import { AdminCategoriesComponent } from './features/admin/categories/admin-categories.component';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile.component';
 import { adminGuard } from './core/guards/admin.guard';
+import { sellerGuard } from './core/guards/seller.guard';
+import { SellerModule } from './features/seller/seller.module';
 import { OrdersComponent } from './features/profile/orders/orders.component';
 import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
 import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
 import { ReviewsComponent } from './features/profile/reviews/reviews.component';
+
 
 export const routes: Routes = [
   {
@@ -83,6 +86,11 @@ export const routes: Routes = [
       { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
       { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } }
     ]
+  },
+  {
+    path: 'seller',
+    canActivate: [sellerGuard],
+    loadChildren: () => import('./features/seller/seller.module').then(m => m.SellerModule)
   },
   { path: '**', redirectTo: 'login' }
 ];
