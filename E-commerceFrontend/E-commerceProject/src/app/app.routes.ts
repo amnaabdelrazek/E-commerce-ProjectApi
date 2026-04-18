@@ -14,6 +14,10 @@ import { ProfileComponent } from './features/profile/profile.component';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
 import { DashboardComponent } from './features/admin/dashboard/dashboard.component';
 import { adminGuard } from './core/guards/admin.guard';
+import { OrdersComponent } from './features/profile/orders/orders.component';
+import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
+import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
+import { ReviewsComponent } from './features/profile/reviews/reviews.component';
 
 export const routes: Routes = [
   {
@@ -45,6 +49,10 @@ export const routes: Routes = [
       },
       { path: 'products/:id', component: ProductDetailsComponent },
       { path: 'profile', component: ProfileComponent },
+      { path: 'orders', component: OrdersComponent },
+      { path: 'order-details/:id', component: OrderDetailsComponent },
+      { path: 'wishlist', component: WishlistComponent },
+      { path: 'reviews', component: ReviewsComponent },
       {
         path: 'forgot-password',
         component: PlaceholderComponent,
@@ -55,30 +63,6 @@ export const routes: Routes = [
           primaryLink: '/login',
           secondaryLabel: 'Create Account',
           secondaryLink: '/register'
-        }
-      },
-      {
-        path: 'orders',
-        component: PlaceholderComponent,
-        data: {
-          title: 'Orders',
-          description: 'Your order history endpoint is not connected yet. You can continue shopping or review your profile information.',
-          primaryLabel: 'Go to Shop',
-          primaryLink: '/shop',
-          secondaryLabel: 'Open Profile',
-          secondaryLink: '/profile'
-        }
-      },
-      {
-        path: 'wishlist',
-        component: PlaceholderComponent,
-        data: {
-          title: 'Wishlist',
-          description: 'Wishlist data is not available yet. Browse products and save your favorite picks manually for now.',
-          primaryLabel: 'Browse Products',
-          primaryLink: '/shop',
-          secondaryLabel: 'Back Home',
-          secondaryLink: '/home'
         }
       }
     ]
