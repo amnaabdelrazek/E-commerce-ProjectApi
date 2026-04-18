@@ -18,14 +18,6 @@
         public string Status { get; set; } = "Pending";
         public string? Notes { get; set; }
 
-        // ================= PAYMENT =================
-
-        public string? PaymentIntentId { get; set; }
-
-        public string PaymentStatus { get; set; } = "Pending";
-
-        public string? TransactionId { get; set; }
-
         // ================= NAVIGATION =================
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }

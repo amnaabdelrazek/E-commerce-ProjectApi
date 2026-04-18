@@ -11,7 +11,7 @@ public class PayPalService : IPayPalService
 
     public PayPalService(IConfiguration config, AppDbContext context)
     {
-        _settings = config.GetSection("PayPal").Get<PayPalSettings>();
+        _settings = config.GetSection("PayPal").Get<PayPalSettings>() ?? new PayPalSettings();
         _context = context;
     }
 
@@ -38,9 +38,6 @@ public class PayPalService : IPayPalService
 
         if (order == null)
             throw new Exception("Order not found");
-
-        if (order.PaymentStatus == "Paid")
-            throw new Exception("Order already paid");
 
         var apiContext = GetContext();
 
@@ -74,10 +71,8 @@ public class PayPalService : IPayPalService
         var approvalUrl = created.links
             .First(x => x.rel == "approval_url").href;
 
-        // حفظ البيانات
-        order.PaymentIntentId = created.id;
+        // Update payment method
         order.PaymentMethod = "PayPal";
-        order.PaymentStatus = "Pending";
 
         await _context.SaveChangesAsync();
 
@@ -98,43 +93,20 @@ public class PayPalService : IPayPalService
 
         var result = payment.Execute(apiContext, execution);
 
-        var order = await _context.Orders
-            .FirstOrDefaultAsync(o => o.PaymentIntentId == paymentId);
-
-        if (order == null)
-            return false;
-
         if (result.state.ToLower() == "approved")
         {
-            order.PaymentStatus = "Paid";
-            order.Status = "Confirmed";
-
-            // 🔥 Transaction ID (Bonus)
-            order.TransactionId = result.transactions[0]
-                .related_resources[0]
-                .sale.id;
-
-            await _context.SaveChangesAsync();
-            return true;
+            return await Task.FromResult(true);
         }
         else
         {
-            order.PaymentStatus = "Failed";
-            await _context.SaveChangesAsync();
-            return false;
+            return await Task.FromResult(false);
         }
     }
 
     // ================= CANCEL =================
     public async Task CancelPaymentAsync(string paymentId)
     {
-        var order = await _context.Orders
-            .FirstOrDefaultAsync(o => o.PaymentIntentId == paymentId);
-
-        if (order != null)
-        {
-            order.PaymentStatus = "Cancelled";
-            await _context.SaveChangesAsync();
-        }
+        // Payment cancelled by user
+        await Task.CompletedTask;
     }
 }

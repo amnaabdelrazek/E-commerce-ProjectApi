@@ -191,7 +191,9 @@ namespace E_commerce_Project.Services.Implementations
                 {
                     var orderItem = new OrderItem
                     {
+                        Order = order,
                         OrderId = order.Id,
+                        Product = cartItem.Product,
                         ProductId = cartItem.ProductId,
                         ProductName = cartItem.Product.Name,
                         Quantity = cartItem.Quantity,
@@ -216,6 +218,11 @@ namespace E_commerce_Project.Services.Implementations
 
                 await _context.SaveChangesAsync();
 
+                // Reload order with order items from database
+                var savedOrder = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .FirstOrDefaultAsync(o => o.Id == order.Id);
+
                 try
                 {
                     await _emailService.SendEmailAsyc(user.Email!, checkoutDto.FirstName, order.Id);
@@ -225,16 +232,7 @@ namespace E_commerce_Project.Services.Implementations
                    
                      _logger.LogError(ex, "Failed to send confirmation email"); 
                 }
-                var orderDto = MapOrderToDto(order, new List<OrderItem>(
-                    cart.CartItems
-                        .Where(ci => !ci.IsDeleted)
-                        .Select(ci => new OrderItem
-                        {
-                            ProductId = ci.ProductId,
-                            ProductName = ci.Product.Name,
-                            Quantity = ci.Quantity,
-                            PriceAtPurchase = ci.Product.Price
-                        })));
+                var orderDto = MapOrderToDto(savedOrder!, savedOrder!.OrderItems.ToList());
 
                 return GeneralResponse<OrderDto>.Success(orderDto, "Order created successfully");
             }
