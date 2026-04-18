@@ -1,0 +1,176 @@
+<section class="admin-categories">
+  <div class="categories-hero">
+    <div>
+      <span class="categories-hero__eyebrow">Collection control</span>
+      <h2>Categories</h2>
+      <p>Create, update, and organize your storefront categories in a compact card layout.</p>
+    </div>
+
+    <button type="button" class="primary-btn" (click)="openCreateModal()">Create Category</button>
+  </div>
+
+  <div class="toolbar">
+    <form class="toolbar__search" (ngSubmit)="submitSearch(searchInput.value); $event.preventDefault()">
+      <input #searchInput type="text" [defaultValue]="searchTerm" placeholder="Search by category name" />
+      <button type="submit">Search</button>
+    </form>
+    <button type="button" class="ghost-btn" (click)="clearSearch(searchInput)">Clear</button>
+  </div>
+
+  <div class="summary-strip">
+    <div class="summary-chip">
+      <strong>{{ totalItems }}</strong>
+      <span>Total categories</span>
+    </div>
+    <div class="summary-chip">
+      <strong>{{ page }}</strong>
+      <span>Current page</span>
+    </div>
+    <div class="summary-chip">
+      <strong>{{ totalPages }}</strong>
+      <span>Total pages</span>
+    </div>
+  </div>
+
+  <div class="state-card" *ngIf="isLoading">Loading categories...</div>
+
+  <div class="state-card state-card--error" *ngIf="hasLoadedOnce && !isLoading && errorMessage">
+    <p>{{ errorMessage }}</p>
+    <button type="button" class="primary-btn" (click)="retryLoadCategories()">Try again</button>
+  </div>
+
+  <div class="state-card" *ngIf="hasLoadedOnce && !isLoading && !errorMessage && !categories.length">
+    No categories found. Create a new category or try another search term.
+  </div>
+
+  <section class="categories-grid" *ngIf="hasLoadedOnce && !isLoading && !errorMessage && categories.length">
+    <article class="category-card" *ngFor="let category of categories; trackBy: trackByCategoryId">
+      <div class="category-card__main">
+        <div class="category-card__image" [class.category-card__image--empty]="!category.imageUrl">
+          <img *ngIf="category.imageUrl" [src]="category.imageUrl" [alt]="category.name" />
+          <span *ngIf="!category.imageUrl">{{ category.name.charAt(0) }}</span>
+        </div>
+
+        <div class="category-card__content">
+          <h3>{{ category.name }}</h3>
+          <p>{{ category.description || 'No description yet.' }}</p>
+          <small>{{ category.productsCount }} items</small>
+        </div>
+      </div>
+
+      <div class="category-card__actions">
+        <button type="button" class="icon-btn icon-btn--edit" (click)="openEditModal(category)" title="Edit category">Edit</button>
+        <button type="button" class="icon-btn icon-btn--delete" (click)="deleteCategory(category)" title="Delete category">Delete</button>
+      </div>
+    </article>
+  </section>
+
+  <div class="pager" *ngIf="!isLoading && totalPages > 1">
+    <button type="button" class="ghost-btn" (click)="goToPage(page - 1)" [disabled]="page === 1">Previous</button>
+    <span>Page {{ page }} of {{ totalPages }}</span>
+    <button type="button" class="ghost-btn" (click)="goToPage(page + 1)" [disabled]="page === totalPages">Next</button>
+  </div>
+</section>
+
+<div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
+
+<section class="category-modal" *ngIf="isModalOpen" aria-modal="true" role="dialog">
+  <div class="category-modal__card" (click)="$event.stopPropagation()">
+    <div class="category-modal__head">
+      <div>
+        <span class="categories-hero__eyebrow">{{ modalMode === 'edit' ? 'Update category' : 'Add category' }}</span>
+        <h3>{{ modalMode === 'edit' ? 'Edit Category' : 'Create Category' }}</h3>
+      </div>
+      <button type="button" class="close-btn" (click)="closeModal()">x</button>
+    </div>
+
+    <form class="category-form" [formGroup]="categoryForm" (ngSubmit)="submitForm()">
+      <label>
+        <span>Name</span>
+        <input type="text" formControlName="name" placeholder="Furniture" />
+      </label>
+
+      <label>
+        <span>Description</span>
+        <textarea rows="4" formControlName="description" placeholder="Elegant pieces for every room"></textarea>
+      </label>
+
+      <div class="form-error" *ngIf="categoryForm.invalid && categoryForm.touched">
+        Please enter a valid name and description before saving.
+      </div>
+
+      <div class="category-modal__actions">
+        <button type="button" class="ghost-btn" (click)="closeModal()" [disabled]="isSubmitting">Cancel</button>
+        <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : (modalMode === 'edit' ? 'Save Changes' : 'Create Category') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="modal-backdrop" *ngIf="isImageUploadModalOpen"></div>
+
+<section class="category-modal" *ngIf="isImageUploadModalOpen" aria-modal="true" role="dialog">
+  <div class="category-modal__card category-modal__card--compact">
+    <div class="category-modal__head">
+      <div>
+        <span class="categories-hero__eyebrow">Add image</span>
+        <h3>Upload Category Image</h3>
+      </div>
+    </div>
+
+    <div class="upload-step">
+      <p class="upload-step__text">
+        The category <strong>{{ pendingCategoryName }}</strong> was created successfully. Add its image now to complete setup.
+      </p>
+
+      <div class="image-preview" *ngIf="pendingUploadPreview; else emptyUploadImage">
+        <img [src]="pendingUploadPreview" alt="Category upload preview" />
+      </div>
+
+      <ng-template #emptyUploadImage>
+        <div class="image-preview image-preview--empty">
+          <span>Select an image to continue</span>
+        </div>
+      </ng-template>
+
+      <input type="file" accept="image/*" (change)="onPendingImageSelected($event)" />
+
+      <div class="category-modal__actions">
+        <button type="button" class="ghost-btn" (click)="closeImageUploadModal()" [disabled]="isSubmitting">Skip for now</button>
+        <button type="button" class="primary-btn" (click)="submitPendingImageUpload()" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Uploading...' : 'Upload Image' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="modal-backdrop" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()"></div>
+
+<section class="category-modal" *ngIf="isDeleteModalOpen" aria-modal="true" role="dialog">
+  <div class="category-modal__card category-modal__card--compact">
+    <div class="category-modal__head">
+      <div>
+        <span class="categories-hero__eyebrow">Confirm delete</span>
+        <h3>Delete Category</h3>
+      </div>
+      <button type="button" class="close-btn" (click)="closeDeleteModal()">x</button>
+    </div>
+
+    <div class="upload-step">
+      <p class="upload-step__text">
+        Are you sure you want to delete <strong>{{ pendingDeleteCategory?.name }}</strong>?
+      </p>
+      <p class="upload-step__warning">This action cannot be undone.</p>
+
+      <div class="category-modal__actions">
+        <button type="button" class="ghost-btn" (click)="closeDeleteModal()" [disabled]="isSubmitting">Cancel</button>
+        <button type="button" class="icon-btn icon-btn--delete icon-btn--danger" (click)="confirmDeleteCategory()" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
