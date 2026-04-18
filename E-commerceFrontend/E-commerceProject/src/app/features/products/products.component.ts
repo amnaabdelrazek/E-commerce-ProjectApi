@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, NgZone } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductsService } from '../../core/services/products.service';
@@ -23,6 +23,7 @@ export class ProductsComponent {
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly ngZone = inject(NgZone);
 
   readonly state = signal<LoadState>('idle');
   readonly products = signal<Product[]>([]);
@@ -86,7 +87,9 @@ export class ProductsComponent {
           this.totalCount.set(paged?.totalCount ?? 0);
           this.state.set('loaded');
         },
-        error: () => this.state.set('error')
+        error: () => {
+          this.state.set('error');
+        }
       });
   }
 
