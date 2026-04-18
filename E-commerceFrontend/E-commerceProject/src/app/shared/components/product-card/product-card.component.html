@@ -1,4 +1,4 @@
-<article class="pcard" [routerLink]="['/products', product.id]" role="link" tabindex="0">
+<article class="pcard" (click)="goToProduct()" role="link" tabindex="0">
   <div class="pcard__media">
     <img
       class="pcard__img"
@@ -9,6 +9,17 @@
     />
     <span class="pcard__badge" *ngIf="product.stockQuantity === 0">Out of stock</span>
     <span class="pcard__badge pcard__badge--ok" *ngIf="product.stockQuantity > 0">In stock</span>
+    <button
+      mat-icon-button
+      type="button"
+      class="pcard__wishlist-btn"
+      [class.active]="isInWishlist()"
+      [disabled]="isFavLoading()"
+      (click)="toggleWishlist(product, $event)"
+      matTooltip="Add to wishlist"
+    >
+      <mat-icon class="wishlist-icon">{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+    </button>
   </div>
 
   <div class="pcard__body">

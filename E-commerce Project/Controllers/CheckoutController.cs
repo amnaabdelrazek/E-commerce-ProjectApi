@@ -44,7 +44,7 @@ namespace E_commerce_Project.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-        [Authorize]
+        [Authorize(Roles = "Seller,Admin")]
         [HttpPost("validate-promo")]
         public async Task<IActionResult> ValidatePromoCode([FromBody] ValidatePromoDto dto)
         {

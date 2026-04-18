@@ -13,10 +13,20 @@ import { CheckoutCpmponent } from './features/checkout-cpmponent/checkout-cpmpon
 import { ProfileComponent } from './features/profile/profile.component';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
 import { DashboardComponent } from './features/admin/dashboard/dashboard.component';
+import { AdminProductsComponent } from './features/admin/products/admin-products.component';
+import { AdminCategoriesComponent } from './features/admin/categories/admin-categories.component';
+import { AdminProfileComponent } from './features/admin/profile/admin-profile.component';
 import { adminGuard } from './core/guards/admin.guard';
 import { PaymentSuccessComponent } from './features/Payment/success.component/success.component';
 import { CancelComponent } from './features/Payment/cancel.component/cancel.component';
 import { PaymentComponent } from './features/Payment/payment.component/payment.component';
+import { sellerGuard } from './core/guards/seller.guard';
+import { SellerModule } from './features/seller/seller.module';
+import { OrdersComponent } from './features/profile/orders/orders.component';
+import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
+import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
+import { ReviewsComponent } from './features/profile/reviews/reviews.component';
+
 
 
 export const routes: Routes = [
@@ -49,6 +59,10 @@ export const routes: Routes = [
       },
       { path: 'products/:id', component: ProductDetailsComponent },
       { path: 'profile', component: ProfileComponent },
+      { path: 'orders', component: OrdersComponent },
+      { path: 'order-details/:id', component: OrderDetailsComponent },
+      { path: 'wishlist', component: WishlistComponent },
+      { path: 'reviews', component: ReviewsComponent },
       {
         path: 'forgot-password',
         component: PlaceholderComponent,
@@ -60,30 +74,6 @@ export const routes: Routes = [
           secondaryLabel: 'Create Account',
           secondaryLink: '/register'
         }
-      },
-      {
-        path: 'orders',
-        component: PlaceholderComponent,
-        data: {
-          title: 'Orders',
-          description: 'Your order history endpoint is not connected yet. You can continue shopping or review your profile information.',
-          primaryLabel: 'Go to Shop',
-          primaryLink: '/shop',
-          secondaryLabel: 'Open Profile',
-          secondaryLink: '/profile'
-        }
-      },
-      {
-        path: 'wishlist',
-        component: PlaceholderComponent,
-        data: {
-          title: 'Wishlist',
-          description: 'Wishlist data is not available yet. Browse products and save your favorite picks manually for now.',
-          primaryLabel: 'Browse Products',
-          primaryLink: '/shop',
-          secondaryLabel: 'Back Home',
-          secondaryLink: '/home'
-        }
       }
     ]
   },
@@ -93,15 +83,23 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'products', component: PlaceholderComponent, data: { title: 'Products' } },
-      { path: 'categories', component: PlaceholderComponent, data: { title: 'Categories' } },
+      { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
+      { path: 'products', component: AdminProductsComponent, data: { title: 'Products' } },
+      { path: 'categories', component: AdminCategoriesComponent, data: { title: 'Categories' } },
+      { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } },
       { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
       { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } }
     ]
   },
+
   { path: 'success', component: PaymentSuccessComponent },
   { path: 'cancel', component: CancelComponent },
   { path: 'payment', component: PaymentComponent },
+
+  {
+    path: 'seller',
+    canActivate: [sellerGuard],
+    loadChildren: () => import('./features/seller/seller.module').then(m => m.SellerModule)
+  },
   { path: '**', redirectTo: 'login' }
 ];

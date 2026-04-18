@@ -1,0 +1,79 @@
+<div class="wishlist-container">
+  <div class="header-card">
+    <div class="header-top">
+      <button mat-button (click)="goBack()" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Profile
+      </button>
+      <h1>My Wishlist</h1>
+      <span class="badge-count">{{ (wishlistItems() || []).length }}</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading()">
+    <mat-spinner></mat-spinner>
+    <p>Loading your wishlist...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error() && !isLoading()">
+    <mat-icon class="error-icon">error</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-raised-button color="primary" (click)="loadWishlist()">
+      <mat-icon>refresh</mat-icon>
+      Retry
+    </button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="(wishlistItems() || []).length === 0 && !isLoading() && !error()">
+    <mat-icon class="empty-icon">favorite_border</mat-icon>
+    <h2>Your wishlist is empty</h2>
+    <p>Add items to your wishlist to save them for later</p>
+    <a mat-raised-button color="primary" routerLink="/shop">
+      <mat-icon>storefront</mat-icon>
+      Browse Products
+    </a>
+  </div>
+
+  <!-- Wishlist Grid -->
+  <div class="wishlist-grid" *ngIf="(wishlistItems() || []).length > 0 && !isLoading() && !error()">
+    <div class="wishlist-item" *ngFor="let item of wishlistItems()">
+      <div class="item-image-container">
+        <img 
+          [src]="item.productImageUrl || getPlaceholder()" 
+          [alt]="item.productName || 'Product'" 
+          class="item-image"
+          (error)="onImageError($event)"
+        />
+        <button 
+          mat-icon-button 
+          class="remove-btn"
+          (click)="removeFromWishlist(item.id)"
+          matTooltip="Remove from wishlist"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="item-content">
+        <h3 class="item-name">{{ item.productName || 'Product' }}</h3>
+        <p class="item-category">{{ item.categoryName || 'Uncategorized' }}</p>
+        <div class="item-rating">
+          <mat-icon class="star" *ngFor="let n of [1,2,3,4,5]" [class.filled]="n <= (item.rating || 0)">
+            star
+          </mat-icon>
+          <span class="rating-count">{{ item.rating ? '(' + item.rating + ' stars)' : 'No ratings' }}</span>
+        </div>
+        <div class="item-footer">
+          <span class="item-price">${{ item.productPrice | number: '1.2-2' }}</span>
+          <button mat-raised-button color="primary" class="add-to-cart" (click)="addToCart(item)">
+            <mat-icon>shopping_cart</mat-icon>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
