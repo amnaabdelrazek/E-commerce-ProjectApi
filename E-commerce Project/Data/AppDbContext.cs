@@ -17,6 +17,7 @@ namespace E_commerce_Project.Data
 
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Seller> Sellers { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
 
         public override int SaveChanges()
