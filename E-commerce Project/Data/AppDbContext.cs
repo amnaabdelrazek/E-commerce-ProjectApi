@@ -1,4 +1,4 @@
-﻿using E_commerce_Project.Models;
+using E_commerce_Project.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -66,6 +66,8 @@ namespace E_commerce_Project.Data
             builder.Entity<Wishlist>().HasQueryFilter(w => !w.IsDeleted);
             builder.Entity<Review>().HasQueryFilter(r => !r.IsDeleted);
             builder.Entity<Coupon>().HasQueryFilter(co => !co.IsDeleted);
+            // Soft delete users (admin-managed). Identity queries won't return deleted users.
+            builder.Entity<ApplicationUser>().HasQueryFilter(u => !u.IsDeleted);
 
             builder.Entity<CartItem>()
                 .HasOne(ci => ci.Product)

@@ -1,36 +1,55 @@
 <footer class="footer">
-  <div class="footer__inner">
-    <div class="footer__col footer__brand">
-      <div class="footer__title">Maison</div>
-      <p class="footer__text">Curated vintage &amp; artisan home goods for the modern collector.</p>
+  <div class="footer__top">
+    <div class="footer__brand-block">
+      <span class="footer__eyebrow">Maison living</span>
+      <div class="footer__title">Curated comfort for modern homes.</div>
+      <p class="footer__text">
+        Discover furniture, lighting, and decor selected to make every room feel warmer, calmer, and more personal.
+      </p>
+      <div class="footer__chips">
+        <span>Fast delivery</span>
+        <span>Protected checkout</span>
+        <span>Curated collections</span>
+      </div>
     </div>
 
-    <div class="footer__col">
-      <div class="footer__head">Shop</div>
-      <a routerLink="/shop">All Products</a>
-      <a routerLink="/furniture">Furniture</a>
-      <a routerLink="/decor">Decor</a>
-      <a routerLink="/lighting">Lighting</a>
-    </div>
-
-    <div class="footer__col">
-      <div class="footer__head">Account</div>
-      <a routerLink="/login">Login</a>
-      <a routerLink="/register">Register</a>
-      <a routerLink="/orders">Orders</a>
-      <a routerLink="/wishlist">Wishlist</a>
-    </div>
-
-    <div class="footer__col footer__newsletter">
-      <div class="footer__head">Newsletter</div>
-      <p class="footer__text">Get updates on new arrivals &amp; exclusive offers.</p>
+    <div class="footer__newsletter card">
+      <div class="footer__head">Stay in the loop</div>
+      <p class="footer__text">Get updates on new arrivals, seasonal offers, and favorite picks.</p>
       <form class="footer__form" (submit)="$event.preventDefault()">
-        <input type="email" placeholder="Your email" aria-label="Email" />
+        <input type="email" placeholder="Your email address" aria-label="Email" />
         <button type="submit">Join</button>
       </form>
     </div>
   </div>
 
-  <div class="footer__bottom">© {{ year }} Maison. All rights reserved.</div>
-</footer>
+  <div class="footer__inner">
+    <div class="footer__col">
+      <div class="footer__head">Categories</div>
+      <a *ngFor="let category of categories()" routerLink="/shop" [queryParams]="{ categoryId: category.id }">
+        {{ category.name }}
+      </a>
+    </div>
 
+    <div class="footer__col">
+      <div class="footer__head">Account</div>
+      <a *ngIf="!auth.currentUser()" routerLink="/login">Login</a>
+      <a *ngIf="!auth.currentUser()" routerLink="/register">Register</a>
+      <a routerLink="/profile">Profile</a>
+      <a routerLink="/cart">Cart</a>
+    </div>
+
+    <div class="footer__col">
+      <div class="footer__head">Explore</div>
+      <a routerLink="/home">Home</a>
+      <a routerLink="/orders">Orders</a>
+      <a routerLink="/wishlist">Wishlist</a>
+      <a routerLink="/checkout">Checkout</a>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <span>Copyright {{ year }} Maison. All rights reserved.</span>
+    <span>Made for calm, collected living.</span>
+  </div>
+</footer>

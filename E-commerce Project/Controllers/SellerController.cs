@@ -43,5 +43,12 @@ namespace E_commerce_Project.Controllers
 
             return Ok(new { message = "Profile updated successfully." });
         }
+        [Authorize(Roles = "Seller")]
+        [HttpGet("dashboard-stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var result = await _sellerService.GetDashboardStatsAsync(User);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }

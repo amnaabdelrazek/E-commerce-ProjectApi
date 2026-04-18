@@ -36,7 +36,7 @@ namespace E_commerce_Project.Services.Implementations
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity,
                 CategoryId = dto.CategoryId,
-                SellerId = user.Id
+                SellerId = int.Parse(user.Id)
             };
 
             await _repo.AddAsync(product);
@@ -45,13 +45,18 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success("Product created");
         }
 
-        // ================= UPDATE =================
-        public async Task<GeneralResponse<string>> UpdateProductAsync(int id, UpdateProductDto dto)
+       
+        // ================= UPDATE (Modified) =================
+        public async Task<GeneralResponse<string>> UpdateProductAsync(int id, ClaimsPrincipal userPrincipal, UpdateProductDto dto)
         {
+            var user = await _userManager.GetUserAsync(userPrincipal);
             var product = await _repo.GetByIdAsync(id);
 
-            if (product == null)
-                return GeneralResponse<string>.Fail("Product not found");
+            if (product == null) return GeneralResponse<string>.Fail("Product not found");
+
+            // 🔐 Security Check: Only the owner (or an Admin) can edit
+            if (product.SellerId.ToString() != user.Id && !userPrincipal.IsInRole("Admin"))
+                return GeneralResponse<string>.Fail("Unauthorized: You do not own this product");
 
             product.Name = dto.Name ?? product.Name;
             product.Description = dto.Description ?? product.Description;
@@ -61,23 +66,26 @@ namespace E_commerce_Project.Services.Implementations
 
             _repo.Update(product);
             await _repo.SaveAsync();
-
-            return GeneralResponse<string>.Success("Product updated");
+            return GeneralResponse<string>.Success("Product updated successfully");
         }
 
-        // ================= DELETE =================
-        public async Task<GeneralResponse<string>> DeleteProductAsync(int id)
+        // ================= DELETE (Modified) =================
+        public async Task<GeneralResponse<string>> DeleteProductAsync(int id, ClaimsPrincipal userPrincipal)
         {
+            var user = await _userManager.GetUserAsync(userPrincipal);
             var product = await _repo.GetByIdAsync(id);
 
-            if (product == null)
-                return GeneralResponse<string>.Fail("Product not found");
+            if (product == null) return GeneralResponse<string>.Fail("Product not found");
+
+            // 🔐 Security Check
+            if (product.SellerId.ToString() != user.Id && !userPrincipal.IsInRole("Admin"))
+                return GeneralResponse<string>.Fail("Unauthorized");
 
             _repo.Delete(product);
             await _repo.SaveAsync();
-
             return GeneralResponse<string>.Success("Product deleted");
         }
+
 
         // Services/Implementations/ProductService.cs
         public async Task<GeneralResponse<object>> GetAllProductsAsync(ProductFilterDto filter)
@@ -177,7 +185,7 @@ namespace E_commerce_Project.Services.Implementations
                 return GeneralResponse<string>.Fail("Product not found");
 
             // 🔐 تأكد إن صاحب المنتج
-            if (product.SellerId != user.Id)
+            if (product.SellerId.ToString() != user.Id)
                 return GeneralResponse<string>.Fail("Unauthorized");
 
             if (file == null || file.Length == 0)
@@ -202,6 +210,54 @@ namespace E_commerce_Project.Services.Implementations
             await _repo.SaveAsync();
 
             return GeneralResponse<string>.Success(product.ImageUrl);
+        }
+
+        // ================= GET SELLER INVENTORY =================
+        public async Task<GeneralResponse<List<ProductListDto>>> GetSellerInventoryAsync(ClaimsPrincipal userPrincipal)
+        {
+            var user = await _userManager.GetUserAsync(userPrincipal);
+            if (user == null) return GeneralResponse<List<ProductListDto>>.Fail("User not found");
+
+            // We filter strictly by the logged-in Seller's ID
+            var products = await _repo.Query()
+                .AsNoTracking()
+                .Where(p => p.SellerId.ToString() == user.Id)
+                .Include(p => p.Category)
+                .Select(p => new ProductListDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    ImageUrl = p.ImageUrl,
+                    CategoryName = p.Category.Name
+                })
+                .ToListAsync();
+
+            return GeneralResponse<List<ProductListDto>>.Success(products);
+        }
+
+        // ================= UPDATE STOCK ONLY =================
+        public async Task<GeneralResponse<string>> UpdateStockAsync(int id, ClaimsPrincipal userPrincipal, int newQuantity)
+        {
+            var user = await _userManager.GetUserAsync(userPrincipal);
+            var product = await _repo.GetByIdAsync(id);
+
+            if (product == null) return GeneralResponse<string>.Fail("Product not found");
+
+            // 🔐 Security: Only the owner can change their stock
+            if (product.SellerId.ToString() != user.Id)
+                return GeneralResponse<string>.Fail("Unauthorized");
+
+            if (newQuantity < 0)
+                return GeneralResponse<string>.Fail("Stock cannot be negative");
+
+            product.StockQuantity = newQuantity;
+
+            _repo.Update(product);
+            await _repo.SaveAsync();
+
+            return GeneralResponse<string>.Success($"Stock updated to {newQuantity}");
         }
     }
 }

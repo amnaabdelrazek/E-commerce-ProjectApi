@@ -1,17 +1,30 @@
 <div class="page">
   <div class="container">
-    <div class="head">
-      <div>
+    <section class="head card">
+      <div class="head__copy">
+        <span class="head__eyebrow">Shop Maison</span>
         <h1>Shop</h1>
-        <p class="muted">Browse products and filter by name and price.</p>
+        <p class="muted">
+          Browse products and filter by name and price<span *ngIf="selectedCategoryId()"> in the selected category</span>.
+        </p>
+        <div class="head__tags">
+          <span class="head__tag" *ngIf="selectedCategoryName()">Category: {{ selectedCategoryName() }}</span>
+          <span class="head__tag" *ngIf="form.controls.name.value">Search: {{ form.controls.name.value }}</span>
+        </div>
       </div>
-    </div>
+      <div class="head__actions">
+        <button *ngIf="selectedCategoryId()" class="chip-reset" type="button" (click)="clear()">
+          Clear category
+        </button>
+        <div class="head__meta">Total products: {{ totalCount() }}</div>
+      </div>
+    </section>
 
     <form class="filters card" [formGroup]="form" (ngSubmit)="apply()">
       <div class="filters__grid">
         <div class="f">
           <label>Name</label>
-          <input class="input" type="text" formControlName="name" placeholder="Search..." />
+          <input class="input" type="text" formControlName="name" placeholder="Search by name" />
         </div>
         <div class="f">
           <label>Min price</label>
@@ -29,7 +42,7 @@
     </form>
 
     <div class="bar">
-      <div class="muted">Total: {{ totalCount() }}</div>
+      <div class="muted">Curated results for your current filters</div>
       <div class="pager">
         <button class="btn btn--secondary" type="button" (click)="prev()" [disabled]="pageNumber() === 1">
           Prev
@@ -58,4 +71,3 @@
     </ng-template>
   </div>
 </div>
-

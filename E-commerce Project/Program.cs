@@ -23,7 +23,7 @@ namespace E_commerce_Project
 
             // ================= DB =================
             builder.Services.AddDbContext<AppDbContext>(opt =>
-                opt.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("Default2")));
 
             // ================= Identity =================
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -45,6 +45,8 @@ namespace E_commerce_Project
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<ISellerService, SellerService>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IPayPalService, PayPalService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
 
             // ================= JWT Authentication =================
             builder.Services.AddAuthentication(options =>
@@ -76,7 +78,7 @@ namespace E_commerce_Project
 
             // ================= Swagger + JWT =================
             builder.Services.AddEndpointsApiExplorer();
-            
+
 
             builder.Services.AddSwaggerGen(options =>
             {
@@ -115,40 +117,69 @@ namespace E_commerce_Project
                         .AllowAnyHeader();
                 });
             });
+            builder.Services.Configure<PayPalSettings>(
+            builder.Configuration.GetSection("PayPal"));
 
             var app = builder.Build();
-            
+
             // ================= SEED ROLES =================
             var roles = new[] { "Admin", "Customer", "Seller" };
 
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
                 foreach (var role in roles)
                 {
                     if (!await roleManager.RoleExistsAsync(role))
                         await roleManager.CreateAsync(new IdentityRole(role));
                 }
-            }
+                //default Account for Admin
+                string adminEmail = "admin@gmail.com";
+                string adminPassword = "Admin@1234";
+
+                var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+                if (adminUser == null)
+                {
+                    var user = new ApplicationUser
+                    {
+                        UserName = adminEmail,
+                        Email = adminEmail,
+                        EmailConfirmed = true
+                    };
+
+                    var result = await userManager.CreateAsync(user, adminPassword);
+
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(user, "Admin");
+                    }
+                }
 
 
-            // ================= Middleware =================
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                // ================= Middleware =================
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
 
-            app.UseCors("AllowAll");
-            app.UseStaticFiles();
+            app.UseCors("AllowAll"); // 👈 لازم تيجي هنا
             app.UseHttpsRedirection();
+
+
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseStaticFiles();
+
+
             app.MapControllers();
 
-            app.Run();
+                app.Run();
+            }
         }
     }
 }

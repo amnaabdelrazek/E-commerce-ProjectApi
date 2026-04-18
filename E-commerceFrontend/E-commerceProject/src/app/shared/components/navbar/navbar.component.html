@@ -1,41 +1,111 @@
 <header class="nav">
   <div class="nav__inner">
-    <a class="nav__brand" routerLink="/home">Maison</a>
+    <a class="nav__brand" routerLink="/home">
+      <span class="nav__brand-mark">M</span>
+      <span class="nav__brand-copy">
+        Maison
+        <small>Curated living</small>
+      </span>
+    </a>
 
     <nav class="nav__links" aria-label="Primary">
       <a routerLink="/home" routerLinkActive="is-active">Home</a>
-      <a routerLink="/shop" routerLinkActive="is-active">Shop</a>
-      <a routerLink="/furniture" routerLinkActive="is-active">Furniture</a>
-      <a routerLink="/decor" routerLinkActive="is-active">Decor</a>
+      <a routerLink="/shop" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Shop</a>
+
+      <div class="nav__categories">
+        <button type="button" class="nav__categories-trigger">
+          Categories
+        </button>
+
+        <div class="nav__categories-panel">
+          <div class="nav__categories-head">
+            <div>
+              <strong>Shop by category</strong>
+              <p>Browse the collections your customers care about most.</p>
+            </div>
+            <a class="nav__view-all" routerLink="/shop">All products</a>
+          </div>
+
+          <div class="nav__categories-grid" *ngIf="categoriesState() === 'loaded'; else categoriesStateTpl">
+            <a
+              *ngFor="let category of categories()"
+              class="category-card"
+              routerLink="/shop"
+              [queryParams]="{ categoryId: category.id }"
+            >
+              <div
+                class="category-card__image"
+                [style.background-image]="'linear-gradient(180deg, rgba(15,23,42,.12), rgba(15,23,42,.65)), url(' + category.imageUrl + ')'"
+              ></div>
+
+              <div class="category-card__body">
+                <div class="category-card__topline">
+                  <h3>{{ category.name }}</h3>
+                  <span>{{ category.productsCount }} items</span>
+                </div>
+                <p>{{ category.description }}</p>
+              </div>
+            </a>
+          </div>
+
+          <ng-template #categoriesStateTpl>
+            <div class="nav__categories-status" *ngIf="categoriesState() === 'loading'; else errorTpl">
+              Loading categories...
+            </div>
+          </ng-template>
+
+          <ng-template #errorTpl>
+            <div class="nav__categories-status nav__categories-status--error">
+              Categories are unavailable right now.
+            </div>
+          </ng-template>
+        </div>
+      </div>
     </nav>
 
     <div class="nav__actions" aria-label="Actions">
-      <button type="button" class="icon-btn" aria-label="Search">
+      <form class="nav__search" (ngSubmit)="submitSearch()">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
-            d="M10.5 3a7.5 7.5 0 0 1 5.96 12.06l3.24 3.24a1 1 0 1 1-1.42 1.42l-3.24-3.24A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z"
-          />
+            d="M10.5 3a7.5 7.5 0 0 1 5.96 12.06l3.24 3.24a1 1 0 1 1-1.42 1.42l-3.24-3.24A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z" />
         </svg>
-      </button>
+        <input
+          type="search"
+          name="search"
+          [(ngModel)]="searchTerm"
+          placeholder="Search products"
+          aria-label="Search products"
+        />
+        <button type="submit">Search</button>
+      </form>
+
       <button type="button" class="icon-btn" aria-label="Wishlist">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
-            d="M12 20.5s-7.5-4.6-9.7-9.2C.7 7.9 2.7 5 6 5c1.8 0 3.2 1 4 2.1C10.8 6 12.2 5 14 5c3.3 0 5.3 2.9 3.7 6.3C19.5 15.9 12 20.5 12 20.5Zm-2.7-12c-.5-1-1.6-1.9-3.3-1.9c-1.9 0-3 1.6-2.1 3.6c1.5 3.3 7.9 7.6 8.1 7.7c.2-.1 6.6-4.4 8.1-7.7c.9-2-.2-3.6-2.1-3.6c-1.7 0-2.8.9-3.3 1.9a1 1 0 0 1-1.7 0Z"
-          />
+            d="M12 20.5s-7.5-4.6-9.7-9.2C.7 7.9 2.7 5 6 5c1.8 0 3.2 1 4 2.1C10.8 6 12.2 5 14 5c3.3 0 5.3 2.9 3.7 6.3C19.5 15.9 12 20.5 12 20.5Zm-2.7-12c-.5-1-1.6-1.9-3.3-1.9c-1.9 0-3 1.6-2.1 3.6c1.5 3.3 7.9 7.6 8.1 7.7c.2-.1 6.6-4.4 8.1-7.7c.9-2-.2-3.6-2.1-3.6c-1.7 0-2.8.9-3.3 1.9a1 1 0 0 1-1.7 0Z" />
         </svg>
       </button>
-      <button type="button" class="icon-btn" aria-label="Cart">
+
+      <button type="button" class="icon-btn cart-btn" aria-label="Cart" routerLink="/cart">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
-            d="M7 6h14l-1.6 8.1a2 2 0 0 1-2 1.6H9a2 2 0 0 1-2-1.6L5 3H2a1 1 0 1 1 0-2h3a1 1 0 0 1 1 .8L7 6Zm2.2 9.7h8.2a.5.5 0 0 0 .5-.4L19 8H7.4l1.3 7.3a.5.5 0 0 0 .5.4ZM9 22a2 2 0 1 1 0-4a2 2 0 0 1 0 4Zm8 0a2 2 0 1 1 0-4a2 2 0 0 1 0 4Z"
-          />
+            d="M7 6h14l-1.6 8.1a2 2 0 0 1-2 1.6H9a2 2 0 0 1-2-1.6L5 3H2a1 1 0 1 1 0-2h3a1 1 0 0 1 1 .8L7 6Zm2.2 9.7h8.2a.5.5 0 0 0 .5-.4L19 8H7.4l1.3 7.3a.5.5 0 0 0 .5.4ZM9 22a2 2 0 1 1 0-4a2 2 0 0 1 0 4Zm8 0a2 2 0 1 1 0-4a2 2 0 0 1 0 4Z" />
         </svg>
+        <span class="cart-badge" *ngIf="cartService.cartCount() > 0">
+          {{ cartService.cartCount() }}
+        </span>
       </button>
+
+      <a *ngIf="authService.currentUser()?.role === 'Seller'" class="icon-btn" routerLink="/seller" aria-label="Seller Dashboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+        </svg>
+      </a>
+
       <a class="icon-btn" routerLink="/profile" aria-label="Account">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
-            d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Zm0 2c-4.4 0-8 2.2-8 5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2c0-2.8-3.6-5-8-5Z"
-          />
+            d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Zm0 2c-4.4 0-8 2.2-8 5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2c0-2.8-3.6-5-8-5Z" />
         </svg>
       </a>
     </div>

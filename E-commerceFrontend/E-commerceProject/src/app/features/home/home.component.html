@@ -1,93 +1,130 @@
 <section class="hero">
   <div class="container hero__inner">
-    <div class="hero__left">
-      <div class="hero__kicker">CURATED COLLECTIONS</div>
+    <div class="hero__content">
+      <div class="hero__eyebrow">Curated collection</div>
       <h1 class="hero__title">Timeless Pieces, Modern Living</h1>
       <p class="hero__desc">
-        Discover handcrafted furniture and decor that fits into every space. Carefully selected for quality and
+        Discover handcrafted furniture and decor that fits into every lifestyle. Carefully selected for quality and
         character.
       </p>
+
       <div class="hero__actions">
-        <a class="btn btn--primary" routerLink="/shop">Shop Now</a>
-        <a class="btn btn--secondary" routerLink="/shop">Browse Catalog</a>
+        <a class="btn btn--primary hero__btn" routerLink="/shop">Shop now</a>
+        <a class="btn btn--secondary hero__btn" routerLink="/shop">View collection</a>
       </div>
     </div>
 
-    <div class="hero__right">
-      <img class="hero__img" src="/hero-sofa.svg" alt="Featured sofa" />
+    <div class="hero__visual">
+      <div class="hero__image-card">
+        <img class="hero__img" src="/hero-sofa.svg" alt="Featured sofa" />
+      </div>
     </div>
   </div>
 </section>
 
-<section class="container page">
+<section class="home page">
+  <div class="container">
     <div class="perks">
       <div class="perk card">
-        <div class="perk__icon">🚚</div>
-        <div class="perk__title">Free Shipping</div>
-        <div class="perk__text muted">Orders over $50</div>
+        <div class="perk__icon">+</div>
+        <div>
+          <strong>Free Shipping</strong>
+          <p>On selected orders</p>
+        </div>
       </div>
       <div class="perk card">
-        <div class="perk__icon">🔒</div>
-        <div class="perk__title">Secure Payment</div>
-        <div class="perk__text muted">Protected checkout</div>
+        <div class="perk__icon">P</div>
+        <div>
+          <strong>Secure Payment</strong>
+          <p>Protected checkout</p>
+        </div>
       </div>
       <div class="perk card">
-        <div class="perk__icon">⚡</div>
-        <div class="perk__title">Easy Returns</div>
-        <div class="perk__text muted">30-day policy</div>
+        <div class="perk__icon">R</div>
+        <div>
+          <strong>Easy Returns</strong>
+          <p>Flexible return policy</p>
+        </div>
       </div>
     </div>
 
-    <div class="section">
-      <div class="section__head">
+    <section class="section">
+      <div class="section__head section__head--center">
         <h2>Shop by Category</h2>
       </div>
-      <div class="cats">
-        <a class="cat card" routerLink="/furniture"><span>🪑</span><b>Furniture</b></a>
-        <a class="cat card" routerLink="/lighting"><span>💡</span><b>Lighting</b></a>
-        <a class="cat card" routerLink="/shop"><span>🧺</span><b>Textiles</b></a>
-        <a class="cat card" routerLink="/decor"><span>🖼️</span><b>Decor</b></a>
-        <a class="cat card" routerLink="/shop"><span>🍽️</span><b>Kitchen</b></a>
-        <a class="cat card" routerLink="/shop"><span>🌿</span><b>Garden</b></a>
-      </div>
-    </div>
 
-    <div class="section">
+      <div class="cats">
+        <a class="cat card" *ngFor="let category of categories()" routerLink="/shop" [queryParams]="{ categoryId: category.id }">
+          <span class="cat__icon">{{ category.name.charAt(0) }}</span>
+          <strong>{{ category.name }}</strong>
+          <small>{{ category.productsCount }} items</small>
+        </a>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="section__head">
         <h2>Featured Products</h2>
-        <a class="link" routerLink="/shop">View all →</a>
+        <a class="link" routerLink="/shop">View all +</a>
       </div>
 
-      <div class="grid" *ngIf="state() !== 'error'; else errTpl">
+      <div class="product-grid" *ngIf="state() !== 'error'; else errTpl">
         <ng-container *ngIf="state() === 'loaded'; else loadingTpl">
-          <app-product-card *ngFor="let p of featured" [product]="p" />
+          <a class="product-card" *ngFor="let p of featured" [routerLink]="['/products', p.id]">
+            <div class="product-card__media">
+              <img [src]="p.imageUrl || '/product-placeholder.svg'" [alt]="p.name" />
+              <span class="product-card__badge" *ngIf="p.stockQuantity > 0">In stock</span>
+            </div>
+            <div class="product-card__body">
+              <div class="product-card__name">{{ p.name }}</div>
+              <div class="product-card__category">{{ p.categoryName }}</div>
+              <div class="product-card__price-row">
+                <strong>{{ p.price | currency: 'USD' : 'symbol' : '1.0-2' }}</strong>
+                <span>{{ p.stockQuantity }} available</span>
+              </div>
+            </div>
+          </a>
         </ng-container>
       </div>
-    </div>
+    </section>
 
-    <div class="banner">
-      <div class="banner__inner">
-        <div>
-          <div class="banner__kicker">LIMITED TIME</div>
-          <div class="banner__title">Spring Sale — Up to 30% Off</div>
-          <div class="banner__text muted">Save on best sellers & essentials.</div>
-          <a class="btn btn--secondary banner__btn" routerLink="/shop">Shop the sale</a>
-        </div>
-        <div class="banner__badge">New</div>
+    <section class="sale-banner">
+      <div class="sale-banner__copy">
+        <div class="sale-banner__eyebrow">Limited time</div>
+        <h2>Spring Sale - Up to 30% Off</h2>
+        <p>Make your interior feel refreshed with selected pieces and special offers.</p>
+        <a class="btn btn--primary sale-banner__btn" routerLink="/shop">Shop the sale</a>
       </div>
-    </div>
 
-    <div class="section">
+      <div class="sale-banner__media">
+        <img src="/hero-sofa.svg" alt="Sale sofa" />
+      </div>
+    </section>
+
+    <section class="section">
       <div class="section__head">
         <h2>New Arrivals</h2>
       </div>
 
-      <div class="grid" *ngIf="state() !== 'error'; else errTpl">
+      <div class="product-grid product-grid--arrivals" *ngIf="state() !== 'error'; else errTpl">
         <ng-container *ngIf="state() === 'loaded'; else loadingTpl">
-          <app-product-card *ngFor="let p of arrivals" [product]="p" />
+          <a class="product-card" *ngFor="let p of arrivals" [routerLink]="['/products', p.id]">
+            <div class="product-card__media">
+              <img [src]="p.imageUrl || '/product-placeholder.svg'" [alt]="p.name" />
+              <span class="product-card__badge" *ngIf="p.stockQuantity > 0">In stock</span>
+            </div>
+            <div class="product-card__body">
+              <div class="product-card__name">{{ p.name }}</div>
+              <div class="product-card__category">{{ p.categoryName }}</div>
+              <div class="product-card__price-row">
+                <strong>{{ p.price | currency: 'USD' : 'symbol' : '1.0-2' }}</strong>
+                <span>{{ p.stockQuantity }} available</span>
+              </div>
+            </div>
+          </a>
         </ng-container>
       </div>
-    </div>
+    </section>
 
     <ng-template #loadingTpl>
       <div class="skeleton" *ngFor="let _ of [1, 2, 3, 4]"></div>
@@ -98,4 +135,5 @@
         Failed to load products. Please make sure the API is running and try again.
       </div>
     </ng-template>
-  </section>
+  </div>
+</section>

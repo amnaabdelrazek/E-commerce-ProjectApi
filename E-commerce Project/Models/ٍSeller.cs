@@ -4,6 +4,7 @@ namespace E_commerce_Project.Models
 {
     public class Seller : BaseEntity
     {
+        public int id { get; set; }
         public string StoreName { get; set; }
         public string StoreDescription { get; set; }
         public bool IsApproved { get; set; } // Admin must approve them

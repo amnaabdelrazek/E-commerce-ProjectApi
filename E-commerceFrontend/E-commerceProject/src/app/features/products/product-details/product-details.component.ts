@@ -3,7 +3,10 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
+import { CartService } from '../../../core/services/cart-service';
+import { AddToCartResquest } from '../../../core/models/cart';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -18,7 +21,9 @@ export class ProductDetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
+  private readonly cartService = inject(CartService)
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly notification = inject(NotificationService);
 
   readonly state = signal<LoadState>('loading');
   readonly product = signal<Product | null>(null);
@@ -46,14 +51,28 @@ export class ProductDetailsComponent {
     if (!img) return;
     img.src = this.placeholder;
   }
-
-  onAddToCart() {
+  onAddToCart(product: Product)
+    {
     const token = this.tokenStorage.getToken();
     if (!token) {
+      this.notification.info('Please sign in first to add products to your cart.');
       void this.router.navigate(['/login']);
       return;
     }
-    // TODO: integrate add-to-cart API when available.
-  }
+      const request: AddToCartResquest = {
+        productId: product.id,
+        quantity: 1
+    };
+  
+     this.cartService.addItem(request).subscribe({
+      next: (res) => {
+        if (res.isSuccess) {
+          this.cartService.getCartCount();
+          this.notification.success(res.message || `${product.name} added to cart.`);
+        }
+      },
+      error: () => this.notification.error('Error adding this product to the cart.')
+    });
+    }
 }
 

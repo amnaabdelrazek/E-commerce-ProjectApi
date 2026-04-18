@@ -1,7 +1,11 @@
 <section class="placeholder">
   <div class="placeholder__inner">
     <h1>{{ title }}</h1>
-    <p>This page is coming soon.</p>
+    <p>{{ description }}</p>
+    <div class="placeholder__actions">
+      <a class="btn btn--primary" [routerLink]="primaryLink">{{ primaryLabel }}</a>
+      <a class="btn btn--secondary" [routerLink]="secondaryLink">{{ secondaryLabel }}</a>
+    </div>
   </div>
 </section>
 

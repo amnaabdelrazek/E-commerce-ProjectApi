@@ -11,12 +11,7 @@
 
       <div class="wrap card">
         <div class="media">
-          <img
-            [src]="p.imageUrl || placeholder"
-            [alt]="p.name"
-            loading="lazy"
-            (error)="onImgError($event)"
-          />
+          <img [src]="p.imageUrl || placeholder" [alt]="p.name" loading="lazy" (error)="onImgError($event)" />
         </div>
 
         <div class="info">
@@ -32,15 +27,10 @@
           </div>
 
           <div class="actions">
-            <button
-              class="btn btn--primary"
-              type="button"
-              [disabled]="p.stockQuantity === 0"
-              (click)="onAddToCart()"
-            >
-              Add to cart
-            </button>
-            <a class="btn btn--secondary" routerLink="/shop">Back to shop</a>
+            <button class="btn btn--primary" type="button" [disabled]="p.stockQuantity === 0"
+              (click)="onAddToCart(product()!)">Add to cart</button>
+            <button class="btn btn--secondary" routerLink="/shop">Back to shop</button>
+            
           </div>
         </div>
       </div>
@@ -57,4 +47,3 @@
     </ng-template>
   </div>
 </div>
-

@@ -1,0 +1,269 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.admin-wrapper {
+  display: flex;
+  height: 100%;
+  background-color: #f6f1ea;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: linear-gradient(135deg, #6f4127 0%, #a26a3f 100%);
+  color: #f5efe8;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(245, 239, 232, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #f5efe8;
+}
+
+.sidebar-toggle-mobile {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sidebar-toggle-mobile span {
+  width: 24px;
+  height: 2px;
+  background-color: #f5efe8;
+  transition: 0.3s;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: rgba(245, 239, 232, 0.8);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  background-color: rgba(245, 239, 232, 0.1);
+  color: #f5efe8;
+}
+
+.nav-link.active {
+  background-color: rgba(245, 239, 232, 0.15);
+  color: #f5efe8;
+  border-left-color: #f5efe8;
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 18px;
+  min-width: 20px;
+}
+
+.nav-text {
+  flex: 1;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(245, 239, 232, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(245, 239, 232, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #f5efe8;
+}
+
+.user-name {
+  font-size: 13px;
+  word-break: break-word;
+  color: #f5efe8;
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: rgba(245, 239, 232, 0.2);
+  color: #f5efe8;
+  border: 1px solid rgba(245, 239, 232, 0.3);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: rgba(245, 239, 232, 0.3);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-header {
+  padding: 16px 24px;
+  background-color: #fbf7f1;
+  border-bottom: 1px solid #e5ddd4;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.toggle-sidebar-btn {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggle-sidebar-btn span {
+  width: 24px;
+  height: 2px;
+  background-color: #2b2118;
+  transition: 0.3s;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #2b2118;
+}
+
+.header-spacer {
+  flex: 1;
+}
+
+.main-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+/* Tablet responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle-mobile {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .toggle-sidebar-btn {
+    display: flex;
+  }
+
+  .main-body {
+    padding: 16px;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+  }
+
+  .main-header {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .main-body {
+    padding: 12px;
+  }
+}

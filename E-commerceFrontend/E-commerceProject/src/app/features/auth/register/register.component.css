@@ -3,53 +3,98 @@
   padding: 56px 20px 72px;
   display: grid;
   place-items: center;
-  background: transparent;
+}
+
+.auth__shell {
+  width: min(1160px, 100%);
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  overflow: hidden;
+}
+
+.auth__showcase {
+  padding: 42px;
+  background:
+    radial-gradient(circle at top left, rgba(209, 161, 108, 0.18), transparent 34%),
+    linear-gradient(155deg, #2d2018, #1d1410);
+  color: var(--app-dark-text);
+}
+
+.auth__eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: rgba(246, 239, 232, 0.72);
+}
+
+.auth__showcase h1 {
+  margin: 18px 0 14px;
+  font-size: clamp(2.2rem, 4vw, 3.7rem);
+  line-height: 0.98;
+}
+
+.auth__showcase p {
+  margin: 0;
+  max-width: 34ch;
+  color: rgba(246, 239, 232, 0.76);
+}
+
+.auth__benefits {
+  display: grid;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.auth__benefit {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.auth__benefit strong,
+.auth__benefit span {
+  display: block;
+}
+
+.auth__panel {
+  padding: 42px;
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .auth__header {
-  text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
-.auth__header h1 {
+.auth__header h2 {
   margin: 0;
-  font-size: 28px;
-  letter-spacing: 0.3px;
-  color: var(--app-text);
-  font-weight: 600;
+  font-size: 34px;
 }
 
 .auth__header p {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   color: var(--app-muted);
-  font-size: 12px;
-}
-
-.card {
-  width: min(420px, 92vw);
-  background: color-mix(in srgb, var(--app-surface) 70%, white);
-  border: 1px solid var(--app-border);
-  border-radius: var(--app-radius-md);
-  padding: 20px 18px;
-  box-shadow: var(--app-shadow-sm);
+  font-size: 14px;
 }
 
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 .field {
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 label {
   display: block;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: color-mix(in srgb, var(--app-text) 80%, transparent);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .password {
@@ -63,7 +108,7 @@ label {
   transform: translateY(-50%);
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
@@ -84,12 +129,42 @@ label {
   fill: currentColor;
 }
 
+.role-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.role-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.role-option span {
+  display: grid;
+  gap: 2px;
+}
+
+.role-option strong {
+  font-size: 14px;
+}
+
+.role-option small {
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
 .terms {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  margin: 6px 0 6px;
-  font-size: 12px;
+  margin: 4px 0 8px;
+  font-size: 13px;
   color: var(--app-muted);
   user-select: none;
 }
@@ -107,6 +182,7 @@ label {
 
 .primary {
   width: 100%;
+  min-height: 48px;
 }
 
 .divider {
@@ -139,14 +215,10 @@ label {
   height: 18px;
 }
 
-.social:hover {
-  text-decoration: none;
-}
-
 .bottom {
-  margin-top: 14px;
+  margin-top: 18px;
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--app-muted);
   display: flex;
   gap: 6px;
@@ -173,8 +245,8 @@ label {
 .server-error {
   margin: 0 0 12px;
   font-size: 12px;
-  padding: 10px 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 12px;
   background: color-mix(in srgb, #b42318 10%, white);
   border: 1px solid color-mix(in srgb, #b42318 22%, transparent);
   color: #7a1c13;
@@ -182,26 +254,46 @@ label {
 
 .success__title {
   font-weight: 800;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--app-text);
 }
 
 .success__text {
   margin: 8px 0 0;
   color: var(--app-muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
 .success__actions {
-  margin-top: 10px;
+  margin-top: 14px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
 }
 
-@media (max-width: 460px) {
+@media (max-width: 860px) {
+  .auth__shell {
+    grid-template-columns: 1fr;
+  }
+
+  .auth__showcase p {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .auth__showcase,
+  .auth__panel {
+    padding: 28px 22px;
+  }
+
+  .role-group,
   .grid-2 {
     grid-template-columns: 1fr;
+  }
+
+  .role-option {
+    padding: 12px;
   }
 }

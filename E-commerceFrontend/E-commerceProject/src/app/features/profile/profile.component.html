@@ -1,26 +1,25 @@
 <div class="page page--center">
   <div class="container profile">
     <ng-container *ngIf="state() === 'loaded' && profile() as p; else otherTpl">
-      <h1 class="title">My Profile</h1>
-
-      <div class="summary card">
+      <section class="hero card">
         <div class="summary__left">
-          <div class="avatar">
-            <img
-              [src]="resolveImageUrl(p.profileImageUrl)"
-              [alt]="p.fullName"
-              (error)="onImgError($event)"
-            />
+          <div class="avatar avatar--large">
+            <img [src]="resolveImageUrl(p.profileImageUrl)" [alt]="p.fullName" (error)="onImgError($event)" />
           </div>
-          <div>
-            <div class="name">{{ p.fullName }}</div>
+          <div class="hero__copy">
+            <span class="hero__eyebrow">My account</span>
+            <h1 class="title">{{ p.fullName }}</h1>
             <div class="email muted">{{ p.email }}</div>
+            <p class="hero__text">Manage your personal details, profile photo, and security settings from one place.</p>
           </div>
         </div>
-        <button class="btn btn--secondary" type="button" (click)="toggleEdit()">
-          {{ editing() ? 'Cancel' : 'Edit' }}
-        </button>
-      </div>
+        <div class="hero__actions">
+          <button class="btn btn--secondary" type="button" (click)="toggleEdit()">
+            {{ editing() ? 'Cancel editing' : 'Edit profile' }}
+          </button>
+          <button class="btn btn--secondary danger" type="button" (click)="signOut()">Sign Out</button>
+        </div>
+      </section>
 
       <div class="stats">
         <div class="stat card">
@@ -106,13 +105,11 @@
           <span class="muted">{{ passwordMessage() }}</span>
         </div>
       </form>
-
-      <button class="btn btn--secondary danger" type="button" (click)="signOut()">Sign Out</button>
     </ng-container>
 
     <ng-template #otherTpl>
       <div class="card state">
-        <ng-container *ngIf="state() === 'loading'">Loading profile…</ng-container>
+        <ng-container *ngIf="state() === 'loading'">Loading profile...</ng-container>
         <ng-container *ngIf="state() === 'error'">Unable to load profile.</ng-container>
         <div class="state__actions">
           <a class="btn btn--secondary" routerLink="/home">Back to Home</a>

@@ -30,6 +30,7 @@ export class RegisterComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
+    role: ['Customer', [Validators.required]],
     agree: [false, [Validators.requiredTrue]]
   });
 
@@ -61,10 +62,10 @@ export class RegisterComponent {
 
     this.loading.set(true);
 
-    const { firstName, lastName, email, password } = this.form.getRawValue();
+    const { firstName, lastName, email, password, role } = this.form.getRawValue();
     const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, ' ');
 
-    this.auth.register({ fullName, email, password }).subscribe({
+    this.auth.register({ fullName, email, password, role }).subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res?.isSuccess) {

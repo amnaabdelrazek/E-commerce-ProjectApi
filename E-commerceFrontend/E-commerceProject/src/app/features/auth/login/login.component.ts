@@ -52,7 +52,9 @@ export class LoginComponent {
     this.auth.login(dto, rememberMe).subscribe({
       next: async () => {
         this.loading.set(false);
-        await this.router.navigateByUrl('/home');
+        const user = this.auth.getCurrentUser();
+        const navigatePath = user?.role === 'Admin' ? '/admin/dashboard' : '/home';
+        await this.router.navigateByUrl(navigatePath);
       },
       error: (err: unknown) => {
         this.loading.set(false);
