@@ -34,12 +34,16 @@ export class NotificationService {
     const id = `toast-${++this.toastIdCounter}`;
     const toast: Toast = { id, message, type, duration };
 
-    const currentToasts = this.toastsSubject.value;
-    this.toastsSubject.next([...currentToasts, toast]);
+    // Use requestAnimationFrame to defer the update after the rendering cycle
+    // This ensures Angular's change detection has completed
+    requestAnimationFrame(() => {
+      const currentToasts = this.toastsSubject.value;
+      this.toastsSubject.next([...currentToasts, toast]);
 
-    if (duration > 0) {
-      setTimeout(() => this.removeToast(id), duration);
-    }
+      if (duration > 0) {
+        setTimeout(() => this.removeToast(id), duration);
+      }
+    });
   }
 
   removeToast(id: string): void {
