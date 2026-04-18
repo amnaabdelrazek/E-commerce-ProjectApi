@@ -1,0 +1,115 @@
+<div class="admin-profile">
+  <ng-container *ngIf="state() === 'loaded' && profile() as p; else otherTpl">
+    <section class="hero card">
+      <div class="summary__left">
+        <div class="avatar avatar--large">
+          <img [src]="resolveImageUrl(p.profileImageUrl)" [alt]="p.fullName" (error)="onImgError($event)" />
+        </div>
+        <div class="hero__copy">
+          <span class="hero__eyebrow">Admin account</span>
+          <h1 class="title">{{ p.fullName }}</h1>
+          <div class="email muted">{{ p.email }}</div>
+          <p class="hero__text">Manage your admin profile details, photo, and password from one secure place.</p>
+        </div>
+      </div>
+      <div class="hero__actions">
+        <button class="btn btn--secondary" type="button" (click)="toggleEdit()">
+          {{ editing() ? 'Cancel editing' : 'Edit profile' }}
+        </button>
+        <button class="btn btn--secondary danger" type="button" (click)="signOut()">Sign Out</button>
+      </div>
+    </section>
+
+    <div class="stats">
+      <div class="stat card">
+        <div class="stat__value">{{ p.ordersCount ?? 0 }}</div>
+        <div class="stat__label muted">Orders</div>
+      </div>
+      <div class="stat card">
+        <div class="stat__value">{{ p.wishlistCount ?? 0 }}</div>
+        <div class="stat__label muted">Wishlist</div>
+      </div>
+      <div class="stat card">
+        <div class="stat__value">{{ p.reviewsCount ?? 0 }}</div>
+        <div class="stat__label muted">Reviews</div>
+      </div>
+    </div>
+
+    <div class="details card">
+      <div class="details__title">Personal Details</div>
+      <div class="details__grid">
+        <div>
+          <div class="details__label muted">Full Name</div>
+          <div class="details__value">{{ p.fullName }}</div>
+        </div>
+        <div>
+          <div class="details__label muted">Email</div>
+          <div class="details__value">{{ p.email }}</div>
+        </div>
+        <div>
+          <div class="details__label muted">City</div>
+          <div class="details__value">{{ p.city || '-' }}</div>
+        </div>
+        <div>
+          <div class="details__label muted">Street</div>
+          <div class="details__value">{{ p.street || '-' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <form class="card edit" *ngIf="editing()" [formGroup]="form" (ngSubmit)="saveProfile()">
+      <div class="edit__title">Edit Profile</div>
+      <div class="edit__grid">
+        <div>
+          <label class="muted">Full Name</label>
+          <input class="input" type="text" formControlName="fullName" />
+        </div>
+        <div>
+          <label class="muted">City</label>
+          <input class="input" type="text" formControlName="city" />
+        </div>
+        <div>
+          <label class="muted">Street</label>
+          <input class="input" type="text" formControlName="street" />
+        </div>
+      </div>
+
+      <div class="edit__row">
+        <div class="file">
+          <input type="file" accept="image/*" (change)="onAvatarSelected($event)" />
+          <button class="btn btn--secondary" type="button" (click)="uploadAvatar()">Upload Photo</button>
+          <span class="muted">{{ avatarMessage() }}</span>
+        </div>
+        <button class="btn btn--primary" type="submit" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+      <div class="muted">{{ message() }}</div>
+    </form>
+
+    <form class="card edit" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <div class="edit__title">Change Password</div>
+      <div class="edit__grid edit__grid--password">
+        <div>
+          <label class="muted">Current Password</label>
+          <input class="input" type="password" formControlName="currentPassword" />
+        </div>
+        <div>
+          <label class="muted">New Password</label>
+          <input class="input" type="password" formControlName="newPassword" />
+        </div>
+      </div>
+      <div class="edit__row">
+        <button class="btn btn--primary" type="submit">Update Password</button>
+        <span class="muted">{{ passwordMessage() }}</span>
+      </div>
+    </form>
+  </ng-container>
+
+  <ng-template #otherTpl>
+    <div class="card state">
+      <ng-container *ngIf="state() === 'loading'">Loading profile...</ng-container>
+      <ng-container *ngIf="state() === 'error'">Unable to load profile.</ng-container>
+    </div>
+  </ng-template>
+</div>

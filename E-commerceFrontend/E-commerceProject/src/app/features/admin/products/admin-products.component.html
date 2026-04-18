@@ -1,0 +1,281 @@
+<section class="admin-products">
+  <div class="products-hero">
+    <div>
+      <span class="products-hero__eyebrow">Catalog control</span>
+      <h2>Products</h2>
+      <p>Manage your storefront products, update their stock, and create new items from one place.</p>
+    </div>
+
+    <button type="button" class="primary-btn" (click)="openCreateModal()">
+      Create Product
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <form class="toolbar__search" (ngSubmit)="submitSearch(searchInput.value); $event.preventDefault()">
+      <input #searchInput type="text" [defaultValue]="searchTerm" placeholder="Search by product name" />
+      <button type="submit">Search</button>
+    </form>
+
+    <select class="toolbar__select" [ngModel]="selectedCategoryId" (ngModelChange)="applyCategoryFilter($event)" name="categoryFilter">
+      <option [ngValue]="0">All categories</option>
+      <option *ngFor="let category of categories" [ngValue]="category.id">
+        {{ category.name }}
+      </option>
+    </select>
+
+    <button type="button" class="ghost-btn" (click)="clearSearch(searchInput)">
+      Clear
+    </button>
+  </div>
+
+  <div class="toolbar toolbar--filters">
+    <div class="toolbar__price">
+      <input #minPriceInput type="number" min="0" [value]="minPriceFilter ?? ''" placeholder="Min price" />
+      <input #maxPriceInput type="number" min="0" [value]="maxPriceFilter ?? ''" placeholder="Max price" />
+      <button type="button" class="ghost-btn" (click)="applyPriceFilters(minPriceInput.value, maxPriceInput.value)">Apply Price</button>
+    </div>
+
+    <select class="toolbar__select" [ngModel]="stockFilter" (ngModelChange)="applyStockFilter($event)" name="stockFilter">
+      <option value="all">All stock</option>
+      <option value="in">In stock</option>
+      <option value="out">Out of stock</option>
+    </select>
+  </div>
+
+  <div class="active-chips" *ngIf="selectedCategoryId || stockFilter !== 'all' || minPriceFilter !== null || maxPriceFilter !== null">
+    <button type="button" class="chip" *ngIf="selectedCategoryId" (click)="clearSingleFilter('category')">
+      Category: {{ selectedCategoryName }} x
+    </button>
+    <button type="button" class="chip" *ngIf="stockFilter !== 'all'" (click)="clearSingleFilter('stock')">
+      Stock: {{ stockFilter === 'in' ? 'In stock' : 'Out of stock' }} x
+    </button>
+    <button type="button" class="chip" *ngIf="minPriceFilter !== null" (click)="clearSingleFilter('minPrice')">
+      Min: ${{ minPriceFilter }} x
+    </button>
+    <button type="button" class="chip" *ngIf="maxPriceFilter !== null" (click)="clearSingleFilter('maxPrice')">
+      Max: ${{ maxPriceFilter }} x
+    </button>
+  </div>
+
+  <div class="summary-strip">
+    <div class="summary-chip">
+      <strong>{{ totalCount }}</strong>
+      <span>Total products</span>
+    </div>
+    <div class="summary-chip">
+      <strong>{{ pageNumber }}</strong>
+      <span>Current page</span>
+    </div>
+    <div class="summary-chip">
+      <strong>{{ totalPages }}</strong>
+      <span>Total pages</span>
+    </div>
+  </div>
+
+  <div class="products-table-wrap">
+    <div *ngIf="isLoading" class="state-card">Loading products...</div>
+
+    <div *ngIf="hasLoadedOnce && !isLoading && errorMessage" class="state-card state-card--error">
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="primary-btn" (click)="retryLoadProducts()">Try again</button>
+    </div>
+
+    <div *ngIf="hasLoadedOnce && !isLoading && !errorMessage && !products.length" class="state-card">
+      No products found. Create your first product or try another search term.
+    </div>
+
+    <table *ngIf="hasLoadedOnce && !isLoading && !errorMessage && products.length" class="products-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th class="products-table__actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products; trackBy: trackByProductId">
+          <td>
+            <div class="product-cell">
+              <div class="product-cell__thumb" [style.background-image]="product.imageUrl ? 'url(' + product.imageUrl + ')' : ''">
+                <span *ngIf="!product.imageUrl">{{ product.name.charAt(0) }}</span>
+              </div>
+              <div class="product-cell__content">
+                <strong>{{ product.name }}</strong>
+                <p>{{ product.description }}</p>
+              </div>
+            </div>
+          </td>
+          <td>{{ product.categoryName }}</td>
+          <td>${{ product.price | number: '1.2-2' }}</td>
+          <td>
+            <span class="stock-badge" [class.stock-badge--low]="product.stockQuantity < 5">
+              {{ product.stockQuantity }}
+            </span>
+          </td>
+          <td class="products-table__actions">
+            <button type="button" class="row-btn row-btn--edit" (click)="openEditModal(product)">Edit</button>
+            <button type="button" class="row-btn row-btn--delete" (click)="deleteProduct(product)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pager" *ngIf="!isLoading && totalPages > 1">
+    <button type="button" class="ghost-btn" (click)="goToPage(pageNumber - 1)" [disabled]="pageNumber === 1">
+      Previous
+    </button>
+    <span>Page {{ pageNumber }} of {{ totalPages }}</span>
+    <button type="button" class="ghost-btn" (click)="goToPage(pageNumber + 1)" [disabled]="pageNumber === totalPages">
+      Next
+    </button>
+  </div>
+</section>
+
+<div class="modal-backdrop" *ngIf="isModalOpen" (click)="closeModal()"></div>
+
+<section class="product-modal" *ngIf="isModalOpen" aria-modal="true" role="dialog">
+  <div class="product-modal__card" (click)="$event.stopPropagation()">
+    <div class="product-modal__head">
+      <div>
+        <span class="products-hero__eyebrow">{{ modalMode === 'edit' ? 'Update item' : 'Add item' }}</span>
+        <h3>{{ modalMode === 'edit' ? 'Edit Product' : 'Create Product' }}</h3>
+      </div>
+      <button type="button" class="close-btn" (click)="closeModal()">×</button>
+    </div>
+
+    <form class="product-form" [formGroup]="productForm" (ngSubmit)="submitForm()">
+      <label>
+        <span>Name</span>
+        <input type="text" formControlName="name" placeholder="Modern chair" />
+      </label>
+
+      <label>
+        <span>Description</span>
+        <textarea rows="4" formControlName="description" placeholder="Short product description"></textarea>
+      </label>
+
+      <div class="product-form__grid">
+        <label>
+          <span>Price</span>
+          <input type="number" min="0" step="0.01" formControlName="price" />
+        </label>
+
+        <label>
+          <span>Stock Quantity</span>
+          <input type="number" min="0" step="1" formControlName="stockQuantity" />
+        </label>
+      </div>
+
+      <label>
+        <span>Category</span>
+        <select formControlName="categoryId">
+          <option [ngValue]="0">Select category</option>
+          <option *ngFor="let category of categories" [ngValue]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </label>
+
+      <div class="image-field" *ngIf="modalMode === 'edit'">
+        <span>Product Image</span>
+
+        <div class="image-preview" *ngIf="currentImagePreview; else noImagePreview">
+          <img [src]="currentImagePreview" alt="Product preview" />
+        </div>
+
+        <ng-template #noImagePreview>
+          <div class="image-preview image-preview--empty">
+            <span>No image selected yet</span>
+          </div>
+        </ng-template>
+
+        <input type="file" accept="image/*" (change)="onImageSelected($event)" />
+        <small class="image-hint">{{ imageHint }}</small>
+      </div>
+
+      <div class="form-error" *ngIf="productForm.invalid && productForm.touched">
+        Please fill all required fields with valid values before saving.
+      </div>
+
+      <div class="product-modal__actions">
+        <button type="button" class="ghost-btn" (click)="closeModal()" [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : (modalMode === 'edit' ? 'Save Changes' : 'Create Product') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="modal-backdrop" *ngIf="isImageUploadModalOpen"></div>
+
+<section class="product-modal" *ngIf="isImageUploadModalOpen" aria-modal="true" role="dialog">
+  <div class="product-modal__card product-modal__card--compact" (click)="$event.stopPropagation()">
+    <div class="product-modal__head">
+      <div>
+        <span class="products-hero__eyebrow">Add image</span>
+        <h3>Upload Product Image</h3>
+      </div>
+    </div>
+
+    <div class="delete-confirm">
+      <p>
+        The product <strong>{{ pendingProductName }}</strong> was created successfully. Add its image now to complete setup.
+      </p>
+
+      <div class="image-preview image-preview--spaced" *ngIf="pendingUploadPreview; else emptyProductUpload">
+        <img [src]="pendingUploadPreview" alt="Product upload preview" />
+      </div>
+
+      <ng-template #emptyProductUpload>
+        <div class="image-preview image-preview--empty image-preview--spaced">
+          <span>Select an image to continue</span>
+        </div>
+      </ng-template>
+
+      <input type="file" accept="image/*" (change)="onPendingImageSelected($event)" />
+    </div>
+
+    <div class="product-modal__actions">
+      <button type="button" class="ghost-btn" (click)="closeImageUploadModal()" [disabled]="isSubmitting">Skip for now</button>
+      <button type="button" class="primary-btn" (click)="submitPendingImageUpload()" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Uploading...' : 'Upload Image' }}
+      </button>
+    </div>
+  </div>
+</section>
+
+<div class="modal-backdrop" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()"></div>
+
+<section class="product-modal" *ngIf="isDeleteModalOpen" aria-modal="true" role="dialog">
+  <div class="product-modal__card product-modal__card--compact" (click)="$event.stopPropagation()">
+    <div class="product-modal__head">
+      <div>
+        <span class="products-hero__eyebrow">Confirm delete</span>
+        <h3>Delete Product</h3>
+      </div>
+      <button type="button" class="close-btn" (click)="closeDeleteModal()">x</button>
+    </div>
+
+    <div class="delete-confirm">
+      <p>
+        Are you sure you want to delete
+        <strong>{{ pendingDeleteProduct?.name }}</strong>?
+      </p>
+      <p class="delete-confirm__subtext">This action cannot be undone.</p>
+    </div>
+
+    <div class="product-modal__actions">
+      <button type="button" class="ghost-btn" (click)="closeDeleteModal()" [disabled]="isSubmitting">Cancel</button>
+      <button type="button" class="row-btn row-btn--delete row-btn--danger" (click)="confirmDeleteProduct()" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</section>
