@@ -15,6 +15,7 @@ public class PayPalService : IPayPalService
         _context = context;
     }
 
+    // ================= GET PAYPAL CONTEXT =================
     private APIContext GetContext()
     {
         var config = new Dictionary<string, string>
@@ -30,7 +31,7 @@ public class PayPalService : IPayPalService
         return new APIContext(token);
     }
 
-    // ================= CREATE =================
+    // ================= CREATE PAYMENT =================
     public async Task<string> CreatePaymentAsync(int orderId)
     {
         var order = await _context.Orders
@@ -41,27 +42,27 @@ public class PayPalService : IPayPalService
 
         var apiContext = GetContext();
 
-        var payment = new PayPal.Api.Payment
+        var payment = new Payment
         {
             intent = "sale",
             payer = new Payer { payment_method = "paypal" },
 
             transactions = new List<Transaction>
+        {
+            new Transaction
             {
-                new Transaction
+                description = $"Order #{order.Id}",
+                amount = new Amount
                 {
-                    description = $"Order #{order.Id}",
-                    amount = new Amount
-                    {
-                        currency = "USD",
-                        total = order.TotalPrice.ToString("F2")
-                    }
+                    currency = "USD",
+                    total = order.TotalPrice.ToString("F2")
                 }
-            },
+            }
+        },
 
             redirect_urls = new RedirectUrls
             {
-                return_url = "https://localhost:4200/success",
+                return_url = $"https://localhost:4200/success?orderId={order.Id}",
                 cancel_url = "https://localhost:4200/cancel"
             }
         };
@@ -71,15 +72,15 @@ public class PayPalService : IPayPalService
         var approvalUrl = created.links
             .First(x => x.rel == "approval_url").href;
 
-        // Update payment method
-        order.PaymentMethod = "PayPal";
+        order.PaymentIntentId = created.id;
+        order.Status = "Pending";
 
         await _context.SaveChangesAsync();
 
         return approvalUrl;
     }
 
-    // ================= EXECUTE =================
+    // ================= EXECUTE PAYMENT =================
     public async Task<bool> ExecutePaymentAsync(string paymentId, string payerId)
     {
         var apiContext = GetContext();
@@ -89,24 +90,34 @@ public class PayPalService : IPayPalService
             payer_id = payerId
         };
 
-        var payment = new PayPal.Api.Payment() { id = paymentId };
+        var payment = new PayPal.Api.Payment()
+        {
+            id = paymentId
+        };
 
         var result = payment.Execute(apiContext, execution);
 
         if (result.state.ToLower() == "approved")
         {
-            return await Task.FromResult(true);
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.PaymentIntentId == paymentId);
+
+            if (order != null)
+            {
+                order.Status = "Paid"; 
+                await _context.SaveChangesAsync();
+            }
+
+            return true;
         }
-        else
-        {
-            return await Task.FromResult(false);
-        }
+
+        return false;
     }
 
-    // ================= CANCEL =================
+    // ================= CANCEL PAYMENT =================
     public async Task CancelPaymentAsync(string paymentId)
     {
-        // Payment cancelled by user
+        // optional: log cancellation or update status
         await Task.CompletedTask;
     }
 }
