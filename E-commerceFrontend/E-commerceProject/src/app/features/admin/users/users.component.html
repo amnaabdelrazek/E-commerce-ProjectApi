@@ -1,0 +1,137 @@
+<section class="admin-users">
+
+  <!-- HERO -->
+  <div class="users-hero">
+    <div>
+      <span class="users-hero__eyebrow">User management</span>
+      <h2>Users</h2>
+      <p>Manage platform users, roles, and account status.</p>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+<!-- SEARCH TOOLBAR -->
+<div class="toolbar">
+
+  <form class="toolbar__search" (ngSubmit)="applyFilter()">
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+
+      <input [(ngModel)]="search" name="search" type="text" placeholder="Search by name or email..." />
+
+      <button type="button" class="clear-btn" *ngIf="search" (click)="search=''; applyFilter()">
+        ×
+      </button>
+    </div>
+
+    <button type="submit" class="search-btn">Search</button>
+
+  </form>
+
+  <button class="ghost-btn" (click)="applyFilter()">Filter</button>
+
+</div>
+  <!-- TABLE -->
+  <div class="users-table-wrap">
+
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of paginated; trackBy: trackByUserId">
+
+          <td><strong>{{ user.fullName }}</strong></td>
+
+          <td>{{ user.email }}</td>
+
+          <td>
+            <span class="role-badge">{{ user.role }}</span>
+          </td>
+
+          <td>
+            <span class="status-badge" [class.locked]="user.isLocked">
+              {{ user.isLocked ? 'Locked' : 'Active' }}
+            </span>
+          </td>
+
+          <td class="actions">
+
+            <button class="row-btn row-btn--edit" (click)="openRoleModal(user)">
+              Change Role
+            </button>
+
+            <button class="row-btn" (click)="toggleLock(user)">
+              {{ user.isLocked ? 'Unlock' : 'Lock' }}
+            </button>
+
+            <button class="row-btn row-btn--delete" (click)="deleteUser(user)">
+              Delete
+            </button>
+
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pager">
+    <button (click)="prev()">Prev</button>
+    <span>{{ page }}</span>
+    <button (click)="next()">Next</button>
+  </div>
+
+</section>
+
+<!-- ================= ROLE MODAL ================= -->
+<div class="modal-backdrop" *ngIf="showRoleModal" (click)="closeRoleModal()"></div>
+
+<section class="user-modal" *ngIf="showRoleModal">
+  <div class="user-modal__card" (click)="$event.stopPropagation()">
+
+    <div class="user-modal__head">
+      <div>
+        <span class="users-hero__eyebrow">Update role</span>
+        <h3>Change User Role</h3>
+      </div>
+
+      <button class="close-btn" (click)="closeRoleModal()">x</button>
+    </div>
+
+    <div class="user-modal__body">
+
+      <p class="user-info">
+        User: <strong>{{ selectedUser?.fullName }}</strong>
+      </p>
+
+      <label class="field">
+        <span>Role</span>
+        <select [(ngModel)]="newRole" name="role">
+          <option value="Admin">Admin</option>
+          <option value="Seller">Seller</option>
+          <option value="Customer">Customer</option>
+        </select>
+      </label>
+
+    </div>
+
+    <div class="user-modal__actions">
+      <button class="ghost-btn" (click)="closeRoleModal()">Cancel</button>
+      <button class="primary-btn" (click)="changeRole()">
+        Save Changes
+      </button>
+    </div>
+
+  </div>
+</section>

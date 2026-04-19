@@ -70,30 +70,33 @@ namespace E_commerce_Project.Services.Implementations
 
         public async Task<GeneralResponse<SellerDashboardDto>> GetDashboardStatsAsync(ClaimsPrincipal userPrincipal)
         {
-            // 1. Get the Current User
             var user = await _userManager.GetUserAsync(userPrincipal);
-            if (user == null) return GeneralResponse<SellerDashboardDto>.Fail("User not found");
+            if (user == null)
+                return GeneralResponse<SellerDashboardDto>.Fail("User not found");
 
-            // 2. Calculate Total Earnings
-            // Logic: Sum (Price * Quantity) for all items belonging to this seller
+            // ✅ CHECK APPROVAL
+            var seller = await _context.Sellers
+                .FirstOrDefaultAsync(s => s.UserId == user.Id);
+
+            if (seller == null || !seller.IsApproved)
+                return GeneralResponse<SellerDashboardDto>.Fail("Your account is pending approval");
+
             var totalEarnings = await _context.OrderItems
                 .Where(oi => oi.Product.SellerId.ToString() == user.Id)
                 .SumAsync(oi => (decimal?)(oi.Price * oi.Quantity)) ?? 0;
 
-            // 3. Count Products
             var totalProducts = await _context.Products
                 .CountAsync(p => p.SellerId.ToString() == user.Id);
 
-            // 4. Count Out of Stock
             var outOfStock = await _context.Products
                 .CountAsync(p => p.SellerId.ToString() == user.Id && p.StockQuantity == 0);
-            // 5. Combine into DTO
+
             var stats = new SellerDashboardDto
             {
                 TotalEarnings = totalEarnings,
                 TotalProducts = totalProducts,
                 OutOfStockCount = outOfStock,
-                PendingOrdersCount = 0 // You can link this to your Orders table later
+                PendingOrdersCount = 0
             };
 
             return GeneralResponse<SellerDashboardDto>.Success(stats);

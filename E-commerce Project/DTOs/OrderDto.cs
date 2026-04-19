@@ -4,6 +4,7 @@ namespace E_commerce_Project.DTOs
     {
         public int Id { get; set; }
         public string? UserId { get; set; }
+        public string UserFullName { get; set; }
         public string Status { get; set; } = "Pending";
         public decimal TotalPrice { get; set; }
         public decimal DiscountAmount { get; set; }

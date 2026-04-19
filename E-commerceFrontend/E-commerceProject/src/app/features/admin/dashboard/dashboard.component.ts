@@ -1,224 +1,202 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { AdminService, DashboardData } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Subscription } from 'rxjs';
 import { timeout } from 'rxjs/operators';
+import { BaseChartDirective } from 'ng2-charts';
+import { Chart as ChartJS, registerables } from 'chart.js';
+
+ChartJS.register(...registerables);
 
 interface DashboardCard {
   title: string;
   value: string | number;
   icon: string;
   color: string;
-  change?: number;
-  changeType?: 'up' | 'down';
-}
-
-interface TopProduct {
-  id: number;
-  name: string;
-  sales: number;
-  revenue: number;
-}
-
-interface TopBuyer {
-  id: string;
-  name: string;
-  orders: number;
-  spent: number;
-  percentage?: number;
-}
-
-interface StatCard {
-  title: string;
-  value: number | string;
-  change: number;
-  changeType: 'up' | 'down';
-  icon: string;
 }
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, BaseChartDirective],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   private notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
   dashboardData: DashboardData | null = null;
   cards: DashboardCard[] = [];
-  isLoading: boolean = false;
-  topProducts: TopProduct[] = [];
-  topBuyers: TopBuyer[] = [];
-  statCards: StatCard[] = [];
-  Math = Math;
+  isLoading = false;
+
+  barChartData: any = null;
+  barChartOptions: any = null;
+
+  pieChartData: any = null;
+  pieChartOptions: any = null;
 
   private subscriptions = new Subscription();
 
   ngOnInit(): void {
-    // Load demo data immediately to avoid spinner hang
-    this.loadDashboardData();
+    this.initChartOptions();
+    this.loadDashboard();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  private loadDashboardData(): void {
-    // Load fake data immediately (no spinner)
-    this.initializeFakeData();
+  /* ================= LOAD ================= */
 
-    // Try to fetch real data in background (optional enhancement)
+  private loadDashboard(): void {
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
     const sub = this.adminService.getDashboard().pipe(
-      timeout(8000)
+      timeout(10000)
     ).subscribe({
-      next: (response) => {
-        if (response.isSuccess && response.data) {
-          this.dashboardData = response.data;
-          this.initializeCards();
-          this.generateFakeChartData();
-          this.notificationService.success('Updated with live data');
+      next: (res) => {
+        if (res.isSuccess && res.data) {
+          this.dashboardData = res.data;
+          this.initCards();
+          this.initCharts(res.data);
+        } else {
+          this.notificationService.error(res.message || 'Failed to load dashboard');
         }
+
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
-      error: (error) => {
-        console.error('Real data fetch failed, using demo data:', error);
-        // Keep showing fake data, no error notification needed
+      error: () => {
+        // fallback so UI doesn't break
+        this.dashboardData = {
+          totalUsers: 0,
+          totalOrders: 0,
+          totalRevenue: 0,
+          totalCoupons: 0
+        };
+
+        this.initCards();
+        this.notificationService.error('Dashboard failed to load');
+
+        this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
 
     this.subscriptions.add(sub);
   }
 
-  private initializeCards(): void {
+  /* ================= CARDS ================= */
+
+  private initCards(): void {
     if (!this.dashboardData) return;
 
     this.cards = [
       {
         title: 'Total Users',
-        value: this.dashboardData.totalUsers || 0,
+        value: this.dashboardData.totalUsers,
         icon: '👥',
-        color: '#a26a3f',
-        change: 12.5,
-        changeType: 'up'
+        color: '#a26a3f'
       },
       {
         title: 'Total Orders',
-        value: this.dashboardData.totalOrders || 0,
+        value: this.dashboardData.totalOrders,
         icon: '📦',
-        color: '#6f4127',
-        change: 8.2,
-        changeType: 'up'
+        color: '#6f4127'
       },
       {
         title: 'Total Revenue',
-        value: `$${(this.dashboardData.totalRevenue || 0).toFixed(2)}`,
+        value: `$${this.dashboardData.totalRevenue.toFixed(0)}`,
         icon: '💰',
-        color: '#16a34a',
-        change: 15.8,
-        changeType: 'up'
+        color: '#b8860b'
       },
       {
-        title: 'Total Products',
-        value: 145,
-        icon: '📊',
-        color: '#b42318',
-        change: 3.5,
-        changeType: 'down'
-      }
-    ];
-
-    this.initializeStatCards();
-  }
-
-  private initializeStatCards(): void {
-    if (!this.dashboardData) return;
-
-    this.statCards = [
-      {
-        title: 'Total Products',
-        value: 145,
-        change: 5.2,
-        changeType: 'up',
-        icon: '📦'
-      },
-      {
-        title: 'Total Orders',
-        value: this.dashboardData.totalOrders || 0,
-        change: 12.5,
-        changeType: 'up',
-        icon: '📋'
-      },
-      {
-        title: 'Total Revenue',
-        value: `$${(this.dashboardData.totalRevenue || 0).toFixed(2)}`,
-        change: 8.3,
-        changeType: 'up',
-        icon: '💵'
+        title: 'Total Coupons',
+        value: this.dashboardData.totalCoupons,
+        icon: '🏷️',
+        color: '#d4af37'
       }
     ];
   }
 
-  private generateFakeChartData(): void {
-    // Top 10 Selling Products
-    this.topProducts = [
-      { id: 1, name: 'Modern Sofa', sales: 245, revenue: 12250 },
-      { id: 2, name: 'Dining Chair', sales: 198, revenue: 8910 },
-      { id: 3, name: 'Coffee Table', sales: 176, revenue: 5280 },
-      { id: 4, name: 'Bed Frame', sales: 152, revenue: 11400 },
-      { id: 5, name: 'Desk Lamp', sales: 143, revenue: 2145 },
-      { id: 6, name: 'Wall Shelf', sales: 128, revenue: 1920 },
-      { id: 7, name: 'Ottoman', sales: 115, revenue: 3450 },
-      { id: 8, name: 'Bookcase', sales: 98, revenue: 2940 },
-      { id: 9, name: 'Side Table', sales: 87, revenue: 1305 },
-      { id: 10, name: 'Floor Lamp', sales: 76, revenue: 1520 }
-    ];
+  /* ================= CHART OPTIONS ================= */
 
-    // Top Buyers
-    const totalSpent = this.topProducts.reduce((sum, p) => sum + p.revenue, 0);
-    this.topBuyers = [
-      { id: '1', name: 'John Smith', orders: 45, spent: 4500, percentage: (4500 / totalSpent) * 100 },
-      { id: '2', name: 'Sarah Johnson', orders: 38, spent: 3800, percentage: (3800 / totalSpent) * 100 },
-      { id: '3', name: 'Michael Brown', orders: 32, spent: 3200, percentage: (3200 / totalSpent) * 100 },
-      { id: '4', name: 'Emily Davis', orders: 28, spent: 2800, percentage: (2800 / totalSpent) * 100 },
-      { id: '5', name: 'David Wilson', orders: 22, spent: 2200, percentage: (2200 / totalSpent) * 100 },
-      { id: '6', name: 'Others', orders: 0, spent: totalSpent - 16500, percentage: ((totalSpent - 16500) / totalSpent) * 100 }
-    ];
-  }
-
-  private initializeFakeData(): void {
-    this.dashboardData = {
-      totalUsers: 1250,
-      totalOrders: 892,
-      totalRevenue: 145230,
-      totalCoupons: 45,
-      pendingOrders: 23,
-      activeUsers: 456
+  private initChartOptions(): void {
+    this.barChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
     };
-    this.initializeCards();
-    this.generateFakeChartData();
+
+    this.pieChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    };
   }
 
-  getPercentageClass(change: number): string {
-    return change >= 0 ? 'positive' : 'negative';
-  }
+  /* ================= CHART DATA ================= */
 
-  getBarWidth(value: number, max: number): string {
-    return ((value / max) * 100) + '%';
-  }
+  private initCharts(data: DashboardData): void {
 
-  getSliceAngle(percentage: number): number {
-    return (percentage / 100) * 360;
-  }
-
-  getSegmentRotation(index: number): number {
-    let rotation = 0;
-    for (let i = 0; i < index; i++) {
-      rotation += (this.topBuyers[i]?.percentage || 0) * 3.6;
+    /* BAR CHART */
+    if (data.topProducts?.length) {
+      this.barChartData = {
+        labels: data.topProducts.map(p => p.productName),
+        datasets: [
+          {
+            label: 'Sales',
+            data: data.topProducts.map(p => p.sales),
+            backgroundColor: '#a26a3f',
+            borderRadius: 6
+          }
+        ]
+      };
+    } else {
+      this.barChartData = null;
     }
-    return rotation;
+
+    /* PIE CHART */
+    if (data.topBuyers?.length) {
+      const colors = ['#a26a3f', '#6f4127', '#b8860b', '#d4af37', '#8b6f47'];
+
+      this.pieChartData = {
+        labels: data.topBuyers.map(b => b.name || 'Unknown'),
+        datasets: [
+          {
+            data: data.topBuyers.map(b => Number(b.spent)),
+            backgroundColor: colors.slice(0, data.topBuyers.length),
+            borderWidth: 2
+          }
+        ]
+      };
+    } else {
+      this.pieChartData = null;
+    }
   }
 }
