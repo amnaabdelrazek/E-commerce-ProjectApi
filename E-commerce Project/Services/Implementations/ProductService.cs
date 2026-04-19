@@ -203,9 +203,10 @@ namespace E_commerce_Project.Services.Implementations
             if (product == null)
                 return GeneralResponse<string>.Fail("Product not found");
 
-
+            var seller = await _reposeller
+    .FirstOrDefaultAsync(s => s.UserId == user.Id);
             // 🔐 تأكد إن صاحب المنتج
-            if (product.SellerId.ToString() != user.Id)
+            if (product.SellerId != seller.id)
                 return GeneralResponse<string>.Fail("Unauthorized");
 
            
