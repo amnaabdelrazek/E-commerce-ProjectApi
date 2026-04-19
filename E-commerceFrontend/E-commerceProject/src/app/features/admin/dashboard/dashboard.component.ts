@@ -107,25 +107,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
       {
         title: 'Total Users',
         value: this.dashboardData.totalUsers,
-        icon: '👥',
+        icon: 'U',
         color: '#a26a3f'
       },
       {
         title: 'Total Orders',
         value: this.dashboardData.totalOrders,
-        icon: '📦',
+        icon: 'O',
         color: '#6f4127'
       },
       {
         title: 'Total Revenue',
         value: `$${this.dashboardData.totalRevenue.toFixed(0)}`,
-        icon: '💰',
+        icon: '$',
         color: '#b8860b'
       },
       {
         title: 'Total Coupons',
         value: this.dashboardData.totalCoupons,
-        icon: '🏷️',
+        icon: 'C',
         color: '#d4af37'
       }
     ];

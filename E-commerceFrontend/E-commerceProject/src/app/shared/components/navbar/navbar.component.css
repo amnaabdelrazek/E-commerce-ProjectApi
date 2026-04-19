@@ -268,11 +268,14 @@
   fill: currentColor;
 }
 
-.account-btn svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
+.account-btn__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
   flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--app-text) 10%, transparent);
+  background: #f3ece4;
 }
 
 .account-btn__name {

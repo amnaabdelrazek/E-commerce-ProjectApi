@@ -1,4 +1,5 @@
 ﻿using E_commerce_Project.DTOs;
+using E_commerce_Project.Migrations;
 using E_commerce_Project.Models;
 using E_commerce_Project.Repositories.Interfaces;
 using E_commerce_Project.Responses;
@@ -12,22 +13,31 @@ namespace E_commerce_Project.Services.Implementations
     public class ProductService : IProductService
     {
         private readonly IGenericRepository<Product> _repo;
+        private readonly IGenericRepository<Seller> _reposeller;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public ProductService(IGenericRepository<Product> repo,
-                              UserManager<ApplicationUser> userManager)
+                              UserManager<ApplicationUser> userManager,
+                              IGenericRepository<Seller> reposeller)
         {
             _repo = repo;
             _userManager = userManager;
+            _reposeller = reposeller;
         }
 
         // ================= CREATE =================
         public async Task<GeneralResponse<string>> CreateProductAsync(ClaimsPrincipal userPrincipal, CreateProductDto dto)
         {
             var user = await _userManager.GetUserAsync(userPrincipal);
-
+            var seller = await _reposeller
+    .FirstOrDefaultAsync(s => s.UserId == user.Id);
+            int sellerid;
             if (user == null)
                 return GeneralResponse<string>.Fail("User not found");
+            if (seller == null)
+                sellerid = 0;
+            else
+                sellerid = seller.id;
 
             var product = new Product
             {
@@ -36,7 +46,7 @@ namespace E_commerce_Project.Services.Implementations
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity,
                 CategoryId = dto.CategoryId,
-                SellerId = int.Parse(user.Id)
+                SellerId = sellerid,
             };
 
             await _repo.AddAsync(product);

@@ -18,6 +18,8 @@ import { AdminCategoriesComponent } from './features/admin/categories/admin-cate
 import { AdminProfileComponent } from './features/admin/profile/admin-profile.component';
 import { OrdersAdminComponent } from './features/admin/orders-admin/orders-admin.component'; // ✅ ADD THIS
 import { UsersComponent } from './features/admin/users/users.component'; // ✅ ADD THIS
+import { CouponsComponent } from './features/admin/coupons-component/coupons-component';
+import { CreateCouponComponent } from './features/admin/coupons-component/create-coupon-component/create-coupon-component';
 import { PaymentSuccessComponent } from './features/Payment/success.component/success.component';
 import { CancelComponent } from './features/Payment/cancel.component/cancel.component';
 import { PaymentComponent } from './features/Payment/payment.component/payment.component';
@@ -103,6 +105,8 @@ export const routes: Routes = [
       { path: 'categories', component: AdminCategoriesComponent, data: { title: 'Categories' } },
       { path: 'orders', component: OrdersAdminComponent, data: { title: 'Orders' } }, // ✅ UPDATED
       { path: 'users', component: UsersComponent, data: { title: 'Users' } }, // ✅ UPDATED
+      { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' } },
+      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Create Coupon' } },
       { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } }
     ]
   },
