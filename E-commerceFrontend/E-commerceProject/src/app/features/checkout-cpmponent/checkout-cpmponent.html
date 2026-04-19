@@ -102,8 +102,17 @@
       </div>
       <div class="summary-divider"></div>
 
-      <button class="checkout-action-btn" (click)="placeOrder()">
-        <i class="bi bi-shield-check"></i> Complete Checkout
+      <button 
+        class="checkout-action-btn" 
+        (click)="placeOrder()"
+        [disabled]="isProcessing()"
+        [style.opacity]="isProcessing() ? '0.6' : '1'"
+        [style.cursor]="isProcessing() ? 'not-allowed' : 'pointer'">
+        @if (isProcessing()) {
+          <span>⏳ Processing...</span>
+        } @else {
+          <i class="bi bi-shield-check"></i> Complete Checkout
+        }
       </button>
     </div>
   </div>
