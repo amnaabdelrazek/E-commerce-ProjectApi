@@ -54,12 +54,12 @@ loadCoupons(): void {
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'Cancel',
-      reverseButtons: true // عشان يخلي "إلغاء" على اليمين و "حذف" على الشمال
+      reverseButtons: true 
     }).then((result) =>{
       if(result.isConfirmed){
         this.adminService.deleteCoupon(id).subscribe({
-          next: (res) =>{
-            if(res.isSuccess){
+          next: (res : any) =>{
+            if(res && res.isSuccess){
               this.coupons.update(prev => prev.filter(c=> c.id !== id));
 
               Swal.fire({

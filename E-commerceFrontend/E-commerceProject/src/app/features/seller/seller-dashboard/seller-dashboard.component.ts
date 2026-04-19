@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { SellerService } from '../seller.service';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
+  imports: [CurrencyPipe],
   selector: 'app-seller-dashboard',
   templateUrl: './seller-dashboard.component.html',
   styleUrls: ['./seller-dashboard.component.css']
