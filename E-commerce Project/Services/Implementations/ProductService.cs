@@ -1,4 +1,5 @@
-﻿using E_commerce_Project.DTOs;
+﻿using E_commerce_Project.Data;
+using E_commerce_Project.DTOs;
 using E_commerce_Project.Models;
 using E_commerce_Project.Repositories.Interfaces;
 using E_commerce_Project.Responses;
@@ -13,12 +14,15 @@ namespace E_commerce_Project.Services.Implementations
     {
         private readonly IGenericRepository<Product> _repo;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly AppDbContext _context;
 
         public ProductService(IGenericRepository<Product> repo,
-                              UserManager<ApplicationUser> userManager)
+                              UserManager<ApplicationUser> userManager,
+                              AppDbContext context)
         {
             _repo = repo;
             _userManager = userManager;
+            _context = context;
         }
 
         // ================= CREATE =================
@@ -29,6 +33,13 @@ namespace E_commerce_Project.Services.Implementations
             if (user == null)
                 return GeneralResponse<string>.Fail("User not found");
 
+            var seller = await _context.Sellers
+                .FirstOrDefaultAsync(s => s.UserId == user.Id);
+
+
+            if (seller == null)
+                return GeneralResponse<string>.Fail("Seller profile not found");
+
             var product = new Product
             {
                 Name = dto.Name,
@@ -36,7 +47,7 @@ namespace E_commerce_Project.Services.Implementations
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity,
                 CategoryId = dto.CategoryId,
-                SellerId = int.Parse(user.Id)
+                SellerId = seller.id
             };
 
             await _repo.AddAsync(product);
@@ -45,7 +56,7 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success("Product created");
         }
 
-       
+
         // ================= UPDATE (Modified) =================
         public async Task<GeneralResponse<string>> UpdateProductAsync(int id, ClaimsPrincipal userPrincipal, UpdateProductDto dto)
         {

@@ -5,6 +5,12 @@ export interface RegisterRequest {
    role: string;
 }
 
+export interface RegisterSellerRequest extends RegisterRequest {
+  storeName: string;
+  businessAddress: string;
+  storeDescription: string;
+}
+
 export interface RegisterApiResponse {
   isSuccess: boolean;
   message: string;

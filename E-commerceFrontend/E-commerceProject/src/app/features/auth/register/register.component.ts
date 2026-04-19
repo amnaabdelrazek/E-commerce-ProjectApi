@@ -31,6 +31,9 @@ export class RegisterComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     role: ['Customer', [Validators.required]],
+    storeName: [''],
+    businessAddress: [''],
+    storeDescription: [''],
     agree: [false, [Validators.requiredTrue]]
   });
 
@@ -49,6 +52,22 @@ export class RegisterComponent {
   get agree() {
     return this.form.controls.agree;
   }
+  get role() {
+    return this.form.controls.role;
+  }
+  get storeName() {
+    return this.form.controls.storeName;
+  }
+  get businessAddress() {
+    return this.form.controls.businessAddress;
+  }
+  get storeDescription() {
+    return this.form.controls.storeDescription;
+  }
+
+  setRole(newRole: string) {
+    this.role.setValue(newRole);
+  }
 
   submit() {
     this.submitted.set(true);
@@ -62,10 +81,22 @@ export class RegisterComponent {
 
     this.loading.set(true);
 
-    const { firstName, lastName, email, password, role } = this.form.getRawValue();
+    const { firstName, lastName, email, password, role, storeName, businessAddress, storeDescription } = this.form.getRawValue();
     const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, ' ');
 
-    this.auth.register({ fullName, email, password, role }).subscribe({
+    let request$;
+    if (role === 'Seller') {
+      if (!storeName.trim() || !businessAddress.trim() || !storeDescription.trim()) {
+        this.serverError.set('Please fill out all seller details.');
+        this.loading.set(false);
+        return;
+      }
+      request$ = this.auth.registerSeller({ fullName, email, password, role, storeName, businessAddress, storeDescription });
+    } else {
+      request$ = this.auth.register({ fullName, email, password, role });
+    }
+
+    request$.subscribe({
       next: (res) => {
         this.loading.set(false);
         if (res?.isSuccess) {

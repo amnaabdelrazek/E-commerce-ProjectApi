@@ -129,34 +129,44 @@ label {
   fill: currentColor;
 }
 
-.role-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+.role-toggle-container {
+  margin-bottom: 24px;
 }
 
-.role-option {
+.role-tabs {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 14px;
-  border: 1px solid var(--app-border);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
+  background: color-mix(in srgb, var(--app-text) 4%, transparent);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
 }
 
-.role-option span {
-  display: grid;
-  gap: 2px;
-}
-
-.role-option strong {
+.role-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: color-mix(in srgb, var(--app-text) 70%, transparent);
+  font-weight: 600;
   font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.role-option small {
-  color: var(--app-muted);
-  font-size: 12px;
+.role-tab:hover {
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-text) 2%, transparent);
+}
+
+.role-tab.active {
+  background: #fff;
+  color: var(--app-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .terms {
@@ -288,12 +298,7 @@ label {
     padding: 28px 22px;
   }
 
-  .role-group,
   .grid-2 {
     grid-template-columns: 1fr;
-  }
-
-  .role-option {
-    padding: 12px;
   }
 }

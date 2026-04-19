@@ -31,7 +31,7 @@ namespace E_commerce_Project.Controllers
             return Ok(profileDto); // Note: In production, return an output DTO here, not the raw entity
         }
 
-        [HttpPut("profile")]
+        [HttpPut("Updateprofile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateSellerProfileDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
