@@ -1,0 +1,44 @@
+@import '../users/users.component.css';
+
+/* ================= ORDER STATUS BADGES ================= */
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* same system as users */
+.status-badge.pending {
+  background: #fff3cd;
+  color: #8a6d1f;
+}
+
+.status-badge.shipped {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.delivered {
+  background: #e6f7ee;
+  color: #1a7f4b;
+}
+
+/* ================= SELECT (clean admin style) ================= */
+
+.status-select {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid #ded4c8;
+  background: #fffdf9;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ================= TABLE FIX (inherit users system) ================= */
+
+.users-table td,
+.users-table th {
+  vertical-align: middle;
+}

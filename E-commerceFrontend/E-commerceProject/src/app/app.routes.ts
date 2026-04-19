@@ -16,7 +16,8 @@ import { DashboardComponent } from './features/admin/dashboard/dashboard.compone
 import { AdminProductsComponent } from './features/admin/products/admin-products.component';
 import { AdminCategoriesComponent } from './features/admin/categories/admin-categories.component';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile.component';
-import { adminGuard } from './core/guards/admin.guard';
+import { OrdersAdminComponent } from './features/admin/orders-admin/orders-admin.component'; // ✅ ADD THIS
+import { UsersComponent } from './features/admin/users/users.component'; // ✅ ADD THIS
 import { PaymentSuccessComponent } from './features/Payment/success.component/success.component';
 import { CancelComponent } from './features/Payment/cancel.component/cancel.component';
 import { PaymentComponent } from './features/Payment/payment.component/payment.component';
@@ -25,6 +26,9 @@ import { OrdersComponent } from './features/profile/orders/orders.component';
 import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
 import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
 import { ReviewsComponent } from './features/profile/reviews/reviews.component';
+import { adminGuard } from './core/guards/admin.guard';
+import { CouponsComponent } from './features/admin/coupons-component/coupons-component';
+import { CreateCouponComponent } from './features/admin/coupons-component/create-coupon-component/create-coupon-component';
 
 export const routes: Routes = [
   {
@@ -56,10 +60,6 @@ export const routes: Routes = [
       },
       { path: 'products/:id', component: ProductDetailsComponent },
       { path: 'profile', component: ProfileComponent },
-      { path: 'orders', component: OrdersComponent },
-      { path: 'order-details/:id', component: OrderDetailsComponent },
-      { path: 'wishlist', component: WishlistComponent },
-      { path: 'reviews', component: ReviewsComponent },
       {
         path: 'forgot-password',
         component: PlaceholderComponent,
@@ -78,6 +78,30 @@ export const routes: Routes = [
         canActivate: [sellerGuard],
         loadChildren: () =>
           import('./features/seller/seller.module').then(m => m.SellerModule)
+      },
+      {
+        path: 'orders',
+        component: PlaceholderComponent,
+        data: {
+          title: 'Orders',
+          description: 'Your order history endpoint is not connected yet. You can continue shopping or review your profile information.',
+          primaryLabel: 'Go to Shop',
+          primaryLink: '/shop',
+          secondaryLabel: 'Open Profile',
+          secondaryLink: '/profile'
+        }
+      },
+      {
+        path: 'wishlist',
+        component: PlaceholderComponent,
+        data: {
+          title: 'Wishlist',
+          description: 'Wishlist data is not available yet. Browse products and save your favorite picks manually for now.',
+          primaryLabel: 'Browse Products',
+          primaryLink: '/shop',
+          secondaryLabel: 'Back Home',
+          secondaryLink: '/home'
+        }
       }
     ]
   },
@@ -91,9 +115,13 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
       { path: 'products', component: AdminProductsComponent, data: { title: 'Products' } },
       { path: 'categories', component: AdminCategoriesComponent, data: { title: 'Categories' } },
+      { path: 'orders', component: OrdersAdminComponent, data: { title: 'Orders' } }, // ✅ UPDATED
+      { path: 'users', component: UsersComponent, data: { title: 'Users' } }, // ✅ UPDATED
+      { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' } },
+      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Create Coupon' } },
       { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } },
-      { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
-      { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } }
+      { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' }},
+      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Add Coupon' } }
     ]
   },
 

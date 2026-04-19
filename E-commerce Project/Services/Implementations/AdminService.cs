@@ -1,10 +1,12 @@
 using E_commerce_Project.Data;
 using E_commerce_Project.DTOs;
+using E_commerce_Project.DTOs.Admin;
 using E_commerce_Project.Models;
 using E_commerce_Project.Responses;
 using E_commerce_Project.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static E_commerce_Project.DTOs.SellerApprovalDtos;
 
 namespace E_commerce_Project.Services.Implementations
 {
@@ -23,6 +25,8 @@ namespace E_commerce_Project.Services.Implementations
             _roleManager = roleManager;
             _context = context;
         }
+
+        // ==================== USER MANAGEMENT ====================
 
         public async Task<IEnumerable<AdminUserDto>> GetAllUsersAsync()
         {
@@ -150,6 +154,8 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success(string.Empty, "Role updated");
         }
 
+        // ==================== COUPON MANAGEMENT ====================
+
         public async Task<GeneralResponse<string>> CreateCouponAsync(CreateCouponDto dto)
         {
             if (dto == null)
@@ -157,6 +163,8 @@ namespace E_commerce_Project.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(dto.Code))
                 return GeneralResponse<string>.Fail("Coupon code is required");
+            if (dto.MinimumPurchaseAmount < 0)
+                return GeneralResponse<string>.Fail("Minimum purchase amount must be 0 or greater");
 
             if (dto.ExpiryDate <= DateTime.UtcNow)
                 return GeneralResponse<string>.Fail("Expiry date must be in the future");
@@ -180,6 +188,7 @@ namespace E_commerce_Project.Services.Implementations
                 Code = normalizedCode,
                 DiscountAmount = dto.DiscountAmount,
                 DiscountPercentage = dto.DiscountPercentage,
+                MinimumPurchaseAmount = dto.MinimumPurchaseAmount,
                 ExpiryDate = dto.ExpiryDate,
                 IsActive = true
             };
@@ -208,23 +217,205 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success(string.Empty, "Deleted");
         }
 
-        public async Task<AdminDashboardDto> GetDashboardAsync()
+        // ==================== ORDER MANAGEMENT ====================
+
+        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
         {
-            return new AdminDashboardDto
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Include(o => o.User)
+                .ToListAsync();
+
+            return orders.Select(o => new OrderDto
             {
-                TotalUsers = await _userManager.Users.CountAsync(),
-                TotalOrders = await _context.Orders.CountAsync(),
-                TotalProducts = await _context.Products.CountAsync(),
-                TotalRevenue = await _context.Orders.SumAsync(o => o.TotalPrice)
+                Id = o.Id,
+                UserFullName = o.User.FullName,
+                UserId = o.UserId,
+                Status = o.Status,
+                TotalPrice = o.TotalPrice,
+                DiscountAmount = o.DiscountAmount,
+                TaxAmount = o.TaxAmount,
+                ShippingCost = o.ShippingCost,
+                PaymentMethod = o.PaymentMethod,
+                CreatedAt = o.CreatedAt,
+                Items = o.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    ProductId = oi.ProductId,
+                    ProductName = oi.Product?.Name ?? string.Empty,
+                    Quantity = oi.Quantity,
+                }).ToList()
+            }).ToList();
+        }
+
+        // ==================== SELLER APPROVAL MANAGEMENT ====================
+
+        /// <summary>
+        /// Get all pending sellers waiting for admin approval
+        /// </summary>
+        public async Task<IEnumerable<PendingSellerDto>> GetPendingSellersAsync()
+        {
+            var pendingSellers = await _context.Sellers
+                .Include(s => s.User)
+                .Where(s => !s.IsApproved)
+                .Select(s => new PendingSellerDto
+                {
+                    Id = s.id,
+                    UserId = s.UserId,
+                    UserEmail = s.User.Email,
+                    UserFullName = s.User.FullName,
+                    StoreName = s.StoreName,
+                    StoreDescription = s.StoreDescription,
+                    BusinessAddress = s.BusinessAddress,
+                    IsApproved = s.IsApproved,
+                    CreatedAt = s.CreatedAt
+                })
+                .OrderBy(s => s.CreatedAt)
+                .ToListAsync();
+
+            return pendingSellers;
+        }
+
+        /// <summary>
+        /// Get all sellers (both approved and pending)
+        /// </summary>
+        public async Task<IEnumerable<SellerApprovalStatusDto>> GetAllSellersAsync()
+        {
+            var sellers = await _context.Sellers
+                .Include(s => s.User)
+                .Select(s => new SellerApprovalStatusDto
+                {
+                    SellerId = s.id,
+                    StoreName = s.StoreName,
+                    UserEmail = s.User.Email,
+                    IsApproved = s.IsApproved
+                })
+                .OrderBy(s => s.IsApproved)
+                .ThenBy(s => s.StoreName)
+                .ToListAsync();
+
+            return sellers;
+        }
+
+        /// <summary>
+        /// Approve or reject a seller account
+        /// </summary>
+        public async Task<GeneralResponse<string>> ApproveSellersAsync(int sellerId, bool isApproved)
+        {
+            var seller = await _context.Sellers
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.id == sellerId);
+
+            if (seller == null)
+                return GeneralResponse<string>.Fail("Seller not found");
+
+            seller.IsApproved = isApproved;
+
+            if (isApproved)
+            {
+                // ✔ NOW assign role here ONLY
+                if (!await _userManager.IsInRoleAsync(seller.User, "Seller"))
+                {
+                    await _userManager.AddToRoleAsync(seller.User, "Seller");
+                }
+            }
+            else
+            {
+                // optional cleanup
+                if (await _userManager.IsInRoleAsync(seller.User, "Seller"))
+                {
+                    await _userManager.RemoveFromRoleAsync(seller.User, "Seller");
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return GeneralResponse<string>.Success(
+                string.Empty,
+                isApproved ? "Seller approved" : "Seller rejected"
+            );
+        }
+        /// <summary>
+        /// Get seller details by ID
+        /// </summary>
+        public async Task<PendingSellerDto> GetSellerDetailsAsync(int sellerId)
+        {
+            var seller = await _context.Sellers
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.id == sellerId);
+
+            if (seller == null)
+                return null;
+
+            return new PendingSellerDto
+            {
+                Id = seller.id,
+                UserId = seller.UserId,
+                UserEmail = seller.User.Email,
+                UserFullName = seller.User.FullName,
+                StoreName = seller.StoreName,
+                StoreDescription = seller.StoreDescription,
+                BusinessAddress = seller.BusinessAddress,
+                IsApproved = seller.IsApproved,
+                CreatedAt = seller.CreatedAt
             };
         }
 
-        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
+        // ==================== DASHBOARD ====================
+
+        public async Task<AdminDashboardDto> GetDashboardAsync()
         {
-            return await _context.Orders
-                .Include(o => o.OrderItems)
+            var orders = await _context.Orders.ToListAsync();
+            var coupons = await _context.Coupons.CountAsync(c => !c.IsDeleted);
+
+            var topBuyers = await _context.Orders
+                .Include(o => o.User)
+                .GroupBy(o => o.UserId)
+                .Select(g => new TopBuyerDto
+                {
+                    Name = g.First().User.FullName ?? g.First().User.Email ?? "Unknown",
+                    Spent = g.Sum(x => x.TotalPrice)
+                })
+                .OrderByDescending(x => x.Spent)
+                .Take(5)
                 .ToListAsync();
+
+            return new AdminDashboardDto
+            {
+                TotalUsers = await _userManager.Users.CountAsync(),
+                TotalOrders = orders.Count,
+                TotalProducts = await _context.Products.CountAsync(),
+                TotalRevenue = orders.Sum(o => o.TotalPrice),
+                TotalCoupons = coupons,
+                PendingOrders = orders.Count(o => o.Status == "Pending"),
+                ActiveUsers = await _userManager.Users.CountAsync(u => !u.IsDeleted),
+
+                MonthlyRevenue = orders
+                    .GroupBy(o => o.CreatedAt.Month)
+                    .Select(g => new MonthlyRevenueDto
+                    {
+                        Month = g.Key.ToString(),
+                        Revenue = g.Sum(x => x.TotalPrice)
+                    }).ToList(),
+
+                TopProducts = await _context.OrderItems
+                    .Include(oi => oi.Product)
+                    .GroupBy(oi => oi.Product.Name)
+                    .Select(g => new TopProductDto
+                    {
+                        ProductName = g.Key,
+                        Sales = g.Sum(x => x.Quantity)
+                    })
+                    .OrderByDescending(x => x.Sales)
+                    .Take(10)
+                    .ToListAsync(),
+
+                TopBuyers = topBuyers
+            };
         }
+
+        // ==================== HELPER METHODS ====================
 
         private static string FormatIdentityErrors(IdentityResult result)
         {

@@ -4,8 +4,10 @@ import { SellerService } from '../seller.service';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-seller-dashboard',
   standalone: true,
+  
+ selector: 'app-seller-dashboard',
+ 
   imports: [CommonModule, RouterModule],
   templateUrl: './seller-dashboard.component.html',
   styleUrls: ['./seller-dashboard.component.css']

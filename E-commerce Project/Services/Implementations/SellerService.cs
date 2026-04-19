@@ -86,37 +86,49 @@ namespace E_commerce_Project.Services.Implementations
             // 2. Find the Seller record associated with this User
             var seller = await _context.Sellers.FirstOrDefaultAsync(s => s.UserId == user.Id);
 
-            // 3. IF NO DATA / SELLER DOES NOT EXIST YET: Return ZEROS
+            // 3. IF SELLER DOES NOT EXIST YET: Return ZEROS
             if (seller == null)
             {
                 var emptyStats = new SellerDashboardDto
                 {
-                    TotalEarnings = 10,
-                    TotalProducts = 1,
-                    OutOfStockCount = 1,
-                    PendingOrdersCount = 1
+                    TotalEarnings = 0,
+                    TotalProducts = 0,
+                    OutOfStockCount = 0,
+                    PendingOrdersCount = 0
                 };
                 return GeneralResponse<SellerDashboardDto>.Success(emptyStats, "No store data found.");
             }
 
-            // 4. Calculate stats using the actual Seller ID (much safer than user.Id)
+            // 4. Calculate stats using REAL DATA from the database
+            
+            // Real Total Earnings: Sum of (Price * Quantity) for this seller's products
             var totalEarnings = await _context.OrderItems
-                .Where(oi => oi.Product.SellerId == seller.id)
-                .SumAsync(oi => (decimal?)(oi.Price * oi.Quantity)) ?? 0; // "?? 0" enforces 0 if null
+                .Where(oi => oi.Product.SellerId == seller.id) // Capital "Id"
+                .SumAsync(oi => (decimal?)(oi.Price * oi.Quantity)) ?? 0;
 
+            // Real Total Products: Count of products tied to this seller
             var totalProducts = await _context.Products
-                .CountAsync(p => p.SellerId == seller.id);
+                .CountAsync(p => p.SellerId == seller.id); // Capital "Id"
 
+            // Real Out of Stock: Count of real products with 0 stock
             var outOfStock = await _context.Products
-                .CountAsync(p => p.SellerId == seller.id && p.StockQuantity == 0);
+                .CountAsync(p => p.SellerId == seller.id && p.StockQuantity == 0); // Capital "Id"
 
-            // 5. Combine into DTO
+            // Real Pending Orders: Count unique orders containing this seller's items 
+            // (Assuming Order status uses a string or enum, adjust "Pending" to match your Order model)
+            var pendingOrders = await _context.OrderItems
+                .Where(oi => oi.Product.SellerId == seller.id && oi.Order.Status == "Pending")
+                .Select(oi => oi.OrderId)
+                .Distinct()
+                .CountAsync();
+
+            // 5. Combine into actual DTO
             var stats = new SellerDashboardDto
             {
                 TotalEarnings = totalEarnings,
                 TotalProducts = totalProducts,
                 OutOfStockCount = outOfStock,
-                PendingOrdersCount = 0 // Link to Orders table later
+                PendingOrdersCount = pendingOrders
             };
 
             return GeneralResponse<SellerDashboardDto>.Success(stats);

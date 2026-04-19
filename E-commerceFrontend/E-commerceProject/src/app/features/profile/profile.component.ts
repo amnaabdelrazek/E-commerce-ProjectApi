@@ -6,6 +6,7 @@ import { UserService } from '../../core/services/user.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { API_BASE_URL } from '../../core/tokens/api-base-url.token';
 import { Profile } from '../../core/models/profile.model';
+import { AuthService } from '../../core/services/auth.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -36,6 +37,7 @@ export class ProfileComponent {
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly router = inject(Router);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+  private readonly authService = inject(AuthService);
 
   readonly state = signal<LoadState>('loading');
   readonly profile = signal<ProfileView | null>(null);
@@ -88,7 +90,16 @@ export class ProfileComponent {
         }
         this.state.set(res?.data ? 'loaded' : 'error');
       },
-      error: () => this.state.set('error')
+      error: (error) => {
+        if (error?.status === 401) {
+          this.tokenStorage.clearToken();
+          this.authService.logout();
+          void this.router.navigate(['/login']);
+          return;
+        }
+
+        this.state.set('error');
+      }
     });
   }
 

@@ -1,0 +1,130 @@
+<section class="admin-orders">
+
+  <!-- HERO (same as Users UI) -->
+  <div class="users-hero">
+    <div>
+      <span class="users-hero__eyebrow">Order management</span>
+      <h2>Orders</h2>
+      <p>Track and update customer orders.</p>
+    </div>
+  </div>
+
+  <!-- SEARCH (same modern users search) -->
+  <div class="toolbar">
+
+    <form class="toolbar__search" (ngSubmit)="search(searchInput.value)">
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+
+        <input #searchInput type="text" [value]="searchTerm" placeholder="Search by order ID, user or status" />
+
+        <button type="button" class="clear-btn" *ngIf="searchTerm" (click)="searchTerm=''; search('')">
+          ×
+        </button>
+
+      </div>
+
+      <button type="submit" class="search-btn">Search</button>
+
+    </form>
+
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="isLoading" class="state-card">
+    <p>Loading orders...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="hasLoadedOnce && !isLoading && errorMessage" class="state-card state-card--error">
+    <p>{{ errorMessage }}</p>
+    <button class="primary-btn" (click)="loadOrders()">Try again</button>
+  </div>
+
+  <!-- EMPTY -->
+  <div *ngIf="hasLoadedOnce && !isLoading && !errorMessage && orders.length === 0" class="state-card">
+    No orders found.
+  </div>
+
+  <!-- TABLE -->
+  <div *ngIf="paginatedOrders.length > 0" class="users-table-wrap">
+
+    <table class="users-table">
+
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>User</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Payment</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let order of paginatedOrders; trackBy: trackByOrderId">
+
+          <td><strong>#{{ order.id }}</strong></td>
+
+          <td>
+            <strong>{{ order.userFullName }}</strong>
+          </td>
+
+          <td>{{ getOrderSummary(order) }}</td>
+
+          <td><strong>${{ order.totalPrice }}</strong></td>
+
+          <td>
+            <span class="status-badge" [class.pending]="order.status === 'Pending'"
+              [class.shipped]="order.status === 'Shipped'" [class.delivered]="order.status === 'Delivered'">
+              {{ order.status }}
+            </span>
+          </td>
+
+          <td>{{ order.paymentMethod }}</td>
+
+          <td>{{ formatDate(order.createdAt) }}</td>
+
+          <td>
+
+            <select class="status-select" (change)="onStatusChange(order.id, $event)" [value]="order.status">
+
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+
+            </select>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pager" *ngIf="totalPages > 1">
+
+    <button class="ghost-btn" (click)="prev()" [disabled]="page === 1">
+      Prev
+    </button>
+
+    <span>{{ page }} / {{ totalPages }}</span>
+
+    <button class="ghost-btn" (click)="next()" [disabled]="page === totalPages">
+      Next
+    </button>
+
+  </div>
+
+</section>

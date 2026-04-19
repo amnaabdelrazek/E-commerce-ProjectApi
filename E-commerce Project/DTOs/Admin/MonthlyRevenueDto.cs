@@ -1,0 +1,8 @@
+﻿namespace E_commerce_Project.DTOs.Admin
+{
+    public class MonthlyRevenueDto
+    {
+        public string Month { get; set; }
+        public decimal Revenue { get; set; }
+    }
+}
