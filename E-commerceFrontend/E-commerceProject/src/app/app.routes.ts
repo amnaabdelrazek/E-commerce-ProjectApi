@@ -81,30 +81,10 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/seller/seller.module').then(m => m.SellerModule)
       },
-      {
-        path: 'orders',
-        component: PlaceholderComponent,
-        data: {
-          title: 'Orders',
-          description: 'Your order history endpoint is not connected yet. You can continue shopping or review your profile information.',
-          primaryLabel: 'Go to Shop',
-          primaryLink: '/shop',
-          secondaryLabel: 'Open Profile',
-          secondaryLink: '/profile'
-        }
-      },
-      {
-        path: 'wishlist',
-        component: PlaceholderComponent,
-        data: {
-          title: 'Wishlist',
-          description: 'Wishlist data is not available yet. Browse products and save your favorite picks manually for now.',
-          primaryLabel: 'Browse Products',
-          primaryLink: '/shop',
-          secondaryLabel: 'Back Home',
-          secondaryLink: '/home'
-        }
-      }
+      { path: 'orders', component: OrdersComponent },
+      { path: 'orders/:id', component: OrderDetailsComponent },
+      { path: 'wishlist', component: WishlistComponent },
+      { path: 'reviews', component: ReviewsComponent }
     ]
   },
 
