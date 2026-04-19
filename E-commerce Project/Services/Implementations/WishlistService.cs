@@ -25,23 +25,33 @@ namespace E_commerce_Project.Services.Implementations
                     .ThenInclude(p => p.Category)
                     .Include(w => w.Product)
                     .ThenInclude(p => p.Reviews)
-                    .Select(w => new WishlistItemDto
-                    {
-                        Id = w.Id,
-                        ProductId = w.ProductId,
-                        ProductName = w.Product.Name,
-                        ProductPrice = w.Product.Price,
-                        ProductImageUrl = w.Product.ImageUrl,
-                        CategoryName = w.Product.Category.Name,
-                        Rating = w.Product.Reviews.Any() 
-                            ? Math.Round((decimal)w.Product.Reviews.Average(r => r.Rating), 2)
-                            : null,
-                        AddedDate = w.CreatedAt
-                    })
-                    .OrderByDescending(w => w.AddedDate)
                     .ToListAsync();
 
-                return GeneralResponse<List<WishlistItemDto>>.Success(wishlistItems);
+                var result = new List<WishlistItemDto>();
+
+                foreach (var wishlist in wishlistItems)
+                {
+                    if (wishlist.Product == null || wishlist.Product.IsDeleted)
+                        continue;
+
+                    var rating = wishlist.Product.Reviews?.Any() == true
+                        ? (decimal?)Math.Round((decimal)wishlist.Product.Reviews.Average(r => r.Rating), 2)
+                        : null;
+
+                    result.Add(new WishlistItemDto
+                    {
+                        Id = wishlist.Id,
+                        ProductId = wishlist.ProductId,
+                        ProductName = wishlist.Product.Name ?? "Unknown",
+                        ProductPrice = wishlist.Product.Price,
+                        ProductImageUrl = wishlist.Product.ImageUrl,
+                        CategoryName = wishlist.Product.Category?.Name ?? "Uncategorized",
+                        Rating = rating,
+                        AddedDate = wishlist.CreatedAt
+                    });
+                }
+
+                return GeneralResponse<List<WishlistItemDto>>.Success(result.OrderByDescending(x => x.AddedDate).ToList());
             }
             catch (Exception ex)
             {

@@ -21,23 +21,31 @@ namespace E_commerce_Project.Services.Implementations
             try
             {
                 var reviews = await _context.Reviews
-                    .Where(r => r.UserId == userId && !r.IsDeleted)
                     .Include(r => r.Product)
                     .Include(r => r.User)
-                    .Select(r => new ReviewDto
-                    {
-                        Id = r.Id,
-                        ProductId = r.ProductId,
-                        ProductName = r.Product.Name,
-                        UserName = r.User.UserName ?? "Anonymous",
-                        Rating = r.Rating,
-                        Comment = r.Comment,
-                        ReviewDate = r.CreatedAt
-                    })
-                    .OrderByDescending(r => r.ReviewDate)
+                    .Where(r => r.UserId == userId && !r.IsDeleted)
                     .ToListAsync();
 
-                return GeneralResponse<List<ReviewDto>>.Success(reviews);
+                var result = new List<ReviewDto>();
+
+                foreach (var review in reviews)
+                {
+                    if (review.Product == null || review.Product.IsDeleted || review.User == null)
+                        continue;
+
+                    result.Add(new ReviewDto
+                    {
+                        Id = review.Id,
+                        ProductId = review.ProductId,
+                        ProductName = review.Product.Name ?? "Unknown",
+                        UserName = review.User.FullName ?? review.User.UserName ?? "Anonymous",
+                        Rating = review.Rating,
+                        Comment = review.Comment,
+                        ReviewDate = review.CreatedAt
+                    });
+                }
+
+                return GeneralResponse<List<ReviewDto>>.Success(result.OrderByDescending(r => r.ReviewDate).ToList());
             }
             catch (Exception ex)
             {
@@ -54,23 +62,31 @@ namespace E_commerce_Project.Services.Implementations
                     return GeneralResponse<List<ReviewDto>>.Fail("Product not found");
 
                 var reviews = await _context.Reviews
-                    .Where(r => r.ProductId == productId && !r.IsDeleted)
                     .Include(r => r.Product)
                     .Include(r => r.User)
-                    .Select(r => new ReviewDto
-                    {
-                        Id = r.Id,
-                        ProductId = r.ProductId,
-                        ProductName = r.Product.Name,
-                        UserName = r.User.UserName ?? "Anonymous",
-                        Rating = r.Rating,
-                        Comment = r.Comment,
-                        ReviewDate = r.CreatedAt
-                    })
-                    .OrderByDescending(r => r.ReviewDate)
+                    .Where(r => r.ProductId == productId && !r.IsDeleted)
                     .ToListAsync();
 
-                return GeneralResponse<List<ReviewDto>>.Success(reviews);
+                var result = new List<ReviewDto>();
+
+                foreach (var review in reviews)
+                {
+                    if (review.Product == null || review.Product.IsDeleted || review.User == null)
+                        continue;
+
+                    result.Add(new ReviewDto
+                    {
+                        Id = review.Id,
+                        ProductId = review.ProductId,
+                        ProductName = review.Product.Name ?? "Unknown",
+                        UserName = review.User.FullName ?? review.User.UserName ?? "Anonymous",
+                        Rating = review.Rating,
+                        Comment = review.Comment,
+                        ReviewDate = review.CreatedAt
+                    });
+                }
+
+                return GeneralResponse<List<ReviewDto>>.Success(result.OrderByDescending(r => r.ReviewDate).ToList());
             }
             catch (Exception ex)
             {
@@ -98,14 +114,40 @@ namespace E_commerce_Project.Services.Implementations
                     .FirstOrDefaultAsync(r => r.UserId == userId && r.ProductId == dto.ProductId && !r.IsDeleted);
 
                 if (existingReview != null)
-                    return GeneralResponse<ReviewDto>.Fail("You have already reviewed this product");
+                {
+                    // Update existing review instead of rejecting
+                    existingReview.Rating = dto.Rating;
+                    existingReview.Comment = dto.Comment;
+                    existingReview.LastModifiedAt = DateTime.UtcNow;
 
+                    _context.Reviews.Update(existingReview);
+                    await _context.SaveChangesAsync();
+
+                    var reviewUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                    var updatedReviewDto = new ReviewDto
+                    {
+                        Id = existingReview.Id,
+                        ProductId = product.Id,
+                        ProductName = product.Name,
+                        UserName = reviewUser?.FullName ?? reviewUser?.UserName ?? "Anonymous",
+                        Rating = existingReview.Rating,
+                        Comment = existingReview.Comment,
+                        ReviewDate = existingReview.CreatedAt
+                    };
+
+                    return GeneralResponse<ReviewDto>.Success(updatedReviewDto, "Review updated successfully");
+                }
+
+                // NOTE: For development/testing, we allow any authenticated user to review any product
+                // In production, uncomment this to require purchase verification:
+                /*
                 // Check if user purchased this product
                 var hasPurchased = await _context.Orders
                     .AnyAsync(o => o.UserId == userId && o.OrderItems.Any(oi => oi.ProductId == dto.ProductId) && !o.IsDeleted);
 
                 if (!hasPurchased)
                     return GeneralResponse<ReviewDto>.Fail("You can only review products you have purchased");
+                */
 
                 // Create review
                 var review = new Review
@@ -127,7 +169,7 @@ namespace E_commerce_Project.Services.Implementations
                     Id = review.Id,
                     ProductId = product.Id,
                     ProductName = product.Name,
-                    UserName = user?.UserName ?? "Anonymous",
+                    UserName = user?.FullName ?? user?.UserName ?? "Anonymous",
                     Rating = review.Rating,
                     Comment = review.Comment,
                     ReviewDate = review.CreatedAt

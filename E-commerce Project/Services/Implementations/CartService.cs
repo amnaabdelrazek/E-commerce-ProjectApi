@@ -344,7 +344,7 @@ namespace E_commerce_Project.Services.Implementations
                 Id = cart.Id,
                 UserId = cart.UserId,
                 Items = cart.CartItems
-                    .Where(ci => !ci.IsDeleted)
+                    .Where(ci => !ci.IsDeleted && ci.Product != null)
                     .Select(ci => new CartItemDto
                     {
                         Id = ci.Id,
