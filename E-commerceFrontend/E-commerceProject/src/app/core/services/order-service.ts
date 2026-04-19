@@ -13,7 +13,6 @@ export class OrderService {
   private readonly baseUrl = environment.apiUrl;
 
   getOrderSummary(cartId: number, promo: string): Observable<ApiResponse<OrderSummary>> {
-  // بنبعت الداتا في الـ Body كـ Object
   const body = { 
     cartId: cartId, 
     promoCode: promo || '' 

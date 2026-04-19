@@ -1,9 +1,12 @@
+
+using E_commerce_Project.Data;
 using E_commerce_Project.DTOs;
 using E_commerce_Project.Helpers;
 using E_commerce_Project.Models;
 using E_commerce_Project.Responses;
 using E_commerce_Project.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace E_commerce_Project.Services.Implementations
@@ -12,11 +15,13 @@ namespace E_commerce_Project.Services.Implementations
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly JwtHelper _jwt;
+        private readonly AppDbContext _dbContext;
 
-        public AuthService(UserManager<ApplicationUser> userManager, JwtHelper jwt)
+        public AuthService(UserManager<ApplicationUser> userManager, JwtHelper jwt, AppDbContext dbContext)
         {
             _userManager = userManager;
             _jwt = jwt;
+            _dbContext = dbContext;
         }
 
         public async Task<GeneralResponse<object>> RegisterAsync(RegisterDto dto)
@@ -78,6 +83,18 @@ namespace E_commerce_Project.Services.Implementations
                 return GeneralResponse<object>.Fail("Invalid Password");
 
             var roles = await _userManager.GetRolesAsync(user);
+
+            var sellerRecord = await _dbContext.Sellers
+    .AsNoTracking()
+    .FirstOrDefaultAsync(s => s.UserId == user.Id);
+
+            // If user is a seller (has seller record), enforce approval
+            if (sellerRecord != null)
+            {
+                if (!sellerRecord.IsApproved)
+                    return GeneralResponse<object>.Fail("Seller account is pending admin approval");
+            }
+
             var token = _jwt.GenerateToken(user, roles);
 
             // Build the response object as required
@@ -110,5 +127,61 @@ namespace E_commerce_Project.Services.Implementations
 
             return GeneralResponse<string>.Success("Email confirmed");
         }
+        //new
+        public async Task<GeneralResponse<object>> RegisterSellerAsync(RegisterSellerDto dto)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = dto.Email,
+                    Email = dto.Email,
+                    FullName = dto.FullName
+                };
+
+                var result = await _userManager.CreateAsync(user, dto.Password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                    return GeneralResponse<object>.Fail(errors);
+                }
+
+                // ❌ DO NOT assign Seller role here
+
+                var seller = new Seller
+                {
+                    UserId = user.Id,
+                    StoreName = dto.StoreName,
+                    StoreDescription = dto.StoreDescription ?? "No description provided",
+                    BusinessAddress = dto.BusinessAddress ?? "No address provided",
+                    Balance = 0,
+                    IsApproved = false // IMPORTANT
+                };
+
+                await _dbContext.Sellers.AddAsync(seller);
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                return GeneralResponse<object>.Success(new
+                {
+                    userId = user.Id,
+                    email = user.Email,
+                    approvalStatus = "Pending",
+                    message = "Account created. Awaiting admin approval."
+                }, "Seller registration successful");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return GeneralResponse<object>.Fail(ex.Message);
+            }
+        }
     }
+  
 }

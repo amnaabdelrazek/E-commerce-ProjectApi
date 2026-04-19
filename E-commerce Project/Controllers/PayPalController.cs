@@ -21,6 +21,7 @@ namespace E_commerce_Project.Controllers.Payment
         public async Task<IActionResult> Create(int orderId)
         {
             var url = await _paypal.CreatePaymentAsync(orderId);
+
             return Ok(new { url });
         }
 

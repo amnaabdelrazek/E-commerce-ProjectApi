@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { CategoriesService } from '../../../core/services/categories.service';
 import { Category } from '../../../core/models/category.model';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, CurrentUser } from '../../../core/services/auth.service';
 
 type CategoriesState = 'loading' | 'loaded' | 'error';
 
@@ -21,6 +21,7 @@ export class NavbarComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly categoriesService = inject(CategoriesService);
   public readonly auth = inject(AuthService);
+  public readonly authService = inject(AuthService);
 
   public readonly categories = signal<Category[]>([]);
   public readonly categoriesState = signal<CategoriesState>('loading');

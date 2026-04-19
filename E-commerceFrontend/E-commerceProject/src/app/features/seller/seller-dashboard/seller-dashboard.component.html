@@ -1,0 +1,17 @@
+<div class="dashboard-container">
+  <h1>Seller Dashboard</h1>
+  <div class="stats-container" *ngIf="dashboardStats">
+    <div class="stat-card">
+      <h2>Total Sales</h2>
+      <p>{{ dashboardStats.totalSales | currency }}</p>
+    </div>
+    <div class="stat-card">
+      <h2>Total Orders</h2>
+      <p>{{ dashboardStats.totalOrders }}</p>
+    </div>
+    <div class="stat-card">
+      <h2>Total Products</h2>
+      <p>{{ dashboardStats.totalProducts }}</p>
+    </div>
+  </div>
+</div>

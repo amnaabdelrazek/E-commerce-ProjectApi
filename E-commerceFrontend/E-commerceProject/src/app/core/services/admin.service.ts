@@ -1,28 +1,37 @@
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_BASE_URL } from '../tokens/api-base-url.token';
 
+/* ================= COMMON ================= */
 export interface GeneralResponse<T> {
   isSuccess: boolean;
   message: string;
   data: T;
 }
 
+/* ================= USERS ================= */
 export interface User {
   id: string;
   email: string;
-  userName: string;
+  fullName: string;
   role: string;
-  isActive: boolean;
-  createdAt?: string;
+  isLocked: boolean;
+  isDeleted: boolean;
 }
 
+/* ================= ORDERS ================= */
 export interface Order {
   id: number;
   userId: string;
-  totalAmount: number;
+  userFullName: string;
   status: string;
+  totalPrice: number;
+  discountAmount?: number;
+  taxAmount?: number;
+  shippingCost?: number;
+  paymentMethod: string;
   createdAt: string;
   items?: OrderItem[];
 }
@@ -30,24 +39,32 @@ export interface Order {
 export interface OrderItem {
   id: number;
   productId: number;
+  productName: string;
   quantity: number;
   price: number;
+  priceAtPurchase: number;
+  itemTotal: number;
 }
 
+/* ================= COUPONS ================= */
 export interface Coupon {
   id: number;
   code: string;
-  discount: number;
+  discountAmount: number | null;     // نفس اسم الباك إند
+  discountPercentage: number | null; // نفس اسم الباك إند
   expiryDate: string;
   isActive: boolean;
+  minimumPurchaseAmount: number;
   maxUses?: number;
   usedCount?: number;
 }
 
 export interface CreateCouponDto {
   code: string;
-  discount: number;
+  minimumPurchaseAmount: number;
   expiryDate: string;
+  discountPercentage: number | null;
+  discountAmount: number | null;
   maxUses?: number;
 }
 
@@ -56,6 +73,36 @@ export interface UpdateUserRoleDto {
   newRole: string;
 }
 
+/* ================= DASHBOARD ================= */
+export interface MonthlyRevenue {
+  month: string;
+  revenue: number;
+}
+
+export interface TopProduct {
+  productName: string;
+  sales: number;
+}
+
+export interface TopBuyer {
+  name: string;
+  spent: number;
+}
+
+export interface DashboardData {
+  totalUsers: number;
+  totalOrders: number;
+  totalRevenue: number;
+  totalCoupons: number;
+  pendingOrders?: number;
+  activeUsers?: number;
+
+  monthlyRevenue?: MonthlyRevenue[];
+  topProducts?: TopProduct[];
+  topBuyers?: TopBuyer[];
+}
+
+/* ================= PRODUCTS ================= */
 export interface AdminProduct {
   id: number;
   name: string;
@@ -83,6 +130,7 @@ export interface CreateProductDto {
 
 export interface UpdateProductDto extends CreateProductDto {}
 
+/* ================= CATEGORIES ================= */
 export interface AdminCategory {
   id: number;
   name: string;
@@ -105,83 +153,74 @@ export interface CreateCategoryDto {
 
 export interface UpdateCategoryDto extends CreateCategoryDto {}
 
-export interface DashboardData {
-  totalUsers: number;
-  totalOrders: number;
-  totalRevenue: number;
-  totalCoupons: number;
-  pendingOrders?: number;
-  activeUsers?: number;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
   private http = inject(HttpClient);
   private baseUrl = inject(API_BASE_URL);
+
+  // ⚠️ IMPORTANT: your backend uses /api/Admin
   private apiUrl = `${this.baseUrl}/api/Admin`;
 
+  constructor() {}
+
+  /* ================= HELPERS ================= */
   private normalizeImageUrl(imageUrl: string | null): string | null {
-    if (!imageUrl) {
-      return null;
-    }
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
 
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
-    }
-
-    return `${this.baseUrl}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
+    return `${this.baseUrl}${imageUrl.startsWith('/') ? imageUrl : '/' + imageUrl}`;
   }
 
-  // Users Management
-  getUsers(): Observable<GeneralResponse<User[]>> {
-    return this.http.get<GeneralResponse<User[]>>(`${this.apiUrl}/users`);
+  /* ================= USERS ================= */
+getUsers(): Observable<User[]> {
+  return this.http.get<User[]>(`${this.apiUrl}/users`);
+}
+
+  lockUser(id: string) {
+    return this.http.post(`${this.apiUrl}/lock/${id}`, {});
   }
 
-  lockUser(id: string): Observable<GeneralResponse<any>> {
-    return this.http.post<GeneralResponse<any>>(`${this.apiUrl}/lock/${id}`, {});
+  unlockUser(id: string) {
+    return this.http.post(`${this.apiUrl}/unlock/${id}`, {});
   }
 
-  unlockUser(id: string): Observable<GeneralResponse<any>> {
-    return this.http.post<GeneralResponse<any>>(`${this.apiUrl}/unlock/${id}`, {});
+  deleteUser(id: string) {
+    return this.http.delete(`${this.apiUrl}/users/${id}`);
   }
 
-  deleteUser(id: string): Observable<GeneralResponse<any>> {
-    return this.http.delete<GeneralResponse<any>>(`${this.apiUrl}/users/${id}`);
+  changeUserRole(userId: string, newRole: string) {
+    return this.http.post(`${this.apiUrl}/role`, { userId, newRole });
   }
 
-  changeUserRole(userId: string, newRole: string): Observable<GeneralResponse<any>> {
-    const dto: UpdateUserRoleDto = { userId, newRole };
-    return this.http.post<GeneralResponse<any>>(`${this.apiUrl}/role`, dto);
-  }
+  /* ================= ORDERS ================= */
+getOrders(): Observable<Order[]> {
+  return this.http.get<Order[]>(`${this.apiUrl}/orders`);
+}
 
-  // Orders Management
-  getOrders(): Observable<GeneralResponse<Order[]>> {
-    return this.http.get<GeneralResponse<Order[]>>(`${this.apiUrl}/orders`);
-  }
-
-  updateOrderStatus(orderId: number, status: string): Observable<GeneralResponse<any>> {
-    return this.http.put<GeneralResponse<any>>(
-      `${this.apiUrl}/orders/${orderId}/status?status=${status}`,
-      {}
+  updateOrderStatus(orderId: number, status: string) {
+    return this.http.put(
+      `${this.apiUrl}/orders/${orderId}/status`,
+      {},
+      { params: { status } }
     );
   }
 
-  // Coupons Management
-  getCoupons(): Observable<GeneralResponse<Coupon[]>> {
-    return this.http.get<GeneralResponse<Coupon[]>>(`${this.apiUrl}/coupons`);
-  }
+  /* ================= COUPONS ================= */
+getCoupons(): Observable<Coupon[]> { // شيلنا GeneralResponse
+  return this.http.get<Coupon[]>(`${this.apiUrl}/coupons`);
+}
 
-  createCoupon(dto: CreateCouponDto): Observable<GeneralResponse<Coupon>> {
+  createCoupon(dto: CreateCouponDto) {
     return this.http.post<GeneralResponse<Coupon>>(`${this.apiUrl}/coupons`, dto);
   }
 
-  deleteCoupon(id: number): Observable<GeneralResponse<any>> {
-    return this.http.delete<GeneralResponse<any>>(`${this.apiUrl}/coupons/${id}`);
+  deleteCoupon(id: number) {
+    return this.http.delete(`${this.apiUrl}/coupons/${id}`);
   }
 
-  // Products Management
+  /* ================= PRODUCTS ================= */
   getProducts(
     pageNumber = 1,
     pageSize = 10,
@@ -189,130 +228,122 @@ export class AdminService {
     categoryId?: number,
     minPrice?: number,
     maxPrice?: number
-  ): Observable<GeneralResponse<AdminProductsResult>> {
-    return this.http.get<GeneralResponse<AdminProductsResult>>(`${this.baseUrl}/api/Products`, {
-      params: {
-        PageNumber: pageNumber,
-        PageSize: pageSize,
-        ...(name ? { Name: name } : {}),
-        ...(categoryId ? { CategoryId: categoryId } : {}),
-        ...(minPrice !== undefined ? { MinPrice: minPrice } : {}),
-        ...(maxPrice !== undefined ? { MaxPrice: maxPrice } : {})
+  ) {
+    return this.http.get<GeneralResponse<AdminProductsResult>>(
+      `${this.baseUrl}/api/Products`,
+      {
+        params: {
+          PageNumber: pageNumber,
+          PageSize: pageSize,
+          ...(name ? { Name: name } : {}),
+          ...(categoryId ? { CategoryId: categoryId } : {}),
+          ...(minPrice !== undefined ? { MinPrice: minPrice } : {}),
+          ...(maxPrice !== undefined ? { MaxPrice: maxPrice } : {})
+        }
       }
-    }).pipe(
-      map(response => ({
-        ...response,
+    ).pipe(
+      map(res => ({
+        ...res,
         data: {
-          ...response.data,
-          data: response.data.data.map(product => ({
-            ...product,
-            imageUrl: this.normalizeImageUrl(product.imageUrl)
+          ...res.data,
+          data: res.data.data.map(p => ({
+            ...p,
+            imageUrl: this.normalizeImageUrl(p.imageUrl)
           }))
         }
       }))
     );
   }
 
-  getProductById(id: number): Observable<GeneralResponse<AdminProduct>> {
-    return this.http.get<GeneralResponse<AdminProduct>>(`${this.baseUrl}/api/Products/${id}`).pipe(
-      map(response => ({
-        ...response,
-        data: response.data
-          ? {
-              ...response.data,
-              imageUrl: this.normalizeImageUrl(response.data.imageUrl)
-            }
-          : response.data
-      }))
+  createProduct(dto: CreateProductDto) {
+    return this.http.post<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Products`,
+      dto
     );
   }
 
-  createProduct(dto: CreateProductDto): Observable<GeneralResponse<string>> {
-    return this.http.post<GeneralResponse<string>>(`${this.baseUrl}/api/Products`, dto);
+  updateProduct(id: number, dto: UpdateProductDto) {
+    return this.http.put<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Products/${id}`,
+      dto
+    );
   }
 
-  updateProduct(id: number, dto: UpdateProductDto): Observable<GeneralResponse<string>> {
-    return this.http.put<GeneralResponse<string>>(`${this.baseUrl}/api/Products/${id}`, dto);
+  deleteProduct(id: number) {
+    return this.http.delete<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Products/${id}`
+    );
   }
 
-  deleteProduct(id: number): Observable<GeneralResponse<string>> {
-    return this.http.delete<GeneralResponse<string>>(`${this.baseUrl}/api/Products/${id}`);
-  }
-
-  uploadProductImage(id: number, file: File): Observable<GeneralResponse<string | null>> {
+  uploadProductImage(id: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<GeneralResponse<string>>(`${this.baseUrl}/api/Products/${id}/upload-image`, formData).pipe(
-      map(response => ({
-        ...response,
-        data: this.normalizeImageUrl(response.data)
-      }))
+    return this.http.post<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Products/${id}/upload-image`,
+      formData
     );
   }
 
-  // Categories Management
-  getCategories(page = 1, pageSize = 12, name = ''): Observable<GeneralResponse<AdminCategoriesResult>> {
-    return this.http.get<GeneralResponse<AdminCategoriesResult>>(`${this.baseUrl}/api/Categories`, {
-      params: {
-        Page: page,
-        PageSize: pageSize,
-        ...(name ? { Name: name } : {})
+  /* ================= CATEGORIES ================= */
+  getCategories(page = 1, pageSize = 12, name = '') {
+    return this.http.get<GeneralResponse<AdminCategoriesResult>>(
+      `${this.baseUrl}/api/Categories`,
+      {
+        params: {
+          Page: page,
+          PageSize: pageSize,
+          ...(name ? { Name: name } : {})
+        }
       }
-    }).pipe(
-      map(response => ({
-        ...response,
+    ).pipe(
+      map(res => ({
+        ...res,
         data: {
-          ...response.data,
-          data: response.data.data.map(category => ({
-            ...category,
-            imageUrl: this.normalizeImageUrl(category.imageUrl)
+          ...res.data,
+          data: res.data.data.map(c => ({
+            ...c,
+            imageUrl: this.normalizeImageUrl(c.imageUrl)
           }))
         }
       }))
     );
   }
 
-  getCategoryById(id: number): Observable<GeneralResponse<AdminCategory | null>> {
-    return this.http.get<GeneralResponse<AdminCategory | null>>(`${this.baseUrl}/api/Categories/${id}`).pipe(
-      map(response => ({
-        ...response,
-        data: response.data
-          ? {
-              ...response.data,
-              imageUrl: this.normalizeImageUrl(response.data.imageUrl)
-            }
-          : null
-      }))
+  createCategory(dto: CreateCategoryDto) {
+    return this.http.post<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Categories`,
+      dto
     );
   }
 
-  createCategory(dto: CreateCategoryDto): Observable<GeneralResponse<string>> {
-    return this.http.post<GeneralResponse<string>>(`${this.baseUrl}/api/Categories`, dto);
+  updateCategory(id: number, dto: UpdateCategoryDto) {
+    return this.http.put<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Categories/${id}`,
+      dto
+    );
   }
 
-  updateCategory(id: number, dto: UpdateCategoryDto): Observable<GeneralResponse<string>> {
-    return this.http.put<GeneralResponse<string>>(`${this.baseUrl}/api/Categories/${id}`, dto);
+  deleteCategory(id: number) {
+    return this.http.delete<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Categories/${id}`
+    );
   }
 
-  deleteCategory(id: number): Observable<GeneralResponse<string>> {
-    return this.http.delete<GeneralResponse<string>>(`${this.baseUrl}/api/Categories/${id}`);
-  }
-
-  uploadCategoryImage(id: number, file: File): Observable<GeneralResponse<string | null>> {
+  uploadCategoryImage(id: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<GeneralResponse<string>>(`${this.baseUrl}/api/Categories/${id}/upload-image`, formData).pipe(
-      map(response => ({
-        ...response,
-        data: this.normalizeImageUrl(response.data)
-      }))
+    return this.http.post<GeneralResponse<string>>(
+      `${this.baseUrl}/api/Categories/${id}/upload-image`,
+      formData
     );
   }
 
-  // Dashboard
+  /* ================= DASHBOARD ================= */
   getDashboard(): Observable<GeneralResponse<DashboardData>> {
-    return this.http.get<GeneralResponse<DashboardData>>(`${this.apiUrl}/dashboard`);
+    return this.http.get<GeneralResponse<DashboardData>>(
+      `${this.apiUrl}/dashboard`
+    );
   }
 }

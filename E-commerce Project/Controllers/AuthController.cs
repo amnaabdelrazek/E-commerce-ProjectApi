@@ -35,5 +35,16 @@ namespace E_commerce_Project.Controllers
             var result = await _auth.ConfirmEmailAsync(userId, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPost("register-seller")]
+        public async Task<IActionResult> RegisterSeller([FromBody] RegisterSellerDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _auth.RegisterSellerAsync(model);
+            //new
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }
