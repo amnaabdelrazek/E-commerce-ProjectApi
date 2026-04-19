@@ -92,6 +92,7 @@ export interface TopBuyer {
 export interface DashboardData {
   totalUsers: number;
   totalOrders: number;
+  totalProducts?: number;
   totalRevenue: number;
   totalCoupons: number;
   pendingOrders?: number;

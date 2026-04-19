@@ -102,11 +102,9 @@
         </svg>
       </a>
 
-      <a class="icon-btn" routerLink="/profile" aria-label="Account">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12Zm0 2c-4.4 0-8 2.2-8 5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2c0-2.8-3.6-5-8-5Z" />
-        </svg>
+      <a class="account-btn" [routerLink]="accountRoute" [attr.aria-label]="'Open ' + accountLabel">
+        <img class="account-btn__avatar" [src]="avatarUrl" [alt]="accountLabel" (error)="onAvatarError($event)" />
+        <span class="account-btn__name">{{ accountLabel }}</span>
       </a>
     </div>
   </div>

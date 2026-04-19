@@ -1,0 +1,54 @@
+<div class="page container">
+  <div class="dashboard-header" style="margin-bottom: 2rem;">
+    <h1 class="display-serif">Seller Profile</h1>
+    <p class="muted">Manage your store details and business information.</p>
+  </div>
+
+  <div class="card" *ngIf="!isLoading; else loading" style="padding: 2.5rem; max-width: 800px; margin: 0 auto;">
+    
+    <div [ngStyle]="{'background-color': profileForm.get('isApproved')?.value ? 'color-mix(in srgb, var(--app-success) 15%, transparent)' : 'color-mix(in srgb, var(--app-accent) 15%, transparent)', 'color': profileForm.get('isApproved')?.value ? 'var(--app-success)' : 'var(--app-accent)'}" style="padding: 1rem 1.5rem; border-radius: var(--app-radius-sm); display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; font-weight: 500;">
+      <i class="fas" [ngClass]="profileForm.get('isApproved')?.value ? 'fa-check-circle' : 'fa-clock'"></i>
+      {{ profileForm.get('isApproved')?.value ? 'Your store is approved and active.' : 'Your store is pending approval. You can still save your profile.' }}
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      
+      <div style="margin-bottom: 1.5rem;">
+        <label for="storeName" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--app-text);">Store Name</label>
+        <input class="input" id="storeName" type="text" formControlName="storeName" placeholder="Enter your store name" />
+        <div *ngIf="profileForm.get('storeName')?.invalid && profileForm.get('storeName')?.touched" style="color: var(--app-danger); font-size: 0.85rem; margin-top: 0.5rem;">
+          Store Name is required.
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label for="businessAddress" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--app-text);">Business Address</label>
+        <input class="input" id="businessAddress" type="text" formControlName="businessAddress" placeholder="Enter your business address" />
+        <div *ngIf="profileForm.get('businessAddress')?.invalid && profileForm.get('businessAddress')?.touched" style="color: var(--app-danger); font-size: 0.85rem; margin-top: 0.5rem;">
+          Business Address is required.
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label for="storeDescription" style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--app-text);">Store Description</label>
+        <textarea class="input" id="storeDescription" rows="4" formControlName="storeDescription" placeholder="Describe your store..."></textarea>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <button type="submit" class="btn btn--primary" [disabled]="profileForm.invalid || isSaving">
+          {{ isSaving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+
+      <div *ngIf="successMessage" style="margin-top: 1.5rem; padding: 1rem; border-radius: var(--app-radius-sm); font-weight: 500; background-color: color-mix(in srgb, var(--app-success) 15%, transparent); color: var(--app-success);">{{ successMessage }}</div>
+      <div *ngIf="errorMessage" style="margin-top: 1.5rem; padding: 1rem; border-radius: var(--app-radius-sm); font-weight: 500; background-color: color-mix(in srgb, var(--app-danger) 15%, transparent); color: var(--app-danger);">{{ errorMessage }}</div>
+
+    </form>
+  </div>
+
+  <ng-template #loading>
+    <div style="text-align: center; padding: 4rem;">
+      <p class="muted">Loading profile...</p>
+    </div>
+  </ng-template>
+</div>

@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-create-coupon-component',
+  standalone: true,
   imports: [FormsModule],
   templateUrl: './create-coupon-component.html',
   styleUrl: './create-coupon-component.css',
@@ -49,10 +50,9 @@ export class CreateCouponComponent implements OnInit {
 
     this.adminService.createCoupon(dto).subscribe({
       next: (res) => {
-        // بيدخل هنا لو الـ Status Code 200 (Success)
         setTimeout(() => {
           this.notificationService.success('Coupon created successfully!');
-          this.router.navigate(['admin/coupons']);
+          this.router.navigate(['/admin/coupons']);
         }, 100);
       },
 error: (err) => {

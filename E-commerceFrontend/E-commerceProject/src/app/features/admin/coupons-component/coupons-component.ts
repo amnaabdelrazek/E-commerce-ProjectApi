@@ -6,6 +6,7 @@ import { DatePipe, CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-coupons-component',
+  standalone: true,
   imports: [DatePipe, CurrencyPipe, RouterLink],
   templateUrl: './coupons-component.html',
   styleUrl: './coupons-component.css',
@@ -38,7 +39,7 @@ loadCoupons(): void {
     },
     error: (err) => {
       console.error('Fetch error:', err);
-      this.errorMessage.set('Can’t load coupons');
+      this.errorMessage.set("Can't load coupons");
       this.isLoading.set(false);
     }
   });
@@ -47,7 +48,7 @@ loadCoupons(): void {
   onDelete(id: number): void{
     Swal.fire({
       title: 'Are you sure?',
-      text: "You can’t be able to revert this?",
+      text: "You won't be able to revert this.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',

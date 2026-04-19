@@ -1,115 +1,194 @@
-<div class="admin-profile">
-  <ng-container *ngIf="state() === 'loaded' && profile() as p; else otherTpl">
-    <section class="hero card">
-      <div class="summary__left">
-        <div class="avatar avatar--large">
-          <img [src]="resolveImageUrl(p.profileImageUrl)" [alt]="p.fullName" (error)="onImgError($event)" />
-        </div>
-        <div class="hero__copy">
-          <span class="hero__eyebrow">Admin account</span>
-          <h1 class="title">{{ p.fullName }}</h1>
-          <div class="email muted">{{ p.email }}</div>
-          <p class="hero__text">Manage your admin profile details, photo, and password from one secure place.</p>
-        </div>
-      </div>
-      <div class="hero__actions">
-        <button class="btn btn--secondary" type="button" (click)="toggleEdit()">
-          {{ editing() ? 'Cancel editing' : 'Edit profile' }}
+<div class="page page--center">
+  <div class="container profile admin-profile">
+    <ng-container *ngIf="state() === 'loaded' && profile() as p; else otherTpl">
+      <mat-card class="hero-card">
+        <mat-card-header>
+          <div class="summary__left">
+            <div class="avatar avatar--large">
+              <img [src]="resolveImageUrl(p.profileImageUrl)" [alt]="p.fullName" (error)="onImgError($event)" />
+            </div>
+            <div class="hero__copy">
+              <span class="hero__eyebrow">Admin account</span>
+              <h1 class="title">{{ p.fullName }}</h1>
+              <div class="email muted">{{ p.email }}</div>
+              <p class="hero__text">Manage your admin details, access, and security settings from one place.</p>
+            </div>
+          </div>
+        </mat-card-header>
+        <mat-card-actions class="hero__actions">
+          <button mat-raised-button [color]="editing() ? 'warn' : 'primary'" (click)="toggleEdit()">
+            <mat-icon>{{ editing() ? 'close' : 'edit' }}</mat-icon>
+            {{ editing() ? 'Cancel editing' : 'Edit profile' }}
+          </button>
+          <button mat-raised-button color="warn" (click)="signOut()">
+            <mat-icon>logout</mat-icon>
+            Sign Out
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <div class="stats">
+        <button mat-card class="stat card stat-btn" (click)="goToOrders()" type="button">
+          <mat-card-content>
+            <mat-icon class="stat__icon">shopping_bag</mat-icon>
+            <div class="stat__value">{{ p.ordersCount ?? 0 }}</div>
+            <div class="stat__label muted">Orders</div>
+            <div class="stat__action">
+              <mat-icon class="action-icon">arrow_forward</mat-icon>
+            </div>
+          </mat-card-content>
         </button>
-        <button class="btn btn--secondary danger" type="button" (click)="signOut()">Sign Out</button>
-      </div>
-    </section>
-
-    <div class="stats">
-      <div class="stat card">
-        <div class="stat__value">{{ p.ordersCount ?? 0 }}</div>
-        <div class="stat__label muted">Orders</div>
-      </div>
-      <div class="stat card">
-        <div class="stat__value">{{ p.wishlistCount ?? 0 }}</div>
-        <div class="stat__label muted">Wishlist</div>
-      </div>
-      <div class="stat card">
-        <div class="stat__value">{{ p.reviewsCount ?? 0 }}</div>
-        <div class="stat__label muted">Reviews</div>
-      </div>
-    </div>
-
-    <div class="details card">
-      <div class="details__title">Personal Details</div>
-      <div class="details__grid">
-        <div>
-          <div class="details__label muted">Full Name</div>
-          <div class="details__value">{{ p.fullName }}</div>
-        </div>
-        <div>
-          <div class="details__label muted">Email</div>
-          <div class="details__value">{{ p.email }}</div>
-        </div>
-        <div>
-          <div class="details__label muted">City</div>
-          <div class="details__value">{{ p.city || '-' }}</div>
-        </div>
-        <div>
-          <div class="details__label muted">Street</div>
-          <div class="details__value">{{ p.street || '-' }}</div>
-        </div>
-      </div>
-    </div>
-
-    <form class="card edit" *ngIf="editing()" [formGroup]="form" (ngSubmit)="saveProfile()">
-      <div class="edit__title">Edit Profile</div>
-      <div class="edit__grid">
-        <div>
-          <label class="muted">Full Name</label>
-          <input class="input" type="text" formControlName="fullName" />
-        </div>
-        <div>
-          <label class="muted">City</label>
-          <input class="input" type="text" formControlName="city" />
-        </div>
-        <div>
-          <label class="muted">Street</label>
-          <input class="input" type="text" formControlName="street" />
-        </div>
-      </div>
-
-      <div class="edit__row">
-        <div class="file">
-          <input type="file" accept="image/*" (change)="onAvatarSelected($event)" />
-          <button class="btn btn--secondary" type="button" (click)="uploadAvatar()">Upload Photo</button>
-          <span class="muted">{{ avatarMessage() }}</span>
-        </div>
-        <button class="btn btn--primary" type="submit" [disabled]="saving()">
-          {{ saving() ? 'Saving...' : 'Save Changes' }}
+        <button mat-card class="stat card stat-btn" (click)="goToProducts()" type="button">
+          <mat-card-content>
+            <mat-icon class="stat__icon">inventory_2</mat-icon>
+            <div class="stat__value">{{ p.wishlistCount ?? 0 }}</div>
+            <div class="stat__label muted">Products view</div>
+            <div class="stat__action">
+              <mat-icon class="action-icon">arrow_forward</mat-icon>
+            </div>
+          </mat-card-content>
+        </button>
+        <button mat-card class="stat card stat-btn" (click)="goToUsers()" type="button">
+          <mat-card-content>
+            <mat-icon class="stat__icon">group</mat-icon>
+            <div class="stat__value">{{ p.reviewsCount ?? 0 }}</div>
+            <div class="stat__label muted">Users view</div>
+            <div class="stat__action">
+              <mat-icon class="action-icon">arrow_forward</mat-icon>
+            </div>
+          </mat-card-content>
         </button>
       </div>
-      <div class="muted">{{ message() }}</div>
-    </form>
 
-    <form class="card edit" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-      <div class="edit__title">Change Password</div>
-      <div class="edit__grid edit__grid--password">
-        <div>
-          <label class="muted">Current Password</label>
-          <input class="input" type="password" formControlName="currentPassword" />
-        </div>
-        <div>
-          <label class="muted">New Password</label>
-          <input class="input" type="password" formControlName="newPassword" />
-        </div>
-      </div>
-      <div class="edit__row">
-        <button class="btn btn--primary" type="submit">Update Password</button>
-        <span class="muted">{{ passwordMessage() }}</span>
-      </div>
-    </form>
-  </ng-container>
+      <mat-card class="details card">
+        <mat-card-header>
+          <div class="details__title">Personal Details</div>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="details__grid">
+            <div>
+              <div class="details__label muted">Full Name</div>
+              <div class="details__value">{{ p.fullName }}</div>
+            </div>
+            <div>
+              <div class="details__label muted">Email</div>
+              <div class="details__value">{{ p.email }}</div>
+            </div>
+            <div>
+              <div class="details__label muted">City</div>
+              <div class="details__value">{{ p.city || '-' }}</div>
+            </div>
+            <div>
+              <div class="details__label muted">Street</div>
+              <div class="details__value">{{ p.street || '-' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
 
-  <ng-template #otherTpl>
-    <div class="card state">
-      <ng-container *ngIf="state() === 'loading'">Loading profile...</ng-container>
-      <ng-container *ngIf="state() === 'error'">Unable to load profile.</ng-container>
-    </div>
-  </ng-template>
+      <mat-card class="edit-section" *ngIf="editing()">
+        <mat-tab-group (selectedIndexChange)="setActiveTab($event === 0 ? 'profile' : 'password')" class="edit-tabs">
+          <mat-tab label="Edit Profile">
+            <form [formGroup]="form" (ngSubmit)="saveProfile()" class="edit-form">
+              <div class="edit__grid">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Full Name</mat-label>
+                  <input matInput type="text" formControlName="fullName" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>City</mat-label>
+                  <input matInput type="text" formControlName="city" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Street</mat-label>
+                  <input matInput type="text" formControlName="street" />
+                </mat-form-field>
+              </div>
+
+              <div class="edit-avatar-section">
+                <div
+                  class="drag-drop-zone"
+                  (dragover)="onDragOver($event)"
+                  (dragleave)="onDragLeave($event)"
+                  (drop)="onDrop($event)"
+                  [class.dragging]="isDragging()"
+                >
+                  <div class="drag-drop-content">
+                    <mat-icon class="drag-drop-icon">image</mat-icon>
+                    <div class="drag-drop-text">
+                      <p class="drag-drop-title">Drag and drop your photo here</p>
+                      <p class="drag-drop-subtitle">or</p>
+                    </div>
+                    <label class="btn btn--secondary">
+                      Choose Photo
+                      <input type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden />
+                    </label>
+                  </div>
+                  <div class="drag-drop-status" *ngIf="avatarMessage()">
+                    {{ avatarMessage() }}
+                  </div>
+                </div>
+                <button mat-raised-button color="primary" type="button" (click)="uploadAvatar()" *ngIf="pendingImageFile()" class="upload-btn">
+                  <mat-icon>cloud_upload</mat-icon>
+                  Upload Photo
+                </button>
+              </div>
+
+              <div class="edit-actions">
+                <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+                  <mat-icon *ngIf="!saving()">save</mat-icon>
+                  {{ saving() ? 'Saving...' : 'Save Changes' }}
+                </button>
+                <span class="muted message">{{ message() }}</span>
+              </div>
+            </form>
+          </mat-tab>
+
+          <mat-tab label="Change Password">
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="edit-form">
+              <div class="edit__grid">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Current Password</mat-label>
+                  <input matInput type="password" formControlName="currentPassword" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>New Password</mat-label>
+                  <input matInput type="password" formControlName="newPassword" />
+                </mat-form-field>
+              </div>
+
+              <div class="edit-actions">
+                <button mat-raised-button color="primary" type="submit">
+                  <mat-icon>lock_reset</mat-icon>
+                  Update Password
+                </button>
+                <span class="muted message">{{ passwordMessage() }}</span>
+              </div>
+            </form>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card>
+    </ng-container>
+
+    <ng-template #otherTpl>
+      <mat-card class="state">
+        <mat-card-content>
+          <div *ngIf="state() === 'loading'" class="loading-state">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading profile...</p>
+          </div>
+          <div *ngIf="state() === 'error'" class="error-state">
+            <mat-icon>error_outline</mat-icon>
+            <p>Unable to load profile.</p>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-raised-button color="primary" routerLink="/admin/dashboard">
+            <mat-icon>dashboard</mat-icon>
+            Back to Dashboard
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    </ng-template>
+  </div>
 </div>

@@ -26,12 +26,12 @@
   </div>
 
   <!-- Charts Section -->
-  <div *ngIf="!isLoading && dashboardData && barChartData && pieChartData" class="dashboard-sections">
+  <div *ngIf="!isLoading && dashboardData && (barChartData || pieChartData)" class="dashboard-sections">
 
     <!-- Top Products (Bar Chart) -->
-    <div class="section-card">
+    <div class="section-card" *ngIf="barChartData">
       <div class="section-header">
-        <h2 class="section-title">📊 Top Selling Products</h2>
+        <h2 class="section-title">Top Selling Products</h2>
       </div>
       <div class="chart-wrapper bar-chart-wrapper">
         <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar">
@@ -40,9 +40,9 @@
     </div>
 
     <!-- Top Buyers (Doughnut Chart) -->
-    <div class="section-card">
+    <div class="section-card" *ngIf="pieChartData">
       <div class="section-header">
-        <h2 class="section-title">👥 Top Buyers</h2>
+        <h2 class="section-title">Top Buyers</h2>
       </div>
       <div class="chart-wrapper pie-chart-wrapper">
         <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="doughnut">
@@ -55,7 +55,7 @@
   <!-- Business Overview -->
   <div *ngIf="dashboardData" class="section-card">
     <div class="section-header">
-      <h2 class="section-title">📈 Business Overview</h2>
+      <h2 class="section-title">Business Overview</h2>
     </div>
     <div class="overview-grid">
       <div class="overview-item">
@@ -73,6 +73,10 @@
       <div class="overview-item">
         <span class="overview-label">Revenue</span>
         <span class="overview-value">${{ dashboardData.totalRevenue.toFixed(0) }}</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Coupons</span>
+        <span class="overview-value">{{ dashboardData.totalCoupons || 0 }}</span>
       </div>
     </div>
   </div>

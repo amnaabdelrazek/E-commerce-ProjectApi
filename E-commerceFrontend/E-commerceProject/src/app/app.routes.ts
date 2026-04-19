@@ -8,7 +8,7 @@ import { HomeComponent } from './features/home/home.component';
 import { ProductsComponent } from './features/products/products.component';
 import { CategoryProductsComponent } from './features/products/category-products/category-products.component';
 import { ProductDetailsComponent } from './features/products/product-details/product-details.component';
-import { CartComponent } from './features/cart-component/cart-component'
+import { CartComponent } from './features/cart-component/cart-component';
 import { CheckoutCpmponent } from './features/checkout-cpmponent/checkout-cpmponent';
 import { ProfileComponent } from './features/profile/profile.component';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
@@ -22,7 +22,13 @@ import { PaymentSuccessComponent } from './features/Payment/success.component/su
 import { CancelComponent } from './features/Payment/cancel.component/cancel.component';
 import { PaymentComponent } from './features/Payment/payment.component/payment.component';
 import { sellerGuard } from './core/guards/seller.guard';
+import { OrdersComponent } from './features/profile/orders/orders.component';
+import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
+import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
+import { ReviewsComponent } from './features/profile/reviews/reviews.component';
 import { adminGuard } from './core/guards/admin.guard';
+import { CouponsComponent } from './features/admin/coupons-component/coupons-component';
+import { CreateCouponComponent } from './features/admin/coupons-component/create-coupon-component/create-coupon-component';
 
 export const routes: Routes = [
   {
@@ -59,12 +65,19 @@ export const routes: Routes = [
         component: PlaceholderComponent,
         data: {
           title: 'Forgot Password',
-          description: 'Password reset flow is not connected yet, but you can still sign in, register, or return to shopping.',
+          description: 'Password reset flow is not connected yet.',
           primaryLabel: 'Back to Login',
           primaryLink: '/login',
           secondaryLabel: 'Create Account',
           secondaryLink: '/register'
         }
+      },
+      // ── Seller routes (lazy, guarded, inside MainLayout) ──
+      {
+        path: 'seller',
+        canActivate: [sellerGuard],
+        loadChildren: () =>
+          import('./features/seller/seller.module').then(m => m.SellerModule)
       },
       {
         path: 'orders',
@@ -92,6 +105,7 @@ export const routes: Routes = [
       }
     ]
   },
+
   {
     path: 'admin',
     component: AdminLayoutComponent,
@@ -103,7 +117,11 @@ export const routes: Routes = [
       { path: 'categories', component: AdminCategoriesComponent, data: { title: 'Categories' } },
       { path: 'orders', component: OrdersAdminComponent, data: { title: 'Orders' } }, // ✅ UPDATED
       { path: 'users', component: UsersComponent, data: { title: 'Users' } }, // ✅ UPDATED
-      { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } }
+      { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' } },
+      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Create Coupon' } },
+      { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } },
+      { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' }},
+      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Add Coupon' } }
     ]
   },
 
@@ -111,10 +129,5 @@ export const routes: Routes = [
   { path: 'cancel', component: CancelComponent },
   { path: 'payment', component: PaymentComponent },
 
-  {
-    path: 'seller',
-    canActivate: [sellerGuard],
-    loadChildren: () => import('./features/seller/seller.module').then(m => m.SellerModule)
-  },
   { path: '**', redirectTo: 'login' }
 ];
