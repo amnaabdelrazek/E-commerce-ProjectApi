@@ -2,17 +2,22 @@
 using E_commerce_Project.Models;
 using E_commerce_Project.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using PayPal;
 using PayPal.Api;
 
-public class PayPalService : IPayPalService
+namespace E_commerce_Project.Services.Implementations
+{
+    public class PayPalService : IPayPalService
 {
     private readonly PayPalSettings _settings;
     private readonly AppDbContext _context;
+    private readonly ILogger<PayPalService> _logger;
 
-    public PayPalService(IConfiguration config, AppDbContext context)
+    public PayPalService(IConfiguration config, AppDbContext context, ILogger<PayPalService> logger)
     {
         _settings = config.GetSection("PayPal").Get<PayPalSettings>() ?? new PayPalSettings();
         _context = context;
+        _logger = logger;
     }
 
     // ================= GET PAYPAL CONTEXT =================
@@ -34,84 +39,155 @@ public class PayPalService : IPayPalService
     // ================= CREATE PAYMENT =================
     public async Task<string> CreatePaymentAsync(int orderId)
     {
-        var order = await _context.Orders
-            .FirstOrDefaultAsync(o => o.Id == orderId);
-
-        if (order == null)
-            throw new Exception("Order not found");
-
-        var apiContext = GetContext();
-
-        var payment = new Payment
+        try
         {
-            intent = "sale",
-            payer = new Payer { payment_method = "paypal" },
+            _logger.LogInformation($"Creating PayPal payment for order {orderId}");
+            
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
 
-            transactions = new List<Transaction>
-        {
-            new Transaction
+            if (order == null)
             {
-                description = $"Order #{order.Id}",
-                amount = new Amount
+                _logger.LogError($"Order {orderId} not found");
+                throw new Exception("Order not found");
+            }
+
+            _logger.LogInformation($"Order found: {order.Id}, Total: {order.TotalPrice}, Items: {order.OrderItems?.Count ?? 0}");
+
+            var apiContext = GetContext();
+
+            // Build item list
+            var items = new List<Item>();
+            if (order.OrderItems != null && order.OrderItems.Count > 0)
+            {
+                foreach (var item in order.OrderItems)
                 {
-                    currency = "USD",
-                    total = order.TotalPrice.ToString("F2")
+                    items.Add(new Item
+                    {
+                        name = item.ProductName ?? "Product",
+                        quantity = item.Quantity.ToString(),
+                        price = item.PriceAtPurchase.ToString("F2"),
+                        currency = "USD"
+                    });
                 }
             }
-        },
 
-            redirect_urls = new RedirectUrls
+            // Build amount details
+            var amountDetails = new Details
             {
-                return_url = $"https://localhost:4200/success?orderId={order.Id}",
-                cancel_url = "https://localhost:4200/cancel"
-            }
-        };
+                subtotal = order.SubTotal.ToString("F2"),
+                tax = order.TaxAmount.ToString("F2"),
+                shipping = order.ShippingCost.ToString("F2")
+            };
 
-        var created = payment.Create(apiContext);
+            var payment = new Payment
+            {
+                intent = "sale",
+                payer = new Payer { payment_method = "paypal" },
 
-        var approvalUrl = created.links
-            .First(x => x.rel == "approval_url").href;
+                transactions = new List<Transaction>
+                {
+                    new Transaction
+                    {
+                        description = $"Order #{order.Id}",
+                        amount = new Amount
+                        {
+                            currency = "USD",
+                            total = order.TotalPrice.ToString("F2"),
+                            details = amountDetails
+                        },
+                        item_list = new ItemList
+                        {
+                            items = items
+                        }
+                    }
+                },
 
-        order.PaymentIntentId = created.id;
-        order.Status = "Pending";
+                redirect_urls = new RedirectUrls
+                {
+                    return_url = $"{_settings.FrontendUrl}/success?orderId={order.Id}",
+                    cancel_url = $"{_settings.FrontendUrl}/cancel"
+                }
+            };
 
-        await _context.SaveChangesAsync();
+            var created = payment.Create(apiContext);
+            _logger.LogInformation($"PayPal payment created: {created.id}");
 
-        return approvalUrl;
+            var approvalUrl = created.links
+                .First(x => x.rel == "approval_url").href;
+
+            _logger.LogInformation($"Approval URL: {approvalUrl}");
+
+            order.Status = "Pending";
+            await _context.SaveChangesAsync();
+
+            return approvalUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error creating PayPal payment for order {orderId}");
+            throw;
+        }
     }
 
     // ================= EXECUTE PAYMENT =================
     public async Task<bool> ExecutePaymentAsync(string paymentId, string payerId)
     {
-        var apiContext = GetContext();
-
-        var execution = new PaymentExecution
+        try
         {
-            payer_id = payerId
-        };
+            _logger.LogInformation($"========== Executing PayPal Payment ==========");
+            _logger.LogInformation($"Payment ID: {paymentId}, Payer ID: {payerId}");
+            
+            var apiContext = GetContext();
 
-        var payment = new PayPal.Api.Payment()
-        {
-            id = paymentId
-        };
-
-        var result = payment.Execute(apiContext, execution);
-
-        if (result.state.ToLower() == "approved")
-        {
-            var order = await _context.Orders
-                .FirstOrDefaultAsync(o => o.PaymentIntentId == paymentId);
-
-            if (order != null)
+            var execution = new PaymentExecution
             {
-                order.Status = "Paid"; 
-                await _context.SaveChangesAsync();
+                payer_id = payerId
+            };
+
+            var payment = new PayPal.Api.Payment()
+            {
+                id = paymentId
+            };
+
+            _logger.LogInformation($"Calling PayPal Execute API...");
+            var result = payment.Execute(apiContext, execution);
+            
+            _logger.LogInformation($"PayPal Response State: {result.state}");
+
+            if (result.state.ToLower() == "approved")
+            {
+                _logger.LogInformation($"✅ Payment approved for ID: {paymentId}");
+                return true;
             }
 
-            return true;
+            _logger.LogWarning($"❌ Payment not approved. State: {result.state}");
+            return false;
         }
-
-        return false;
+        catch (HttpException hex)
+        {
+            _logger.LogError($"❌ PayPal HTTP Error: {hex.Message}");
+            
+            string errorMsg = "PayPal payment execution failed";
+            
+            // Check message for status codes
+            if (hex.Message.Contains("404"))
+            {
+                errorMsg = "Payment not found. It may have expired or been cancelled.";
+            }
+            else if (hex.Message.Contains("400"))
+            {
+                errorMsg = "Invalid payment or payer ID. Payment may have expired.";
+            }
+            
+            throw new Exception(errorMsg, hex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error executing PayPal payment for ID: {paymentId}");
+            throw;
+        }
     }
 
     // ================= CANCEL PAYMENT =================
@@ -120,4 +196,5 @@ public class PayPalService : IPayPalService
         // optional: log cancellation or update status
         await Task.CompletedTask;
     }
+}
 }
