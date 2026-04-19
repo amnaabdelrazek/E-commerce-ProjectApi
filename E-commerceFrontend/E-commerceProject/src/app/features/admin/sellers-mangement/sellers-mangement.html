@@ -1,0 +1,140 @@
+<section class="admin-users">
+
+  <!-- HERO -->
+  <div class="users-hero">
+    <div>
+      <span class="users-hero__eyebrow">Seller management</span>
+      <h2>Sellers</h2>
+      <p>Approve or manage seller accounts.</p>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+
+    <!-- SEARCH -->
+    <form class="toolbar__search" (ngSubmit)="applyFilter()">
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+
+        <input [(ngModel)]="search" (ngModelChange)="applyFilter()" name="search" type="text"
+          placeholder="Search sellers..." />
+
+        <button type="button" class="clear-btn" *ngIf="search" (click)="clearSearch()">
+          ×
+        </button>
+      </div>
+
+      <button type="submit" class="search-btn">Search</button>
+
+    </form>
+
+    <!-- TABS -->
+    <button (click)="tab='pending'; loadPending()" [class.active]="tab === 'pending'" class="ghost-btn">
+      Pending
+    </button>
+
+    <button (click)="tab='all'; loadAll()" [class.active]="tab === 'all'" class="ghost-btn">
+      All Sellers
+    </button>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="users-table-wrap">
+
+    <table class="users-table">
+
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox">
+          </th>
+          <th>Store</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <!-- ================= PENDING SELLERS ================= -->
+        <ng-container *ngIf="tab === 'pending'">
+
+          <tr *ngFor="let s of filteredPending">
+
+            <td>
+              <input type="checkbox" [checked]="selected.has(s.id)" (change)="toggleSelect(s.id)">
+            </td>
+
+            <td><strong>{{ s.storeName }}</strong></td>
+
+            <td>{{ s.userEmail }}</td>
+
+            <td>
+              <span class="status-badge locked">
+                Pending
+              </span>
+            </td>
+
+            <td class="actions">
+
+              <button class="row-btn row-btn--edit" (click)="approve(s.id)">
+                Approve
+              </button>
+
+              <button class="row-btn row-btn--delete" (click)="reject(s.id)">
+                Reject
+              </button>
+
+            </td>
+
+          </tr>
+
+        </ng-container>
+
+        <!-- ================= ALL SELLERS ================= -->
+        <ng-container *ngIf="tab === 'all'">
+
+          <tr *ngFor="let s of filteredSellers">
+
+            <td>-</td>
+
+            <td><strong>{{ s.storeName }}</strong></td>
+
+            <td>{{ s.userEmail }}</td>
+
+            <td>
+              <span class="status-badge" [class.locked]="!s.isApproved">
+                {{ s.status }}
+              </span>
+            </td>
+
+            <td>-</td>
+
+          </tr>
+
+        </ng-container>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <!-- BATCH ACTIONS -->
+  <div class="pager">
+
+    <button class="primary-btn" (click)="batchApprove(true)" [disabled]="selected.size === 0">
+      Approve Selected ({{ selected.size }})
+    </button>
+
+    <button class="row-btn row-btn--delete" (click)="batchApprove(false)" [disabled]="selected.size === 0">
+      Reject Selected
+    </button>
+
+  </div>
+
+</section>
