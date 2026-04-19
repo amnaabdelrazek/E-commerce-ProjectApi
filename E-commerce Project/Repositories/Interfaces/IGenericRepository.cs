@@ -18,7 +18,7 @@ namespace E_commerce_Project.Repositories.Interfaces
             void Delete(T entity);
 
             IQueryable<T> Query();
-        Task SaveAsync();
+            Task SaveAsync();
     }
     }
 

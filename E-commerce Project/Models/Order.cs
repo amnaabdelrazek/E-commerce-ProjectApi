@@ -17,6 +17,7 @@
         public string PaymentMethod { get; set; } = "CreditCard";
         public string Status { get; set; } = "Pending";
         public string? Notes { get; set; }
+        public string? PaymentIntentId { get; set; }
 
         // ================= NAVIGATION =================
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

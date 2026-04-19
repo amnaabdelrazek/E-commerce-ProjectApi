@@ -1,3 +1,5 @@
+
+using E_commerce_Project.Data;
 using E_commerce_Project.DTOs;
 using E_commerce_Project.Helpers;
 using E_commerce_Project.Models;
@@ -12,11 +14,13 @@ namespace E_commerce_Project.Services.Implementations
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly JwtHelper _jwt;
+        private readonly AppDbContext _dbContext;
 
-        public AuthService(UserManager<ApplicationUser> userManager, JwtHelper jwt)
+        public AuthService(UserManager<ApplicationUser> userManager, JwtHelper jwt, AppDbContext dbContext)
         {
             _userManager = userManager;
             _jwt = jwt;
+            _dbContext = dbContext;
         }
 
         public async Task<GeneralResponse<object>> RegisterAsync(RegisterDto dto)
@@ -109,6 +113,53 @@ namespace E_commerce_Project.Services.Implementations
                 return GeneralResponse<string>.Fail("Invalid token");
 
             return GeneralResponse<string>.Success("Email confirmed");
+        }
+        //new
+        public async Task<GeneralResponse<object>> RegisterSellerAsync(RegisterSellerDto dto)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = dto.Email,
+                    Email = dto.Email,
+                    FullName = dto.FullName
+                };
+
+                var result = await _userManager.CreateAsync(user, dto.Password);
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                    return GeneralResponse<object>.Fail(errors);
+                }
+
+                await _userManager.AddToRoleAsync(user, "Seller");
+
+                var seller = new Seller
+                {
+                    UserId = user.Id,
+                    StoreName = dto.StoreName,
+                    StoreDescription = dto.StoreDescription  ?? "No description provided",
+                    BusinessAddress = dto.BusinessAddress ?? "No address provided",
+                    Balance = 0,
+                    IsApproved = true // Stays false until Admin approves
+                };
+
+                await _dbContext.Sellers.AddAsync(seller);
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                return GeneralResponse<object>.Success(new { UserId = user.Id, Token = token }, "Seller registered successfully.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                // This will show exactly which field or role is causing the crash
+                return GeneralResponse<object>.Fail($"Debug Error: {ex.Message} | Inner: {ex.InnerException?.Message}");
+            }
         }
     }
 }
