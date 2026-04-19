@@ -1,5 +1,7 @@
+
 ﻿using E_commerce_Project.DTOs;
 using E_commerce_Project.Migrations;
+
 using E_commerce_Project.Models;
 using E_commerce_Project.Repositories.Interfaces;
 using E_commerce_Project.Responses;
@@ -15,14 +17,15 @@ namespace E_commerce_Project.Services.Implementations
         private readonly IGenericRepository<Product> _repo;
         private readonly IGenericRepository<Seller> _reposeller;
         private readonly UserManager<ApplicationUser> _userManager;
+      
 
         public ProductService(IGenericRepository<Product> repo,
-                              UserManager<ApplicationUser> userManager,
-                              IGenericRepository<Seller> reposeller)
+                              UserManager<ApplicationUser> userManager, IGenericRepository<Seller> reposeller)
         {
             _repo = repo;
             _userManager = userManager;
             _reposeller = reposeller;
+
         }
 
         // ================= CREATE =================
@@ -39,6 +42,11 @@ namespace E_commerce_Project.Services.Implementations
             else
                 sellerid = seller.id;
 
+
+
+            if (seller == null)
+                return GeneralResponse<string>.Fail("Seller profile not found");
+
             var product = new Product
             {
                 Name = dto.Name,
@@ -46,7 +54,8 @@ namespace E_commerce_Project.Services.Implementations
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity,
                 CategoryId = dto.CategoryId,
-                SellerId = sellerid,
+                 SellerId = sellerid,
+
             };
 
             await _repo.AddAsync(product);
@@ -55,7 +64,7 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success("Product created");
         }
 
-       
+
         // ================= UPDATE (Modified) =================
         public async Task<GeneralResponse<string>> UpdateProductAsync(int id, ClaimsPrincipal userPrincipal, UpdateProductDto dto)
         {
