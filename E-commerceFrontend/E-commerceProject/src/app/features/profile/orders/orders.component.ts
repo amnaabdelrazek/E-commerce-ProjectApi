@@ -52,7 +52,8 @@ export class OrdersComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading orders:', err);
-        this.error.set('Failed to load orders. Please try again.');
+        const errorMsg = err?.error?.message || err?.message || 'Failed to load orders. Please try again.';
+        this.error.set(errorMsg);
         this.isLoading.set(false);
       }
     });
@@ -73,7 +74,7 @@ export class OrdersComponent implements OnInit {
   }
 
   viewOrderDetails(orderId: number) {
-    void this.router.navigate(['/order-details', orderId]);
+    void this.router.navigate(['/orders', orderId]);
   }
 
   cancelOrder(orderId: number) {

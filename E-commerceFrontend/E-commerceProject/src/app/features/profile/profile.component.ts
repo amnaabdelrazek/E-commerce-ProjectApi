@@ -263,6 +263,7 @@ export class ProfileComponent {
 
   signOut() {
     this.tokenStorage.clearToken();
+    this.authService.logout();
     void this.router.navigate(['/login']);
   }
 }

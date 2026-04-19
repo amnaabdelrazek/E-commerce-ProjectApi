@@ -59,7 +59,8 @@ export class WishlistComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading wishlist:', err);
-        this.error.set('Failed to load wishlist. Please try again.');
+        const errorMsg = err?.error?.message || err?.message || 'Failed to load wishlist. Please try again.';
+        this.error.set(errorMsg);
         this.isLoading.set(false);
       }
     });
