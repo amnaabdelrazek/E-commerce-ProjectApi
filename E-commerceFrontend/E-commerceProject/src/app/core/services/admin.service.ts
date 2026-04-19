@@ -37,17 +37,21 @@ export interface OrderItem {
 export interface Coupon {
   id: number;
   code: string;
-  discount: number;
+  discountAmount: number | null;     // نفس اسم الباك إند
+  discountPercentage: number | null; // نفس اسم الباك إند
   expiryDate: string;
   isActive: boolean;
+  minimumPurchaseAmount: number;
   maxUses?: number;
   usedCount?: number;
 }
 
 export interface CreateCouponDto {
   code: string;
-  discount: number;
+  minimumPurchaseAmount: number;
   expiryDate: string;
+  discountPercentage: number | null; 
+  discountAmount: number | null;
   maxUses?: number;
 }
 
@@ -169,9 +173,10 @@ export class AdminService {
   }
 
   // Coupons Management
-  getCoupons(): Observable<GeneralResponse<Coupon[]>> {
-    return this.http.get<GeneralResponse<Coupon[]>>(`${this.apiUrl}/coupons`);
-  }
+// admin.service.ts
+getCoupons(): Observable<Coupon[]> { // شيلنا GeneralResponse
+  return this.http.get<Coupon[]>(`${this.apiUrl}/coupons`);
+}
 
   createCoupon(dto: CreateCouponDto): Observable<GeneralResponse<Coupon>> {
     return this.http.post<GeneralResponse<Coupon>>(`${this.apiUrl}/coupons`, dto);

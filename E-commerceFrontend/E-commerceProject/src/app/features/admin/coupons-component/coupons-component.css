@@ -1,0 +1,218 @@
+.animated {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fadeIn {
+  animation-name: fadeIn;
+}
+
+.table-row {
+  transition: background-color 0.2s;
+}
+
+.table-row:hover {
+  background-color: #f8f9fa;
+}
+/* Container Background */
+:host {
+  display: block;
+  background-color: #f4f7f6; /* لون الخلفية الهادي اللي في البروجكت */
+  min-height: 100vh;
+  padding: 30px;
+}
+
+.admin-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05); /* ظل خفيف عشان يبان كأنه كارت */
+}
+
+/* Header Section */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  font-family: 'Poppins', sans-serif;
+  color: #2c3e50;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  color: #7f8c8d;
+  font-size: 0.95rem;
+}
+
+/* Primary Button Design */
+.add-btn {
+  background-color: #8b5e3c; /* لون البروجكت الأساسي */
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: 0.3s all ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background-color: #cb9c77;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-item {
+  background: #f8f9fa;
+  padding: 5px 15px;
+  border-radius: 5px;
+  border-left: 5px solid #8b5e3c;
+}
+
+.stat-item .label { color: #7f8c8d; font-size: 0.85rem; }
+.stat-item .value { display: block; font-size: 1.2rem; font-weight: 700; color: #2c3e50; }
+.stat-item .value.success { color: #27ae60; }
+
+/* Empty State Styling (أهم جزء) */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #bdc3c7;
+}
+
+.empty-state i {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.empty-state h3 {
+  color: #34495e;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* تحسين شكل الكارت الحاوي للجدول */
+.table-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* تنسيق الجدول الأساسي */
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* بيعمل مسافة بين الصفوف */
+}
+
+.custom-table th {
+    color: #8b5e3c; /* لون البروجكت */
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 15px;
+    border-bottom: 2px solid #f4f7f6;
+    text-align: left;
+}
+
+.custom-table td {
+    padding: 15px;
+    vertical-align: middle;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+
+.code-badge {
+    background: #fdf6ed;
+    color: #8b5e3c;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-family: 'Courier New', Courier, monospace;
+    display: inline-block;
+    border: 1px dashed #cb9c77;
+}
+
+
+.status-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-pill.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+
+.icon-btn.delete {
+    border: none !important;
+     border-radius: 10px;
+    justify-content: center;
+    cursor: pointer;
+    width: 60% !important; 
+    max-width: 100px;      
+    height: 38px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon-btn.delete:hover {
+    background-color: #dc2626 !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+.icon-btn.delete:hover span {
+    color: white !important;
+    transform: scale(1.1);
+}
+
+.icon-btn.delete span {
+    font-size: 0.9rem;
+    line-height: 1;
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.actions-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+

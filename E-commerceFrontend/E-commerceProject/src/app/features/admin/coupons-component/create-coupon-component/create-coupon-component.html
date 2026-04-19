@@ -1,0 +1,76 @@
+<div class="add-container">
+    <div class="form-card shadow-lg animated fadeIn">
+        <div class="form-header">
+            <h2><i class="bi bi-ticket-perforated"></i> Create New Coupon</h2>
+            <button class="close-btn" (click)="goBack()">×</button>
+        </div>
+
+        <form (submit)="$event.preventDefault(); onSubmit()">
+            <div class="form-group">
+                <label>Coupon Code</label>
+                <input type="text" 
+                       name="couponCode" 
+                       [ngModel]="code()" 
+                       (ngModelChange)="code.set($event)" 
+                       placeholder="e.g. EID2026"
+                       class="form-control" required>
+            </div>
+
+            <div class="type-selector">
+                <button type="button" [class.active]="isPercentage()" (click)="isPercentage.set(true)">
+                    Percentage (%)
+                </button>
+                <button type="button" [class.active]="!isPercentage()" (click)="isPercentage.set(false)">
+                    Fixed Amount (EGP)
+                </button>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Discount Value</label>
+                    <div class="input-with-icon">
+                        <input type="number" 
+                               name="discountValue"
+                               [ngModel]="discount()" 
+                               (ngModelChange)="discount.set($event)"
+                               [placeholder]="isPercentage() ? '0 - 100' : '0.00'" 
+                               class="form-control">
+                        <span class="icon">{{ isPercentage() ? '%' : 'EGP' }}</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Min. Purchase</label>
+                    <input type="number" 
+                           name="minAmount"
+                           [ngModel]="minAmount()" 
+                           (ngModelChange)="minAmount.set($event)"
+                           class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Expiry Date</label>
+                <input type="date" 
+                       name="expiryDate"
+                       [ngModel]="expiryDate()" 
+                       (ngModelChange)="expiryDate.set($event)"
+                       class="form-control" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
+                <button type="submit" class="btn-submit" [disabled]="isLoading()">
+                    <div class="button-content">
+                        @if (isLoading()) {
+                            <span class="spinner"></span>
+                            <span style="margin-left: 8px;">Processing...</span>
+                        } @else {
+                            <span>Create Coupon</span>
+                        }
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -157,6 +157,8 @@ namespace E_commerce_Project.Services.Implementations
 
             if (string.IsNullOrWhiteSpace(dto.Code))
                 return GeneralResponse<string>.Fail("Coupon code is required");
+            if (dto.MinimumPurchaseAmount < 0)
+                return GeneralResponse<string>.Fail("Minimum purchase amount must be 0 or greater");
 
             if (dto.ExpiryDate <= DateTime.UtcNow)
                 return GeneralResponse<string>.Fail("Expiry date must be in the future");
@@ -180,6 +182,7 @@ namespace E_commerce_Project.Services.Implementations
                 Code = normalizedCode,
                 DiscountAmount = dto.DiscountAmount,
                 DiscountPercentage = dto.DiscountPercentage,
+                MinimumPurchaseAmount = dto.MinimumPurchaseAmount,
                 ExpiryDate = dto.ExpiryDate,
                 IsActive = true
             };

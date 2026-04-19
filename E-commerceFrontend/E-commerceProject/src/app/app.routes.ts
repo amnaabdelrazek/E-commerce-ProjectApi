@@ -21,7 +21,8 @@ import { OrdersComponent } from './features/profile/orders/orders.component';
 import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
 import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
 import { ReviewsComponent } from './features/profile/reviews/reviews.component';
-
+import{CouponsComponent} from './features/admin/coupons-component/coupons-component';
+import{CreateCouponComponent} from './features/admin/coupons-component/create-coupon-component/create-coupon-component'
 export const routes: Routes = [
   {
     path: '',
@@ -81,7 +82,10 @@ export const routes: Routes = [
       { path: 'categories', component: AdminCategoriesComponent, data: { title: 'Categories' } },
       { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } },
       { path: 'orders', component: PlaceholderComponent, data: { title: 'Orders' } },
-      { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } }
+      { path: 'users', component: PlaceholderComponent, data: { title: 'Users' } },
+      { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' } },
+      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Coupons' } }
+
     ]
   },
   { path: '**', redirectTo: 'login' }
