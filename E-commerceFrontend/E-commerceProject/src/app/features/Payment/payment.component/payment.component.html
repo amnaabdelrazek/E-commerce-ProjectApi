@@ -18,43 +18,137 @@
     <div class="card">
 
       <h2 class="card-title">Payment Method</h2>
+      <p style="color: #666; margin-bottom: 20px;">Order ID: {{ orderId }}</p>
 
-      <!-- Payment Options -->
-      <label class="payment-option active">
-        <input type="radio" name="payment" checked />
-        <span>Credit / Debit Card</span>
-      </label>
+      <!-- Payment Method Selection -->
+      <div style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+        
+        <!-- Credit Card Option -->
+        <label class="payment-option" style="display: flex; align-items: center; margin-bottom: 15px; cursor: pointer;">
+          <input 
+            type="radio" 
+            name="payment" 
+            (click)="selectedPaymentMethod.set('credit-card')"
+            [checked]="selectedPaymentMethod() === 'credit-card'"
+            style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" />
+          <span style="font-weight: 500;">💳 Credit / Debit Card</span>
+        </label>
 
-      <label class="payment-option">
-        <input type="radio" name="payment" />
-        <span>PayPal</span>
-      </label>
+        <!-- PayPal Option -->
+        <label class="payment-option" style="display: flex; align-items: center; cursor: pointer;">
+          <input 
+            type="radio" 
+            name="payment" 
+            (click)="selectedPaymentMethod.set('paypal')"
+            [checked]="selectedPaymentMethod() === 'paypal'"
+            style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" />
+          <span style="font-weight: 500;">🅿️ PayPal</span>
+        </label>
 
-      <label class="payment-option">
-        <input type="radio" name="payment" />
-        <span>Cash on Delivery</span>
-      </label>
-
-      <!-- Card Inputs -->
-      <input class="styled-input" placeholder="Card Number" />
-
-      <div class="row">
-        <input class="styled-input" placeholder="MM/YY" />
-        <input class="styled-input" placeholder="CVV" />
       </div>
 
-      <input class="styled-input" placeholder="Cardholder Name" />
+      <!-- Credit Card Form -->
+      <div *ngIf="selectedPaymentMethod() === 'credit-card'" [@.disabled]="true" style="animation: slideIn 0.3s ease-in;">
+        <h3 style="margin-bottom: 20px; font-size: 16px; color: #333;">Card Details</h3>
 
-      <!-- Buttons -->
-      <div class="row">
-        <button class="back-btn" routerLink="/checkout">Back</button>
+        <input 
+          class="styled-input" 
+          type="text"
+          placeholder="Card Number (16 digits)"
+          [(ngModel)]="creditCardForm().cardNumber"
+          (input)="formatCardNumber($event)"
+          maxlength="19"
+          style="margin-bottom: 15px;" />
 
-        <button class="main-action-btn">
-          Place Order
+        <input 
+          class="styled-input" 
+          type="text"
+          placeholder="Card Holder Name"
+          [(ngModel)]="creditCardForm().cardHolderName"
+          style="margin-bottom: 15px;" />
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+          <input 
+            class="styled-input" 
+            type="text"
+            placeholder="MM/YY"
+            [(ngModel)]="creditCardForm().expiryDate"
+            (input)="formatExpiry($event)"
+            maxlength="5" />
+          
+          <input 
+            class="styled-input" 
+            type="text"
+            placeholder="CVV"
+            [(ngModel)]="creditCardForm().cvv"
+            (input)="formatCVV($event)"
+            inputmode="numeric"
+            maxlength="4" />
+        </div>
+
+        <button 
+          class="main-action-btn" 
+          (click)="processCreditCard()" 
+          [disabled]="isProcessing"
+          style="width: 100%; margin-bottom: 15px;">
+          {{ isProcessing ? '⏳ Processing...' : '💳 Pay Now' }}
         </button>
+      </div>
+
+      <!-- PayPal Form -->
+      <div *ngIf="selectedPaymentMethod() === 'paypal'" style="animation: slideIn 0.3s ease-in;">
+        <p style="color: #666; margin-bottom: 20px; text-align: center;">
+          Click the button below to proceed with PayPal payment
+        </p>
+
+        <button 
+          class="main-action-btn" 
+          (click)="createPayPalPayment()" 
+          [disabled]="isProcessing"
+          style="width: 100%; margin-bottom: 15px; background: #0070ba;">
+          {{ isProcessing ? 'Processing...' : '🅿️ Proceed with PayPal' }}
+        </button>
+      </div>
+
+      <!-- Back Button -->
+      <div class="row">
+        <button class="back-btn" routerLink="/checkout" [disabled]="isProcessing">Back</button>
       </div>
 
     </div>
 
   </div>
 </div>
+
+<style>
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .payment-option {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .payment-option:hover {
+    border-color: #0070ba;
+    background: #f0f7ff;
+  }
+
+  .payment-option input[type="radio"]:checked + span {
+    color: #0070ba;
+    font-weight: 600;
+  }
+</style>

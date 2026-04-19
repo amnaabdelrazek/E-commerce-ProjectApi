@@ -22,12 +22,7 @@ namespace E_commerce_Project.Services.Implementations
         public async Task<GeneralResponse<object>> GetProfileAsync(ClaimsPrincipal userPrincipal)
         {
             var userId = _userManager.GetUserId(userPrincipal);
-            var user = await _userManager.Users
-                .Include(u => u.Orders)
-                .Include(u => u.Wishlists)
-                .Include(u => u.Reviews)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
                 return GeneralResponse<object>.Fail("User not found");
@@ -40,9 +35,9 @@ namespace E_commerce_Project.Services.Implementations
                 city = user.City,
                 street = user.Street,
                 profileImageUrl = user.ProfileImageUrl,
-                ordersCount = user.Orders.Count,
-                wishlistCount = user.Wishlists.Count,
-                reviewsCount = user.Reviews.Count
+                ordersCount = 0,
+                wishlistCount = 0,
+                reviewsCount = 0
             });
         }
 

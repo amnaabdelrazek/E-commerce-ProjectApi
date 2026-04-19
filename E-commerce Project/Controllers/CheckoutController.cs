@@ -29,8 +29,21 @@ namespace E_commerce_Project.Controllers
         {
             try
             {
-                if (dto == null || dto.CartId <= 0)
-                    return BadRequest(new { message = "Invalid cart ID" });
+                _logger.LogInformation($"CalculateSummary received: dto={dto}, CartId={dto?.CartId ?? 0}");
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors);
+                    var errorMsg = string.Join(", ", errors.Select(e => e.ErrorMessage));
+                    _logger.LogError($"ModelState invalid: {errorMsg}");
+                    return BadRequest(new { message = "Invalid request", errors = errorMsg });
+                }
+
+                if (dto == null)
+                    return BadRequest(new { message = "Request body is empty or null" });
+
+                if (dto.CartId <= 0)
+                    return BadRequest(new { message = $"Invalid cart ID: {dto.CartId}" });
 
                 var result = await _orderService.CalculateOrderSummaryAsync(
                     dto.CartId,
@@ -44,7 +57,7 @@ namespace E_commerce_Project.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-        [Authorize(Roles = "Seller,Admin")]
+        [Authorize]
         [HttpPost("validate-promo")]
         public async Task<IActionResult> ValidatePromoCode([FromBody] ValidatePromoDto dto)
         {

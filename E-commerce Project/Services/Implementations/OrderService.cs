@@ -198,6 +198,7 @@ namespace E_commerce_Project.Services.Implementations
                         ProductName = cartItem.Product.Name,
                         Quantity = cartItem.Quantity,
                         PriceAtPurchase = cartItem.Product.Price,
+                        SellerId = cartItem.Product.SellerId.ToString(),
                         CreatedAt = DateTime.UtcNow
                     };
 

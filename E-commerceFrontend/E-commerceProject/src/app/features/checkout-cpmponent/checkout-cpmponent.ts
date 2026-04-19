@@ -3,13 +3,13 @@ import { CheckoutRequest, OrderSummary } from './../../core/models/order-summary
 import { AuthService } from '../../core/services/auth.service';
 import { OrderService } from './../../core/services/order-service';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-checkout-cpmponent',
-  imports: [CurrencyPipe, RouterLink],
+  imports: [CommonModule, CurrencyPipe, RouterLink],
   templateUrl: './checkout-cpmponent.html',
   styleUrl: './checkout-cpmponent.css',
 })
@@ -23,6 +23,7 @@ export class CheckoutCpmponent implements OnInit {
   private notification = inject(NotificationService);
 
   summary = signal<OrderSummary | null>(null);
+  isProcessing = signal<boolean>(false);
 
   checkoutForm = signal<CheckoutRequest>({
     email: '',
@@ -60,21 +61,51 @@ export class CheckoutCpmponent implements OnInit {
       }
     });
 
-    this.loadSummary();
+    // Get cart first to obtain the cart ID before loading summary
+    this.cartService.getCartItems().subscribe({
+      next: (cartRes) => {
+        if (cartRes.isSuccess && cartRes.data?.id) {
+          console.log('Cart loaded with ID:', cartRes.data.id);
+          this.cartService.setCartId(cartRes.data.id);
+          this.loadSummary();
+        } else {
+          console.error('Failed to load cart or cart is empty');
+          this.notification.error('Cart is empty or could not be loaded.');
+        }
+      },
+      error: (err) => {
+        console.error('Error loading cart:', err);
+        this.notification.error('Failed to load your cart.');
+      }
+    });
   }
 
   loadSummary() {
     const cartId = this.cartService.getCartId();
     const promo = this.checkoutForm().promoCode || '';
 
+    console.log('loadSummary called with cartId:', cartId, 'promo:', promo);
+
+    if (!cartId || cartId <= 0) {
+      console.error('Invalid cartId:', cartId);
+      this.notification.error('Invalid cart ID. Please refresh your cart.');
+      return;
+    }
+
     this.orderService.getOrderSummary(cartId, promo).subscribe({
       next: (res) => {
+        console.log('getOrderSummary response:', res);
         if (res.isSuccess) {
           this.summary.set(res.data);
+        } else {
+          console.error('API returned error:', res);
+          this.notification.error(res.message || 'Could not load checkout summary.');
         }
       },
-      error: () => {
-        this.notification.error('Could not load checkout summary.');
+      error: (err) => {
+        console.error('getOrderSummary error:', err);
+        const errorMsg = err?.error?.message || err?.message || 'Could not load checkout summary.';
+        this.notification.error(errorMsg);
       }
     });
   }
@@ -96,10 +127,15 @@ export class CheckoutCpmponent implements OnInit {
   }
 
   confirmOrder() {
-    this.notification.info('Review your details, then complete checkout.');
+    this.placeOrder();
   }
 
   placeOrder() {
+    // Prevent duplicate submissions
+    if (this.isProcessing()) {
+      console.log('Already processing, skipping duplicate request');
+      return;
+    }
 
     const form = this.checkoutForm();
 
@@ -108,35 +144,61 @@ export class CheckoutCpmponent implements OnInit {
       return;
     }
 
+    // Set processing state
+    this.isProcessing.set(true);
+    this.notification.info('Processing your order...');
+
+    console.log('========== Placing Order ==========');
+    console.log('Shipping Address:', form.address);
+    console.log('Payment Method:', form.paymentMethod);
+
     this.orderService.placeOrder(form).subscribe({
       next: (res) => {
+        console.log('Order response:', res);
 
         if (!res.isSuccess) {
-          this.notification.error('Order failed');
+          console.error('Order failed:', res.message);
+          this.notification.error('Order failed: ' + (res.message || 'Unknown error'));
+          this.isProcessing.set(false);
           return;
         }
 
         const orderId =
           typeof res.data === 'object'
-            ? res.data.orderId
+            ? res.data.id  // Changed from orderId to id
             : res.data;
+
+        console.log('✅ Order created with ID:', orderId);
 
         // ================= PAYPAL FLOW =================
         if (form.paymentMethod === 'PayPal') {
-
-          this.router.navigate(['/payment'], {
-            queryParams: { orderId: orderId }
-          });
+          console.log('Redirecting to PayPal payment...');
+          this.notification.success('Order created! Redirecting to payment...');
+          
+          setTimeout(() => {
+            this.router.navigate(['/payment'], {
+              queryParams: { orderId: orderId }
+            });
+          }, 1000);
 
         } else {
-
-          this.notification.success('Order placed successfully!');
-          this.cartService.clearCart();
-          this.router.navigate(['/home']);
+          console.log('Credit card or other payment method selected');
+          console.log('Redirecting to payment page...');
+          this.notification.success('Order created! Redirecting to payment...');
+          
+          setTimeout(() => {
+            this.router.navigate(['/payment'], {
+              queryParams: { orderId: orderId }
+            });
+          }, 1000);
         }
       },
-      error: () => {
-        this.notification.error('Checkout failed. Please try again.');
+      error: (err) => {
+        console.error('========== Checkout Error ==========');
+        console.error('Error:', err);
+        const errorMsg = err?.error?.message || err?.message || 'Checkout failed. Please try again.';
+        this.notification.error(errorMsg);
+        this.isProcessing.set(false);
       }
     });
   }

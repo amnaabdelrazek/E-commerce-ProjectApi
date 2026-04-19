@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface Toast {
@@ -16,7 +16,7 @@ export class NotificationService {
   public toasts$ = this.toastsSubject.asObservable();
   private toastIdCounter = 0;
 
-  constructor() {}
+  constructor(private ngZone: NgZone) {}
 
   success(message: string, duration: number = 3000): void {
     this.addToast(message, 'success', duration);
@@ -34,20 +34,27 @@ export class NotificationService {
     const id = `toast-${++this.toastIdCounter}`;
     const toast: Toast = { id, message, type, duration };
 
-    // Use requestAnimationFrame to defer the update after the rendering cycle
-    // This ensures Angular's change detection has completed
-    requestAnimationFrame(() => {
+    // Always run inside Angular's zone to ensure change detection is triggered
+    this.ngZone.run(() => {
       const currentToasts = this.toastsSubject.value;
       this.toastsSubject.next([...currentToasts, toast]);
-
-      if (duration > 0) {
-        setTimeout(() => this.removeToast(id), duration);
-      }
     });
+
+    if (duration > 0) {
+      // Run the timeout outside Angular's zone to avoid unnecessary change detection
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          // Run back inside Angular's zone only when removing the toast
+          this.ngZone.run(() => this.removeToast(id));
+        }, duration);
+      });
+    }
   }
 
   removeToast(id: string): void {
-    const currentToasts = this.toastsSubject.value;
-    this.toastsSubject.next(currentToasts.filter(t => t.id !== id));
+    this.ngZone.run(() => {
+      const currentToasts = this.toastsSubject.value;
+      this.toastsSubject.next(currentToasts.filter(t => t.id !== id));
+    });
   }
 }

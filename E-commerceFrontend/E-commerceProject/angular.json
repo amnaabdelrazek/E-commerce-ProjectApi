@@ -70,7 +70,11 @@
               "buildTarget": "E-commerceProject:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "ssl": true,
+            "port": 4200
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"
