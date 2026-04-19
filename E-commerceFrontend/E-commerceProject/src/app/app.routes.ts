@@ -25,8 +25,7 @@ import { CancelComponent } from './features/Payment/cancel.component/cancel.comp
 import { PaymentComponent } from './features/Payment/payment.component/payment.component';
 import { sellerGuard } from './core/guards/seller.guard';
 import { adminGuard } from './core/guards/admin.guard';
-import { CouponsComponent } from './features/admin/coupons-component/coupons-component';
-import { CreateCouponComponent } from './features/admin/coupons-component/create-coupon-component/create-coupon-component';
+
 
 export const routes: Routes = [
   {
@@ -108,7 +107,6 @@ export const routes: Routes = [
       { path: 'orders', component: OrdersAdminComponent, data: { title: 'Orders' } }, // ✅ UPDATED
       { path: 'users', component: UsersComponent, data: { title: 'Users' } }, // ✅ UPDATED
       { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' } },
-      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Create Coupon' } },
       { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } },
       { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' }},
       { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Add Coupon' } }

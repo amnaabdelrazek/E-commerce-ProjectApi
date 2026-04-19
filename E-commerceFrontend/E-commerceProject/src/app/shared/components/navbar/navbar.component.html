@@ -96,7 +96,7 @@
         </span>
       </button>
 
-      <a *ngIf="authService.currentUser()?.role === 'Seller'" class="icon-btn" routerLink="/seller" aria-label="Seller Dashboard">
+      <a *ngIf="authService.currentUser()?.role?.includes('Seller')" class="icon-btn" routerLink="/seller" aria-label="Seller Dashboard">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
         </svg>
