@@ -8,7 +8,7 @@ import { HomeComponent } from './features/home/home.component';
 import { ProductsComponent } from './features/products/products.component';
 import { CategoryProductsComponent } from './features/products/category-products/category-products.component';
 import { ProductDetailsComponent } from './features/products/product-details/product-details.component';
-import { CartComponent } from './features/cart-component/cart-component'
+import { CartComponent } from './features/cart-component/cart-component';
 import { CheckoutCpmponent } from './features/checkout-cpmponent/checkout-cpmponent';
 import { ProfileComponent } from './features/profile/profile.component';
 import { AdminLayoutComponent } from './features/admin/admin-layout/admin-layout.component';
@@ -18,12 +18,14 @@ import { AdminCategoriesComponent } from './features/admin/categories/admin-cate
 import { AdminProfileComponent } from './features/admin/profile/admin-profile.component';
 import { OrdersAdminComponent } from './features/admin/orders-admin/orders-admin.component'; // ✅ ADD THIS
 import { UsersComponent } from './features/admin/users/users.component'; // ✅ ADD THIS
-import { CouponsComponent } from './features/admin/coupons-component/coupons-component';
-import { CreateCouponComponent } from './features/admin/coupons-component/create-coupon-component/create-coupon-component';
 import { PaymentSuccessComponent } from './features/Payment/success.component/success.component';
 import { CancelComponent } from './features/Payment/cancel.component/cancel.component';
 import { PaymentComponent } from './features/Payment/payment.component/payment.component';
 import { sellerGuard } from './core/guards/seller.guard';
+import { OrdersComponent } from './features/profile/orders/orders.component';
+import { OrderDetailsComponent } from './features/profile/order-details/order-details.component';
+import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
+import { ReviewsComponent } from './features/profile/reviews/reviews.component';
 import { adminGuard } from './core/guards/admin.guard';
 
 
@@ -62,12 +64,19 @@ export const routes: Routes = [
         component: PlaceholderComponent,
         data: {
           title: 'Forgot Password',
-          description: 'Password reset flow is not connected yet, but you can still sign in, register, or return to shopping.',
+          description: 'Password reset flow is not connected yet.',
           primaryLabel: 'Back to Login',
           primaryLink: '/login',
           secondaryLabel: 'Create Account',
           secondaryLink: '/register'
         }
+      },
+      // ── Seller routes (lazy, guarded, inside MainLayout) ──
+      {
+        path: 'seller',
+        canActivate: [sellerGuard],
+        loadChildren: () =>
+          import('./features/seller/seller.module').then(m => m.SellerModule)
       },
       {
         path: 'orders',
@@ -95,6 +104,7 @@ export const routes: Routes = [
       }
     ]
   },
+
   {
     path: 'admin',
     component: AdminLayoutComponent,
@@ -117,10 +127,5 @@ export const routes: Routes = [
   { path: 'cancel', component: CancelComponent },
   { path: 'payment', component: PaymentComponent },
 
-  {
-    path: 'seller',
-    canActivate: [sellerGuard],
-    loadChildren: () => import('./features/seller/seller.module').then(m => m.SellerModule)
-  },
   { path: '**', redirectTo: 'login' }
 ];

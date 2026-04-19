@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
 import { LoginApiResponse, LoginRequest, LoginResponse } from '../models/login.model';
 import { ConfirmEmailApiResponse } from '../models/confirm-email.model';
-import { RegisterApiResponse, RegisterRequest } from '../models/register.model';
+import { RegisterApiResponse, RegisterRequest, RegisterSellerRequest } from '../models/register.model';
 import { API_BASE_URL } from '../tokens/api-base-url.token';
 import { TokenStorageService } from './token-storage.service';
 
@@ -42,6 +42,10 @@ export class AuthService {
 
   register(dto: RegisterRequest) {
     return this.http.post<RegisterApiResponse>(`${this.apiBaseUrl}/api/Auth/register`, dto);
+  }
+
+  registerSeller(dto: RegisterSellerRequest) {
+    return this.http.post<RegisterApiResponse>(`${this.apiBaseUrl}/api/Auth/register-seller`, dto);
   }
 
   confirmEmail(userId: string, token: string) {
