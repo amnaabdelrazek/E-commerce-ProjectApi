@@ -3,6 +3,21 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/tokens/api-base-url.token';
 
+export interface SellerCreateProductDto {
+  name: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  categoryId: number;
+  isFeatured?: boolean;
+}
+
+interface GeneralResponse<T> {
+  isSuccess: boolean;
+  message: string;
+  data: T;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,5 +39,16 @@ export class SellerService {
 
   updateSellerProfile(profileData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/profile`, profileData);
+  }
+
+  createProduct(productData: SellerCreateProductDto): Observable<GeneralResponse<string | number>> {
+    return this.http.post<GeneralResponse<string | number>>(`${this.apiBaseUrl}/api/Products`, productData);
+  }
+
+  uploadProductImage(productId: number, file: File): Observable<GeneralResponse<string>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<GeneralResponse<string>>(`${this.apiBaseUrl}/api/Products/${productId}/upload-image`, formData);
   }
 }
