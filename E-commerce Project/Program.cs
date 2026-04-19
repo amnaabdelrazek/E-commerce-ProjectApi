@@ -47,6 +47,7 @@ namespace E_commerce_Project
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IPayPalService, PayPalService>();
+            builder.Services.AddScoped<ICreditCardService, CreditCardService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ISellerService, SellerService>();
 
@@ -76,7 +77,12 @@ namespace E_commerce_Project
             });
 
             // ================= Controllers =================
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+                    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                });
 
             // ================= Swagger + JWT =================
             builder.Services.AddEndpointsApiExplorer();
@@ -131,6 +137,32 @@ namespace E_commerce_Project
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                // ================= Ensure PaymentIntentId Column Exists =================
+                try
+                {
+                    var connection = dbContext.Database.GetDbConnection();
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = @"
+                            IF NOT EXISTS (
+                                SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
+                                WHERE TABLE_NAME = 'Orders' AND COLUMN_NAME = 'PaymentIntentId'
+                            )
+                            BEGIN
+                                ALTER TABLE [Orders] ADD [PaymentIntentId] NVARCHAR(MAX) NULL;
+                            END";
+                        await command.ExecuteNonQueryAsync();
+                    }
+                    await connection.CloseAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Log if needed, but don't crash the app
+                    Console.WriteLine($"Warning: Could not ensure PaymentIntentId column: {ex.Message}");
+                }
 
                 foreach (var role in roles)
                 {
