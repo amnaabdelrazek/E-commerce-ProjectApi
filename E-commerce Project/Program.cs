@@ -22,7 +22,7 @@ namespace E_commerce_Project
             var builder = WebApplication.CreateBuilder(args);
             //var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionTwo");
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = builder.Configuration.GetConnectionString("Default");
 
             // ================= DB =================
             builder.Services.AddDbContext<AppDbContext>(opt =>
