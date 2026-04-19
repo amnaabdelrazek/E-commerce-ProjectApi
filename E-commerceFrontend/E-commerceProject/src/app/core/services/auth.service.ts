@@ -11,7 +11,7 @@ export interface CurrentUser {
   id: string;
   email: string;
   userName?: string;
-  role: string;
+  role: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -54,31 +54,46 @@ export class AuthService {
     });
   }
 
-  logout(): void {
-    this.tokenStorage.clearToken();
-    this.currentUser.set(null);
-  }
+logout(): void {
+  this.tokenStorage.clearToken();
+  this.currentUser.set(null);
+}
 
   getCurrentUser(): CurrentUser | null {
     return this.currentUser();
   }
 
   private readCurrentUserFromToken(): CurrentUser | null {
-    const token = this.tokenStorage.getToken();
-    if (!token) return null;
+  const token = this.tokenStorage.getToken();
+  if (!token) return null;
 
-    try {
-      const decoded = this.decodeToken(token);
-      return {
-        id: decoded['sub'] || decoded['id'] || '',
-        email: decoded['email'] || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || '',
-        userName: decoded['name'] || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || '',
-        role: decoded['role'] || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || ''
-      };
-    } catch (error) {
-      return null;
-    }
+  try {
+    const decoded = this.decodeToken(token);
+
+    let roles =
+      decoded['role'] ||
+      decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+    // ✅ normalize to array
+    if (!roles) roles = [];
+    else if (!Array.isArray(roles)) roles = [roles];
+
+    return {
+      id: decoded['sub'] || decoded['id'] || '',
+      email:
+        decoded['email'] ||
+        decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
+        '',
+      userName:
+        decoded['name'] ||
+        decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+        '',
+      role: roles // 🔥 IMPORTANT: now it's array
+    };
+  } catch {
+    return null;
   }
+}
 
   private decodeToken(token: string): any {
     try {

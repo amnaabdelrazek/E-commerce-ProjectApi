@@ -50,12 +50,30 @@ export class LoginComponent {
     const { rememberMe, ...dto } = this.form.getRawValue();
 
     this.auth.login(dto, rememberMe).subscribe({
-      next: async () => {
-        this.loading.set(false);
-        const user = this.auth.getCurrentUser();
-        const navigatePath = user?.role === 'Admin' ? '/admin/dashboard' : '/home';
-        await this.router.navigateByUrl(navigatePath);
-      },
+next: async () => {
+  this.loading.set(false);
+
+  const user = this.auth.getCurrentUser();
+
+  if (!user) {
+    await this.router.navigateByUrl('/home');
+    return;
+  }
+
+  const roles = user?.role || [];
+
+console.log('FINAL ROLES:', roles);
+
+if (roles.includes('Admin')) {
+  await this.router.navigateByUrl('/admin/dashboard');
+}
+else if (roles.includes('Seller')) {
+  await this.router.navigateByUrl('/seller');
+}
+else {
+  await this.router.navigateByUrl('/home');
+}
+},
       error: (err: unknown) => {
         this.loading.set(false);
         this.serverError.set(this.extractErrorMessage(err));

@@ -59,15 +59,21 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  public get accountRoute(): string {
-    const currentUser = this.auth.currentUser();
+public get accountRoute(): string {
+  const currentUser = this.auth.currentUser();
 
-    if (!currentUser) {
-      return '/login';
-    }
-
-    return currentUser.role?.toLowerCase() === 'admin' ? '/admin/profile' : '/profile';
+  if (!currentUser) {
+    return '/login';
   }
+
+  const role = currentUser.role;
+
+  const isAdmin = Array.isArray(role)
+    ? role.includes('Admin')
+    : role === 'Admin';
+
+  return isAdmin ? '/admin/profile' : '/profile';
+}
 
   public get accountLabel(): string {
     return this.auth.currentUser()?.userName || this.auth.currentUser()?.email || 'Account';

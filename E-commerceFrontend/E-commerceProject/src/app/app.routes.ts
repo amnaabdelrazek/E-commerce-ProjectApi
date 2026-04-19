@@ -27,8 +27,10 @@ import { OrderDetailsComponent } from './features/profile/order-details/order-de
 import { WishlistComponent } from './features/profile/wishlist/wishlist.component';
 import { ReviewsComponent } from './features/profile/reviews/reviews.component';
 import { adminGuard } from './core/guards/admin.guard';
-import { CouponsComponent } from './features/admin/coupons-component/coupons-component';
 import { CreateCouponComponent } from './features/admin/coupons-component/create-coupon-component/create-coupon-component';
+import { CouponsComponent } from './features/admin/coupons-component/coupons-component';
+import { SellersMangement } from './features/admin/sellers-mangement/sellers-mangement';
+
 
 export const routes: Routes = [
   {
@@ -110,6 +112,7 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [adminGuard],
+    canActivateChild: [adminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
@@ -118,10 +121,9 @@ export const routes: Routes = [
       { path: 'orders', component: OrdersAdminComponent, data: { title: 'Orders' } }, // ✅ UPDATED
       { path: 'users', component: UsersComponent, data: { title: 'Users' } }, // ✅ UPDATED
       { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' } },
-      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Create Coupon' } },
       { path: 'profile', component: AdminProfileComponent, data: { title: 'Profile' } },
-      { path: 'coupons', component: CouponsComponent, data: { title: 'Coupons' }},
-      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Add Coupon' } }
+      { path: 'coupons/add', component: CreateCouponComponent, data: { title: 'Add Coupon' } },
+      { path: 'sellers-mangement',component: SellersMangement,data: { title: 'Sellers Management' }},
     ]
   },
 

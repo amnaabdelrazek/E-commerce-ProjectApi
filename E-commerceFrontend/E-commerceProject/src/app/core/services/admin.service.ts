@@ -46,6 +46,36 @@ export interface OrderItem {
   itemTotal: number;
 }
 
+/* ================= SELLERS ================= */
+
+export interface Seller {
+  sellerId: number;
+  storeName: string;
+  userEmail: string;
+  isApproved: boolean;
+  status: string;
+}
+
+export interface PendingSeller {
+  id: number;
+  userId: string;
+  userEmail: string;
+  userFullName: string;
+  storeName: string;
+  storeDescription: string;
+  businessAddress: string;
+  isApproved: boolean;
+  createdAt: string;
+}
+
+export interface BatchSellerApproval {
+  sellerId: number;
+  isApproved: boolean;
+  rejectionReason?: string;
+}
+
+
+
 /* ================= COUPONS ================= */
 export interface Coupon {
   id: number;
@@ -221,6 +251,41 @@ getCoupons(): Observable<Coupon[]> { // شيلنا GeneralResponse
     return this.http.delete(`${this.apiUrl}/coupons/${id}`);
   }
 
+  /* ================= SELLERS ================= */
+
+getSellers(): Observable<GeneralResponse<Seller[]>> {
+  return this.http.get<GeneralResponse<Seller[]>>(
+    `${this.apiUrl}/sellers`
+  );
+}
+
+getPendingSellers(): Observable<GeneralResponse<PendingSeller[]>> {
+  return this.http.get<GeneralResponse<PendingSeller[]>>(
+    `${this.apiUrl}/sellers/pending`
+  );
+}
+
+approveSeller(id: number) {
+  return this.http.post(
+    `${this.apiUrl}/sellers/${id}/approve`,
+    {}
+  );
+}
+
+rejectSeller(id: number) {
+  return this.http.post(
+    `${this.apiUrl}/sellers/${id}/reject`,
+    {}
+  );
+}
+
+batchApprove(data: BatchSellerApproval[]) {
+  return this.http.post(
+    `${this.apiUrl}/sellers/batch-approval`,
+    data
+  );
+}
+
   /* ================= PRODUCTS ================= */
   getProducts(
     pageNumber = 1,
@@ -347,4 +412,7 @@ getCoupons(): Observable<Coupon[]> { // شيلنا GeneralResponse
       `${this.apiUrl}/dashboard`
     );
   }
+
+
+
 }
