@@ -20,6 +20,14 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   pageTitle: string = 'Admin Dashboard';
   private subscription = new Subscription();
 
+  get profileRoute(): string {
+    return '/admin/profile';
+  }
+
+  get userInitial(): string {
+    return this.userName.trim().charAt(0).toUpperCase() || 'A';
+  }
+
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
     if (user) {

@@ -36,12 +36,6 @@
           </a>
         </li>
         <li class="nav-item">
-          <a routerLink="/admin/profile" routerLinkActive="active" class="nav-link">
-            <span class="nav-icon">A</span>
-            <span class="nav-text">Profile</span>
-          </a>
-        </li>
-        <li class="nav-item">
           <a routerLink="/admin/users" routerLinkActive="active" class="nav-link">
             <span class="nav-icon">U</span>
             <span class="nav-text">Users</span>
@@ -68,6 +62,10 @@
       </button>
       <h1 class="page-title">{{ pageTitle }}</h1>
       <div class="header-spacer"></div>
+      <a class="header-profile-link" [routerLink]="profileRoute" aria-label="Open admin profile">
+        <div class="header-profile-avatar">{{ userInitial }}</div>
+        <span class="header-profile-name">{{ userName || 'Admin' }}</span>
+      </a>
     </div>
 
     <div class="main-body">

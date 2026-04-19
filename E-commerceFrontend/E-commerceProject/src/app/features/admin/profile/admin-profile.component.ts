@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import { API_BASE_URL } from '../../../core/tokens/api-base-url.token';
 import { Profile } from '../../../core/models/profile.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 type ProfileView = Profile & {
@@ -18,7 +27,7 @@ type ProfileView = Profile & {
 @Component({
   selector: 'app-admin-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatCardModule, MatIconModule, MatTabsModule, MatInputModule, MatFormFieldModule, MatProgressSpinnerModule, MatSnackBarModule, MatMenuModule],
   templateUrl: './admin-profile.component.html',
   styleUrls: ['./admin-profile.component.css']
 })
@@ -33,13 +42,15 @@ export class AdminProfileComponent {
   readonly state = signal<LoadState>('loading');
   readonly profile = signal<ProfileView | null>(null);
   readonly editing = signal(false);
+  readonly activeTab = signal<'profile' | 'password'>('profile');
   readonly saving = signal(false);
   readonly message = signal<string | null>(null);
   readonly passwordMessage = signal<string | null>(null);
   readonly avatarMessage = signal<string | null>(null);
+  readonly isDragging = signal(false);
+  readonly pendingImageFile = signal<File | null>(null);
 
   readonly placeholder = '/product-placeholder.svg';
-  private pendingImageFile: File | null = null;
 
   readonly form = this.fb.nonNullable.group({
     fullName: ['', [Validators.required]],
@@ -98,26 +109,66 @@ export class AdminProfileComponent {
   toggleEdit() {
     this.message.set(null);
     this.editing.set(!this.editing());
+    if (this.editing()) {
+      this.activeTab.set('profile');
+    }
+  }
+
+  setActiveTab(tab: 'profile' | 'password') {
+    this.activeTab.set(tab);
+    this.message.set(null);
+    this.passwordMessage.set(null);
   }
 
   onAvatarSelected(event: Event) {
     const input = event.target as HTMLInputElement | null;
     const file = input?.files?.[0] ?? null;
-    this.pendingImageFile = file;
+    this.pendingImageFile.set(file);
     this.avatarMessage.set(file ? file.name : null);
   }
 
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    if (!file.type.startsWith('image/')) {
+      this.avatarMessage.set('Please drop an image file');
+      return;
+    }
+
+    this.pendingImageFile.set(file);
+    this.avatarMessage.set(file.name);
+  }
+
   uploadAvatar() {
-    if (!this.pendingImageFile) return;
+    const file = this.pendingImageFile();
+    if (!file) return;
     this.avatarMessage.set('Uploading...');
-    this.userService.uploadImage(this.pendingImageFile).subscribe({
+    this.userService.uploadImage(file).subscribe({
       next: (res) => {
         if (res?.isSuccess && res.data) {
           const current = this.profile();
           if (current) {
             this.profile.set({ ...current, profileImageUrl: res.data });
           }
-          this.pendingImageFile = null;
+          this.pendingImageFile.set(null);
           this.avatarMessage.set('Photo updated.');
         } else {
           this.avatarMessage.set(res?.message || 'Upload failed.');
@@ -138,8 +189,9 @@ export class AdminProfileComponent {
     formData.append('City', city || '');
     formData.append('Street', street || '');
 
-    if (this.pendingImageFile) {
-      formData.append('ProfileImage', this.pendingImageFile);
+    const imageFile = this.pendingImageFile();
+    if (imageFile) {
+      formData.append('ProfileImage', imageFile);
     }
 
     this.userService.updateProfile(formData).subscribe({
@@ -186,6 +238,18 @@ export class AdminProfileComponent {
       },
       error: () => this.passwordMessage.set('Password change failed.')
     });
+  }
+
+  goToOrders() {
+    void this.router.navigate(['/admin/orders']);
+  }
+
+  goToProducts() {
+    void this.router.navigate(['/admin/products']);
+  }
+
+  goToUsers() {
+    void this.router.navigate(['/admin/users']);
   }
 
   signOut() {
