@@ -226,7 +226,7 @@ namespace E_commerce_Project.Services.Implementations
 
                 try
                 {
-                    await _emailService.SendEmailAsyc(user.Email!, checkoutDto.FirstName, order.Id);
+                    await _emailService.SendEmailAsync(user.Email!, checkoutDto.FirstName, savedOrder!);
                 }
                 catch (Exception ex)
                 {

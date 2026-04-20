@@ -5,6 +5,7 @@ import { PaypalService } from '../../../core/services/paypal.service';
 import { CreditCardService } from '../../../core/services/credit-card.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { FormsModule } from '@angular/forms';
+import { CartService } from '../../../core/services/cart-service';
 
 @Component({
   selector: 'app-payment',
@@ -15,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class PaymentComponent implements OnInit {
 
+  private cartService = inject(CartService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private paypalService = inject(PaypalService);
@@ -23,7 +25,7 @@ export class PaymentComponent implements OnInit {
 
   orderId: number | null = null;
   isProcessing = false;
-  selectedPaymentMethod = signal<'paypal' | 'credit-card'>('credit-card');
+  selectedPaymentMethod = signal<'paypal' | 'credit-card' | 'cash'>('credit-card');
 
   creditCardForm = signal({
     cardNumber: '',
@@ -155,7 +157,7 @@ export class PaymentComponent implements OnInit {
         if (res.isSuccess) {
           console.log('✅ Payment successful');
           this.notification.success('Payment processed successfully!');
-          
+          this.cartService.clearCart();
           // Redirect to success page after 2 seconds
           setTimeout(() => {
             this.router.navigate(['/success'], {
@@ -197,4 +199,41 @@ export class PaymentComponent implements OnInit {
     let value = event.target.value.replace(/\D/g, '').substring(0, 4);
     this.creditCardForm.update(f => ({ ...f, cvv: value }));
   }
+
+  processCASH() {
+  if (this.isProcessing) return;
+
+  this.isProcessing = true;
+  this.notification.info('Processing cash order...');
+
+  console.log('========== Processing Cash On Delivery via CreditCardService ==========');
+
+  
+  this.creditCardService.processCreditCard({
+    orderId: this.orderId!,
+    cardNumber: '0000000000000000', 
+    cardHolderName: 'CASH_PAYMENT',
+    expiryDate: '00/00',
+    cvv: '000'
+    
+  }).subscribe({
+    next: (res) => {
+      if (res.isSuccess) {
+        this.notification.success('Order confirmed! Pay on delivery.');
+        this.cartService.clearCart();
+        
+        setTimeout(() => {
+          this.router.navigate(['/success'], { queryParams: { orderId: this.orderId } });
+        }, 2000);
+      } else {
+        this.notification.error(res.message || 'Failed to process order');
+        this.isProcessing = false;
+      }
+    },
+    error: (err) => {
+      this.notification.error('Server error');
+      this.isProcessing = false;
+    }
+  });
+}
 }

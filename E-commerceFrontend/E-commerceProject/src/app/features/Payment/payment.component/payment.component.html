@@ -44,7 +44,16 @@
             style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" />
           <span style="font-weight: 500;">🅿️ PayPal</span>
         </label>
-
+       
+        <label class="payment-option" style="display: flex; align-items: center; cursor: pointer;">
+          <input 
+            type="radio" 
+            name="payment" 
+            (click)="selectedPaymentMethod.set('cash')"
+            [checked]="selectedPaymentMethod() === 'cash'"
+            style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" />
+          <span style="font-weight: 500;"> Cash on Delivery</span>
+        </label>
       </div>
 
       <!-- Credit Card Form -->
@@ -110,6 +119,22 @@
         </button>
       </div>
 
+      <!--Cash-->
+      <div *ngIf="selectedPaymentMethod() === 'cash'" style="animation: slideIn 0.3s ease-in;">
+        <div style="padding: 20px; border: 1px dashed #2ecc71; border-radius: 8px; background: #f0fff4; margin-bottom: 20px;">
+          <p style="color: #27ae60; margin: 0; text-align: center; font-weight: 500;">
+            ✅ You have selected Cash on Delivery. You will pay when your order arrives.
+          </p>
+        </div>
+
+        <button 
+          class="main-action-btn" 
+          (click)="processCASH()" 
+          [disabled]="isProcessing"
+          style="width: 100%; margin-bottom: 15px; background: #2ecc71; border-color: #2ecc71;">
+          {{ isProcessing ? '⏳ Confirming...' : '✅ Confirm Order' }}
+        </button>
+        </div>
       <!-- Back Button -->
       <div class="row">
         <button class="back-btn" routerLink="/checkout" [disabled]="isProcessing">Back</button>
