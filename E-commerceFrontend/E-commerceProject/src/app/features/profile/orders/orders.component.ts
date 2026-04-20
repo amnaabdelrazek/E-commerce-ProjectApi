@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, OnInit, NgZone } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit, NgZone } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import { OrderService } from '../../../core/services/order-service';
@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-orders',
@@ -22,6 +24,8 @@ export class OrdersComponent implements OnInit {
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly orderService = inject(OrderService);
   private readonly ngZone = inject(NgZone);
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly orders = signal<any[]>([]);
   readonly isLoading = signal(false);
@@ -29,6 +33,12 @@ export class OrdersComponent implements OnInit {
 
   ngOnInit() {
     this.loadUserOrders();
+
+    this.realtimeService.ordersChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadUserOrders();
+      });
   }
 
   loadUserOrders() {

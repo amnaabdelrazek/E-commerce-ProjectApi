@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, NgZone } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, inject, signal, NgZone } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
@@ -13,19 +13,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
 import { ReviewFormDialogComponent } from './review-form-dialog.component';
+import { Review } from '../../../core/models/review.model';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, MatDialogModule, ReviewFormDialogComponent],
+  imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule, MatTooltipModule, MatDialogModule],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.css'
 })
-export class ProductDetailsComponent {
+export class ProductDetailsComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
@@ -36,12 +38,14 @@ export class ProductDetailsComponent {
   private readonly reviewsService = inject(ReviewsService);
   private readonly ngZone = inject(NgZone);
   private readonly dialog = inject(MatDialog);
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly state = signal<LoadState>('loading');
   readonly product = signal<Product | null>(null);
   readonly isInWishlist = signal(false);
   readonly isFavLoading = signal(false);
-  readonly reviews = signal<any[]>([]);
+  readonly reviews = signal<Review[]>([]);
   readonly reviewsLoading = signal(false);
 
   readonly placeholder = '/product-placeholder.svg';
@@ -62,10 +66,33 @@ export class ProductDetailsComponent {
         if (res?.data) {
           this.checkIfInWishlist(res.data.id);
           this.loadProductReviews(res.data.id);
+          void this.realtimeService.joinProductGroup(res.data.id);
         }
       },
       error: () => this.state.set('error')
     });
+
+    this.realtimeService.reviewsChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event.productId === this.product()?.id) {
+          this.loadProductReviews(event.productId);
+        }
+      });
+
+    this.realtimeService.productInventoryChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        const current = this.product();
+        if (!current || event.productId !== current.id) {
+          return;
+        }
+
+        this.product.set({
+          ...current,
+          stockQuantity: event.stockQuantity
+        });
+      });
   }
 
   onImgError(event: Event) {
@@ -153,7 +180,6 @@ export class ProductDetailsComponent {
       console.log('Dialog closed with result:', result);
       if (result && result.success) {
         console.log('Review submitted successfully, refreshing reviews list');
-        this.notification.success('Review posted successfully!');
         // Add the new review to the signal immediately for better UX
         if (result.review) {
           this.reviews.update(reviews => [result.review, ...reviews]);
@@ -176,7 +202,7 @@ export class ProductDetailsComponent {
 
     if (this.isInWishlist()) {
       // Remove from wishlist
-      this.wishlistService.addToWishlist(product.id).subscribe({
+      this.wishlistService.removeFromWishlistByProduct(product.id).subscribe({
         next: (res) => {
           if (res.isSuccess) {
             this.isInWishlist.set(false);
@@ -216,6 +242,13 @@ export class ProductDetailsComponent {
           });
         }
       });
+    }
+  }
+
+  ngOnDestroy(): void {
+    const productId = this.product()?.id;
+    if (productId) {
+      void this.realtimeService.leaveProductGroup(productId);
     }
   }
 }

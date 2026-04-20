@@ -1,6 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AdminProduct,
   AdminService,
@@ -11,6 +12,7 @@ import { CategoriesService } from '../../../core/services/categories.service';
 import { Category } from '../../../core/models/category.model';
 import { NotificationService } from '../../../core/services/notification.service';
 import { finalize, retry } from 'rxjs/operators';
+import { RealtimeService } from '../../../core/services/realtime.service';
 
 type ModalMode = 'create' | 'edit';
 
@@ -27,6 +29,8 @@ export class AdminProductsComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private realtimeService = inject(RealtimeService);
+  private destroyRef = inject(DestroyRef);
 
   products: AdminProduct[] = [];
   categories: Category[] = [];
@@ -66,6 +70,28 @@ export class AdminProductsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.realtimeService.productInventoryChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        let hasMatchingProduct = false;
+
+        this.products = this.products.map((product) => {
+          if (product.id !== event.productId) {
+            return product;
+          }
+
+          hasMatchingProduct = true;
+          return {
+            ...product,
+            stockQuantity: event.stockQuantity
+          };
+        });
+
+        if (hasMatchingProduct) {
+          this.cdr.detectChanges();
+        }
+      });
+
     this.loadCategories();
     setTimeout(() => this.loadProducts(), 0);
   }

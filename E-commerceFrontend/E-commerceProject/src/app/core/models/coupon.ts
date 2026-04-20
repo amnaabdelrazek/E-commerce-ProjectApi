@@ -1,11 +1,13 @@
 export interface Coupon {
   id: number;
   code: string;
-  discountAmount: number;
-  discountPercentage?: number;
+  discountAmount: number | null;
+  discountPercentage: number | null;
   minimumPurchaseAmount: number;
-  expiryDate: string; 
+  expiryDate: string;
   isActive: boolean;
+  maxUses?: number;
+  usedCount?: number;
 }
 
 

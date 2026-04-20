@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, DestroyRef, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SellerService } from '../seller.service';
 import { RouterModule } from '@angular/router';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   standalone: true,
@@ -13,6 +15,8 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./seller-dashboard.component.css']
 })
 export class SellerDashboardComponent implements OnInit {
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
   stats: any = null;
   isLoading = true;
   errorMessage = '';
@@ -24,6 +28,12 @@ export class SellerDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadStats();
+
+    this.realtimeService.sellerDashboardChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadStats();
+      });
   }
 
   loadStats(): void {

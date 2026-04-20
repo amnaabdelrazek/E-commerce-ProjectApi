@@ -11,10 +11,12 @@ namespace E_commerce_Project.Services.Implementations
     public class ReviewService : IReviewService
     {
         private readonly AppDbContext _context;
+        private readonly IRealtimeNotifier _realtimeNotifier;
 
-        public ReviewService(AppDbContext context)
+        public ReviewService(AppDbContext context, IRealtimeNotifier realtimeNotifier)
         {
             _context = context;
+            _realtimeNotifier = realtimeNotifier;
         }
         public async Task<GeneralResponse<List<ReviewDto>>> GetUserReviewsAsync(string userId)
         {
@@ -135,6 +137,8 @@ namespace E_commerce_Project.Services.Implementations
                         ReviewDate = existingReview.CreatedAt
                     };
 
+                    await _realtimeNotifier.NotifyReviewChangedAsync(dto.ProductId, userId, "updated", updatedReviewDto);
+
                     return GeneralResponse<ReviewDto>.Success(updatedReviewDto, "Review updated successfully");
                 }
 
@@ -174,6 +178,8 @@ namespace E_commerce_Project.Services.Implementations
                     Comment = review.Comment,
                     ReviewDate = review.CreatedAt
                 };
+
+                await _realtimeNotifier.NotifyReviewChangedAsync(dto.ProductId, userId, "created", reviewDto);
 
                 return GeneralResponse<ReviewDto>.Success(reviewDto, "Review created successfully");
             }
@@ -221,6 +227,8 @@ namespace E_commerce_Project.Services.Implementations
                     ReviewDate = review.CreatedAt
                 };
 
+                await _realtimeNotifier.NotifyReviewChangedAsync(review.ProductId, userId, "updated", reviewDto);
+
                 return GeneralResponse<ReviewDto>.Success(reviewDto, "Review updated successfully");
             }
             catch (Exception ex)
@@ -243,6 +251,7 @@ namespace E_commerce_Project.Services.Implementations
                 review.LastModifiedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
+                await _realtimeNotifier.NotifyReviewChangedAsync(review.ProductId, userId, "deleted", null, review.Id);
 
                 return GeneralResponse<string>.Success("Review deleted successfully");
             }

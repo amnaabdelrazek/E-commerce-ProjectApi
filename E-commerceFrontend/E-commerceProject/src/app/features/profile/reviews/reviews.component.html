@@ -42,17 +42,17 @@
       <mat-card-header>
         <div class="review-header-content">
           <div class="product-info">
-            <h3 class="product-name">{{ review.product?.name || review.productName }}</h3>
+            <h3 class="product-name">{{ review.productName }}</h3>
             <p class="review-date">
               <mat-icon inline>calendar_today</mat-icon>
-              {{ review.createdAt | date: 'MMM dd, yyyy' }}
+              {{ review.reviewDate | date: 'MMM dd, yyyy' }}
             </p>
           </div>
           <button mat-icon-button [matMenuTriggerFor]="menu">
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="editReview(review.id)">
+            <button mat-menu-item (click)="editReview(review)">
               <mat-icon>edit</mat-icon>
               <span>Edit Review</span>
             </button>
@@ -72,14 +72,14 @@
           <span class="rating-text">{{ review.rating }}/5</span>
         </div>
 
-        <div class="review-title">{{ review.title || review.comment }}</div>
+        <div class="review-title">Your Review</div>
 
-        <p class="review-text">{{ review.comment || review.text }}</p>
+        <p class="review-text">{{ review.comment }}</p>
 
         <div class="review-stats">
           <button mat-button>
             <mat-icon>thumb_up</mat-icon>
-            {{ review.helpful || 0 }} Helpful
+            0 Helpful
           </button>
           <button mat-button>
             <mat-icon>flag</mat-icon>

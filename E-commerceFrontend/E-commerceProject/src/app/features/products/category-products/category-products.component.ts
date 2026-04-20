@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductsService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
+import { RealtimeService } from '../../../core/services/realtime.service';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -19,6 +21,8 @@ export class CategoryProductsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly productsService = inject(ProductsService);
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly title = this.route.snapshot.data['title'] ?? 'Category';
   readonly categoryName = String(this.route.snapshot.data['categoryName'] ?? '').trim();
@@ -57,6 +61,18 @@ export class CategoryProductsComponent {
   readonly totalCount = computed(() => this.filtered().length);
 
   ngOnInit() {
+    this.realtimeService.productInventoryChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        this.all.update((products) =>
+          products.map((product) =>
+            product.id === event.productId
+              ? { ...product, stockQuantity: event.stockQuantity }
+              : product
+          )
+        );
+      });
+
     this.load();
   }
 

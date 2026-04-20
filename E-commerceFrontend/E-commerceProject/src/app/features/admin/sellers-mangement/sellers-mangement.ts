@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, PendingSeller, Seller } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-sellers',
@@ -15,6 +17,8 @@ export class SellersMangement implements OnInit {
 
   private adminService = inject(AdminService);
   private notification = inject(NotificationService);
+  private realtimeService = inject(RealtimeService);
+  private destroyRef = inject(DestroyRef);
 
   sellers: Seller[] = [];
   pending: PendingSeller[] = [];
@@ -30,6 +34,16 @@ export class SellersMangement implements OnInit {
 
   ngOnInit(): void {
     this.loadPending();
+
+    this.realtimeService.adminSellersChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.tab === 'pending') {
+          this.loadPending();
+        } else {
+          this.loadAll();
+        }
+      });
   }
 
   // ================= LOAD =================

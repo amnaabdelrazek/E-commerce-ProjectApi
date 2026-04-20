@@ -15,15 +15,18 @@ namespace E_commerce_Project.Services.Implementations
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly AppDbContext _context;
+        private readonly IRealtimeNotifier _realtimeNotifier;
 
         public AdminService(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            AppDbContext context)
+            AppDbContext context,
+            IRealtimeNotifier realtimeNotifier)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
+            _realtimeNotifier = realtimeNotifier;
         }
 
         // ==================== USER MANAGEMENT ====================
@@ -70,6 +73,7 @@ namespace E_commerce_Project.Services.Implementations
             if (!updateResult.Succeeded)
                 return GeneralResponse<string>.Fail(FormatIdentityErrors(updateResult));
 
+            await _realtimeNotifier.NotifyAdminUsersChangedAsync("locked", user.Id);
             return GeneralResponse<string>.Success(string.Empty, "User locked");
         }
 
@@ -88,6 +92,7 @@ namespace E_commerce_Project.Services.Implementations
             if (!updateResult.Succeeded)
                 return GeneralResponse<string>.Fail(FormatIdentityErrors(updateResult));
 
+            await _realtimeNotifier.NotifyAdminUsersChangedAsync("unlocked", user.Id);
             return GeneralResponse<string>.Success(string.Empty, "User unlocked");
         }
 
@@ -112,6 +117,8 @@ namespace E_commerce_Project.Services.Implementations
             user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
 
             await _context.SaveChangesAsync();
+            await _realtimeNotifier.NotifyAdminUsersChangedAsync("deleted", user.Id);
+            await _realtimeNotifier.NotifyAdminDashboardChangedAsync("user-deleted");
 
             return GeneralResponse<string>.Success(string.Empty, "User deleted");
         }
@@ -151,6 +158,7 @@ namespace E_commerce_Project.Services.Implementations
                 return GeneralResponse<string>.Fail(FormatIdentityErrors(addResult));
             }
 
+            await _realtimeNotifier.NotifyAdminUsersChangedAsync("role-changed", user.Id);
             return GeneralResponse<string>.Success(string.Empty, "Role updated");
         }
 
@@ -195,6 +203,8 @@ namespace E_commerce_Project.Services.Implementations
 
             _context.Coupons.Add(coupon);
             await _context.SaveChangesAsync();
+            await _realtimeNotifier.NotifyAdminCouponsChangedAsync("created", coupon.Id);
+            await _realtimeNotifier.NotifyAdminDashboardChangedAsync("coupon-created");
 
             return GeneralResponse<string>.Success(string.Empty, "Coupon created");
         }
@@ -213,6 +223,8 @@ namespace E_commerce_Project.Services.Implementations
             coupon.IsDeleted = true;
             coupon.DeletedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+            await _realtimeNotifier.NotifyAdminCouponsChangedAsync("deleted", coupon.Id);
+            await _realtimeNotifier.NotifyAdminDashboardChangedAsync("coupon-deleted");
 
             return GeneralResponse<string>.Success(string.Empty, "Deleted");
         }
@@ -330,6 +342,8 @@ namespace E_commerce_Project.Services.Implementations
             }
 
             await _context.SaveChangesAsync();
+            await _realtimeNotifier.NotifyAdminSellersChangedAsync(isApproved ? "approved" : "rejected", seller.id, seller.UserId);
+            await _realtimeNotifier.NotifySellerDashboardChangedAsync(new[] { seller.UserId }, isApproved ? "seller-approved" : "seller-rejected");
 
             return GeneralResponse<string>.Success(
                 string.Empty,

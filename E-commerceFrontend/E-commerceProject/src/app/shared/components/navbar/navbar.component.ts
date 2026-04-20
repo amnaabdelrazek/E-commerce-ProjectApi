@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CartService } from '../../../core/services/cart-service';
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { API_BASE_URL } from '../../../core/tokens/api-base-url.token';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type CategoriesState = 'loading' | 'loaded' | 'error';
 
@@ -26,6 +28,8 @@ export class NavbarComponent implements OnInit {
   public readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   public readonly categories = signal<Category[]>([]);
   public readonly categoriesState = signal<CategoriesState>('loading');
@@ -47,6 +51,12 @@ export class NavbarComponent implements OnInit {
     if (this.auth.currentUser()) {
       this.loadProfileImage();
     }
+
+    this.realtimeService.cartChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((payload) => {
+        this.cartService.cartCount.set(payload.count);
+      });
   }
 
   public submitSearch(): void {

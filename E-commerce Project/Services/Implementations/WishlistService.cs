@@ -10,10 +10,12 @@ namespace E_commerce_Project.Services.Implementations
     public class WishlistService : IWishlistService
     {
         private readonly AppDbContext _context;
+        private readonly IRealtimeNotifier _realtimeNotifier;
 
-        public WishlistService(AppDbContext context)
+        public WishlistService(AppDbContext context, IRealtimeNotifier realtimeNotifier)
         {
             _context = context;
+            _realtimeNotifier = realtimeNotifier;
         }
         public async Task<GeneralResponse<List<WishlistItemDto>>> GetUserWishlistAsync(string userId)
         {
@@ -104,6 +106,8 @@ namespace E_commerce_Project.Services.Implementations
                     AddedDate = wishlistItem.CreatedAt
                 };
 
+                await _realtimeNotifier.NotifyWishlistChangedAsync(userId, "added", productId);
+
                 return GeneralResponse<WishlistItemDto>.Success(wishlistItemDto, "Product added to wishlist successfully");
             }
             catch (Exception ex)
@@ -126,6 +130,7 @@ namespace E_commerce_Project.Services.Implementations
                 wishlistItem.LastModifiedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
+                await _realtimeNotifier.NotifyWishlistChangedAsync(userId, "removed", wishlistItem.ProductId);
 
                 return GeneralResponse<string>.Success("Product removed from wishlist successfully");
             }
@@ -149,6 +154,7 @@ namespace E_commerce_Project.Services.Implementations
                 wishlistItem.LastModifiedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
+                await _realtimeNotifier.NotifyWishlistChangedAsync(userId, "removed", productId);
 
                 return GeneralResponse<string>.Success("Product removed from wishlist successfully");
             }
@@ -200,6 +206,7 @@ namespace E_commerce_Project.Services.Implementations
                 }
 
                 await _context.SaveChangesAsync();
+                await _realtimeNotifier.NotifyWishlistChangedAsync(userId, "cleared");
 
                 return GeneralResponse<string>.Success("Wishlist cleared successfully");
             }

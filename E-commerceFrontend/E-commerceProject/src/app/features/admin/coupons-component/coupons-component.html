@@ -1,97 +1,105 @@
 <div class="admin-container">
-    <div class="page-header">
-        <div class="header-info">
-            <h1>Coupon Management</h1>
-            <p class="subtitle">View and manage your store discount coupons</p>
-        </div>
-        <button class="add-btn" routerLink="/admin/coupons/add">
-            <i class="bi bi-plus-lg"></i>
-            <span>Add New Coupon</span>
-        </button>
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Coupon Management</h1>
+      <p class="subtitle">View and manage your store discount coupons</p>
     </div>
+    <button class="add-btn" routerLink="/admin/coupons/add" type="button">
+      <i class="bi bi-plus-lg"></i>
+      <span>Add New Coupon</span>
+    </button>
+  </div>
 
-    @if (!isLoading()) {
+  @if (!isLoading()) {
     <div class="stats-bar animated fadeIn">
-        <div class="stat-item">
-            <span class="label">Total Coupons:</span>
-            <span class="value">{{ coupons().length }}</span>
-        </div>
-        <div class="stat-item">
-            <span class="label">Active:</span>
-            <span class="value success">{{ activeCouponsCount() }}</span>
-        </div>
+      <div class="stat-item">
+        <span class="label">Total Coupons:</span>
+        <span class="value">{{ coupons().length }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Active:</span>
+        <span class="value success">{{ activeCouponsCount() }}</span>
+      </div>
     </div>
-    }
+  }
 
-    @if (isLoading()) {
+  @if (isLoading()) {
     <div class="loading-overlay">
-        <div class="spinner"></div>
-        <span>Fetching coupons...</span>
+      <div class="spinner"></div>
+      <span>Fetching coupons...</span>
     </div>
-    }
+  }
 
-    @if (errorMessage()) {
+  @if (errorMessage()) {
     <div class="error-box">
-        <i class="bi bi-exclamation-circle"></i>
-        {{ errorMessage() }}
+      <i class="bi bi-exclamation-circle"></i>
+      {{ errorMessage() }}
     </div>
-    }
+  }
 
-    @if (!isLoading() && coupons().length > 0) {
+  @if (!isLoading() && coupons().length > 0) {
     <div class="table-card shadow-sm">
-        <div class="table-responsive">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Coupon Code</th>
-                        <th>Discount</th>
-                        <th>Min. Purchase</th>
-                        <th>Expiry Date</th>
-                        <th>Status</th>
-                        <th class="text-center">Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (coupon of coupons(); track coupon.id) {
-                    <tr class="table-row">
-                        <td>
-                            <div class="code-badge">{{ coupon.code }}</div>
-                        </td>
-                        <td>
-                            <span class="discount-value" style="font-weight: 600; color: #2c3e50;">
-                                @if (coupon.discountPercentage) {
-                                {{ coupon.discountPercentage }}%
-                                } @else {
-                                {{ coupon.discountAmount | currency:'EGP ' }}
-                                }
-                            </span>
-                        </td>
-                        <td>{{ coupon.minimumPurchaseAmount | currency:'EGP ' }}</td>
-                        <td style="color: #7f8c8d;">
-                            {{ coupon.expiryDate | date:'mediumDate' }}
-                        </td>
-                        <td>
-                            <span class="status-pill" [class.active]="coupon.isActive">
-                                {{ coupon.isActive ? 'Valid' : 'Invalid' }}
-                            </span>
-                        </td>
-                        <td class="text-center">
-                            <button class="icon-btn delete" (click)="onDelete(coupon.id)"
-                                style="all: unset; cursor: pointer; background: #fee2e2; color: #dc2626; width: 35px; height: 35px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center;">
-                                
-                            </button>
-                        </td>
-                    </tr>
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Coupon Code</th>
+              <th>Discount</th>
+              <th>Min. Purchase</th>
+              <th>Expiry Date</th>
+              <th>Status</th>
+              <th class="text-center">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (coupon of coupons(); track coupon.id) {
+              <tr class="table-row">
+                <td>
+                  <div class="code-badge">{{ coupon.code }}</div>
+                </td>
+                <td>
+                  <span class="discount-value">
+                    @if (coupon.discountPercentage) {
+                      {{ coupon.discountPercentage }}%
+                    } @else {
+                      {{ coupon.discountAmount | currency:'EGP':'symbol':'1.0-2' }}
                     }
-                </tbody>
-            </table>
-        </div>
+                  </span>
+                </td>
+                <td>{{ coupon.minimumPurchaseAmount | currency:'EGP':'symbol':'1.0-2' }}</td>
+                <td class="expiry-date">{{ coupon.expiryDate | date:'mediumDate' }}</td>
+                <td>
+                  <span
+                    class="status-pill"
+                    [class.active]="getCouponStatus(coupon) === 'valid'"
+                    [class.inactive]="getCouponStatus(coupon) === 'inactive'"
+                    [class.expired]="getCouponStatus(coupon) === 'expired'"
+                  >
+                    @if (getCouponStatus(coupon) === 'expired') {
+                      Expired
+                    } @else if (getCouponStatus(coupon) === 'inactive') {
+                      Inactive
+                    } @else {
+                      Valid
+                    }
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button class="icon-btn delete" type="button" (click)="onDelete(coupon.id)" aria-label="Delete coupon">
+                    <span>Delete</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
-    } @else if (!isLoading() && coupons().length === 0) {
+  } @else if (!isLoading() && coupons().length === 0) {
     <div class="empty-state">
-        <i class="bi bi-ticket-perforated"></i>
-        <h3>No Coupons Found</h3>
-        <p>Start by adding your first discount coupon.</p>
+      <i class="bi bi-ticket-perforated"></i>
+      <h3>No Coupons Found</h3>
+      <p>Start by adding your first discount coupon.</p>
     </div>
-    }
+  }
 </div>

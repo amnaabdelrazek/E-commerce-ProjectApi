@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { ApiResponse } from '../models/product.model';
+import { CreateReviewRequest, Review, UpdateReviewRequest } from '../models/review.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,27 +13,27 @@ export class ReviewsService {
   private readonly baseUrl = environment.apiUrl;
 
   // Get user's reviews
-  getUserReviews(): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/api/Reviews`);
+  getUserReviews(): Observable<ApiResponse<Review[]>> {
+    return this.http.get<ApiResponse<Review[]>>(`${this.baseUrl}/api/Reviews`);
   }
 
   // Get reviews for a product
-  getProductReviews(productId: number): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/api/Reviews/product/${productId}`);
+  getProductReviews(productId: number): Observable<ApiResponse<Review[]>> {
+    return this.http.get<ApiResponse<Review[]>>(`${this.baseUrl}/api/Reviews/product/${productId}`);
   }
 
   // Create a review
-  createReview(review: { productId: number; rating: number; comment: string }): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/api/Reviews`, review);
+  createReview(review: CreateReviewRequest): Observable<ApiResponse<Review>> {
+    return this.http.post<ApiResponse<Review>>(`${this.baseUrl}/api/Reviews`, review);
   }
 
   // Update a review
-  updateReview(reviewId: number, review: { rating: number; comment: string }): Observable<ApiResponse<any>> {
-    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/api/Reviews/${reviewId}`, review);
+  updateReview(reviewId: number, review: UpdateReviewRequest): Observable<ApiResponse<Review>> {
+    return this.http.put<ApiResponse<Review>>(`${this.baseUrl}/api/Reviews/${reviewId}`, review);
   }
 
   // Delete a review
-  deleteReview(reviewId: number): Observable<ApiResponse<any>> {
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/api/Reviews/${reviewId}`);
+  deleteReview(reviewId: number): Observable<ApiResponse<unknown>> {
+    return this.http.delete<ApiResponse<unknown>>(`${this.baseUrl}/api/Reviews/${reviewId}`);
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, OnInit, NgZone } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit, NgZone } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
@@ -12,6 +12,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AddToCartResquest } from '../../../core/models/cart';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-wishlist',
@@ -27,6 +29,8 @@ export class WishlistComponent implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly notification = inject(NotificationService);
   private readonly ngZone = inject(NgZone);
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly wishlistItems = signal<any[]>([]);
   readonly isLoading = signal(false);
@@ -36,6 +40,12 @@ export class WishlistComponent implements OnInit {
 
   ngOnInit() {
     this.loadWishlist();
+
+    this.realtimeService.wishlistChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadWishlist();
+      });
   }
 
   loadWishlist() {

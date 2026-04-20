@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ReviewsService } from '../../../core/services/reviews.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { CreateReviewRequest } from '../../../core/models/review.model';
 
 @Component({
   selector: 'app-review-form-dialog',
@@ -174,7 +175,7 @@ export class ReviewFormDialogComponent {
 
     this.isSubmitting.set(true);
 
-    const reviewData = {
+    const reviewData: CreateReviewRequest = {
       productId: this.data.productId,
       rating: this.rating(),
       comment: this.comment

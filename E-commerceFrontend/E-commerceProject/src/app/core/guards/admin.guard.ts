@@ -8,23 +8,19 @@ export const adminGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: 
 
   const user = authService.getCurrentUser();
 
-  console.log('GUARD USER:', user);
-
   if (!user || !user.role) {
-    router.navigate(['/login']);
-    return false;
+    return router.createUrlTree(['/login'], {
+      queryParams: { returnUrl: state.url }
+    });
   }
 
   const isAdmin = user.role.some(
     r => (r ?? '').toLowerCase() === 'admin'
   );
 
-  console.log('IS ADMIN:', isAdmin);
+  if (isAdmin) {
+    return true;
+  }
 
-  if (isAdmin) return true;
-console.log('GUARD RUNNING:', state.url);
-  if (!user) {
-  return router.createUrlTree(['/login']);
-}
-  return false;
+  return router.createUrlTree(['/home']);
 };

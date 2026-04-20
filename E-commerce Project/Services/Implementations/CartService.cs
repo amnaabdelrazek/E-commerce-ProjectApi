@@ -14,10 +14,12 @@ namespace E_commerce_Project.Services.Implementations
     public class CartService : ICartService
     {
         private readonly AppDbContext _context;
+        private readonly IRealtimeNotifier _realtimeNotifier;
 
-        public CartService(AppDbContext context)
+        public CartService(AppDbContext context, IRealtimeNotifier realtimeNotifier)
         {
             _context = context;
+            _realtimeNotifier = realtimeNotifier;
         }
 
         /// <summary>
@@ -63,13 +65,13 @@ namespace E_commerce_Project.Services.Implementations
         {
             try
             {
+                if (quantity <= 0)
+                    return GeneralResponse<CartDto>.Fail("Quantity must be greater than 0");
+
                 // Validate product exists and has sufficient stock
                 var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted);
                 if (product == null)
                     return GeneralResponse<CartDto>.Fail("Product not found");
-
-                if (product.StockQuantity < quantity)
-                    return GeneralResponse<CartDto>.Fail($"Insufficient stock. Available: {product.StockQuantity}");
 
                 // Get or create cart
                 var cart = await _context.Carts
@@ -96,6 +98,9 @@ namespace E_commerce_Project.Services.Implementations
                 var existingItem = await _context.CartItems
                     .FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == productId && !ci.IsDeleted);
 
+                if (product.StockQuantity < quantity)
+                    return GeneralResponse<CartDto>.Fail($"Insufficient stock. Available: {product.StockQuantity}");
+
                 if (existingItem != null)
                 {
                     existingItem.Quantity += quantity;
@@ -113,6 +118,7 @@ namespace E_commerce_Project.Services.Implementations
                     _context.CartItems.Add(cartItem);
                 }
 
+                product.StockQuantity -= quantity;
                 await _context.SaveChangesAsync();
 
                 // Reload cart with updated items
@@ -125,6 +131,11 @@ namespace E_commerce_Project.Services.Implementations
                     return GeneralResponse<CartDto>.Fail("Failed to retrieve updated cart");
 
                 var cartDto = MapCartToDto(updatedCart);
+                await NotifyCartChangedAsync(userId, cartDto);
+                await _realtimeNotifier.NotifyProductInventoryChangedAsync(product.Id, product.StockQuantity);
+                await _realtimeNotifier.NotifySellerDashboardChangedAsync(
+                    await GetSellerUserIdsForProductsAsync(new[] { product.Id }),
+                    "inventory-reserved");
 
                 return GeneralResponse<CartDto>.Success(cartDto, "Item added to cart successfully");
             }
@@ -149,14 +160,20 @@ namespace E_commerce_Project.Services.Implementations
 
                 var cartItem = await _context.CartItems
                     .Include(ci => ci.Product)
+                    .Include(ci => ci.Cart)
                     .FirstOrDefaultAsync(ci => ci.Id == cartItemId && !ci.IsDeleted);
 
                 if (cartItem == null)
                     return GeneralResponse<CartDto>.Fail("Cart item not found");
 
-                // Check stock availability
-                if (cartItem.Product.StockQuantity < newQuantity)
+                if (cartItem.Cart?.UserId != userId)
+                    return GeneralResponse<CartDto>.Fail("Unauthorized");
+
+                var delta = newQuantity - cartItem.Quantity;
+                if (delta > 0 && cartItem.Product.StockQuantity < delta)
                     return GeneralResponse<CartDto>.Fail($"Insufficient stock. Available: {cartItem.Product.StockQuantity}");
+
+                cartItem.Product.StockQuantity -= delta;
 
                 cartItem.Quantity = newQuantity;
                 cartItem.LastModifiedAt = DateTime.UtcNow;
@@ -172,6 +189,11 @@ namespace E_commerce_Project.Services.Implementations
                     return GeneralResponse<CartDto>.Fail("Cart not found");
 
                 var cartDto = MapCartToDto(cart);
+                await NotifyCartChangedAsync(userId, cartDto);
+                await _realtimeNotifier.NotifyProductInventoryChangedAsync(cartItem.ProductId, cartItem.Product.StockQuantity);
+                await _realtimeNotifier.NotifySellerDashboardChangedAsync(
+                    await GetSellerUserIdsForProductsAsync(new[] { cartItem.ProductId }),
+                    "inventory-updated");
 
                 return GeneralResponse<CartDto>.Success(cartDto, "Quantity updated successfully");
             }
@@ -191,10 +213,20 @@ namespace E_commerce_Project.Services.Implementations
             try
             {
                 var cartItem = await _context.CartItems
+                    .Include(ci => ci.Product)
+                    .Include(ci => ci.Cart)
                     .FirstOrDefaultAsync(ci => ci.Id == cartItemId && !ci.IsDeleted);
 
                 if (cartItem == null)
                     return GeneralResponse<CartDto>.Fail("Cart item not found");
+
+                if (cartItem.Cart?.UserId != userId)
+                    return GeneralResponse<CartDto>.Fail("Unauthorized");
+
+                if (cartItem.Product != null)
+                {
+                    cartItem.Product.StockQuantity += cartItem.Quantity;
+                }
 
                 cartItem.IsDeleted = true;
                 cartItem.LastModifiedAt = DateTime.UtcNow;
@@ -210,6 +242,14 @@ namespace E_commerce_Project.Services.Implementations
                     return GeneralResponse<CartDto>.Fail("Cart not found");
 
                 var cartDto = MapCartToDto(cart);
+                await NotifyCartChangedAsync(userId, cartDto);
+                if (cartItem.Product != null)
+                {
+                    await _realtimeNotifier.NotifyProductInventoryChangedAsync(cartItem.ProductId, cartItem.Product.StockQuantity);
+                    await _realtimeNotifier.NotifySellerDashboardChangedAsync(
+                        await GetSellerUserIdsForProductsAsync(new[] { cartItem.ProductId }),
+                        "inventory-released");
+                }
 
                 return GeneralResponse<CartDto>.Success(cartDto, "Item removed from cart");
             }
@@ -253,7 +293,7 @@ namespace E_commerce_Project.Services.Implementations
         /// <summary>
         /// Clear all items from cart.
         /// </summary>
-        public async Task<GeneralResponse<string>> ClearCartAsync(string userId)
+        public async Task<GeneralResponse<string>> ClearCartAsync(string userId, bool restoreStock = true)
         {
             try
             {
@@ -264,16 +304,41 @@ namespace E_commerce_Project.Services.Implementations
                     return GeneralResponse<string>.Fail("Cart not found");
 
                 var cartItems = await _context.CartItems
+                    .Include(ci => ci.Product)
                     .Where(ci => ci.CartId == cart.Id && !ci.IsDeleted)
                     .ToListAsync();
 
                 foreach (var item in cartItems)
                 {
+                    if (restoreStock && item.Product != null)
+                    {
+                        item.Product.StockQuantity += item.Quantity;
+                    }
+
                     item.IsDeleted = true;
                     item.LastModifiedAt = DateTime.UtcNow;
                 }
 
                 await _context.SaveChangesAsync();
+                await _realtimeNotifier.NotifyCartChangedAsync(userId, 0);
+
+                if (restoreStock)
+                {
+                    var productIds = cartItems
+                        .Select(ci => ci.ProductId)
+                        .Distinct()
+                        .ToList();
+
+                    foreach (var item in cartItems.Where(ci => ci.Product != null))
+                    {
+                        await _realtimeNotifier.NotifyProductInventoryChangedAsync(item.ProductId, item.Product!.StockQuantity);
+                    }
+
+                    await _realtimeNotifier.NotifySellerDashboardChangedAsync(
+                        await GetSellerUserIdsForProductsAsync(productIds),
+                        "inventory-released");
+                }
+
                 return GeneralResponse<string>.Success("", "Cart cleared successfully");
             }
             catch (Exception ex)
@@ -321,9 +386,11 @@ namespace E_commerce_Project.Services.Implementations
 
                 foreach (var item in cartItems)
                 {
-                    if (item.Product.StockQuantity < item.Quantity)
-                        return GeneralResponse<bool>.Fail(
-                            $"Insufficient stock for {item.Product.Name}. Available: {item.Product.StockQuantity}");
+                    if (item.Product == null || item.Product.IsDeleted)
+                        return GeneralResponse<bool>.Fail("One of the products in your cart is no longer available");
+
+                    if (item.Quantity <= 0)
+                        return GeneralResponse<bool>.Fail("Cart contains an invalid item quantity");
                 }
 
                 return GeneralResponse<bool>.Success(true);
@@ -356,6 +423,35 @@ namespace E_commerce_Project.Services.Implementations
                     })
                     .ToList()
             };
+        }
+
+        private Task NotifyCartChangedAsync(string userId, CartDto cartDto)
+        {
+            var count = cartDto.Items.Sum(item => item.Quantity);
+            return _realtimeNotifier.NotifyCartChangedAsync(userId, count);
+        }
+
+        private async Task<List<string>> GetSellerUserIdsForProductsAsync(IEnumerable<int> productIds)
+        {
+            var ids = productIds
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList();
+
+            if (ids.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            return await _context.Products
+                .Where(product => ids.Contains(product.Id))
+                .Join(
+                    _context.Sellers,
+                    product => product.SellerId,
+                    seller => seller.id,
+                    (_, seller) => seller.UserId)
+                .Distinct()
+                .ToListAsync();
         }
     }
 }

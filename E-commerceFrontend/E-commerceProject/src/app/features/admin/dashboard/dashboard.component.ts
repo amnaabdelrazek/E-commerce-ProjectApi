@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart as ChartJS, registerables } from 'chart.js';
+import { RealtimeService } from '../../../core/services/realtime.service';
 
 ChartJS.register(...registerables);
 
@@ -35,6 +36,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   private notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
+  private realtimeService = inject(RealtimeService);
 
   dashboardData: DashboardData | null = null;
   cards: DashboardCard[] = [];
@@ -51,6 +53,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initChartOptions();
     this.loadDashboard();
+
+    this.subscriptions.add(
+      this.realtimeService.adminDashboardChanged$.subscribe(() => {
+        this.loadDashboard();
+      })
+    );
   }
 
   ngOnDestroy(): void {

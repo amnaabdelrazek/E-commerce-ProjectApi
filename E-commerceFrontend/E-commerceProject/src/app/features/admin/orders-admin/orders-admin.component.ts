@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, GeneralResponse, Order } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-orders-admin',
@@ -15,6 +17,8 @@ export class OrdersAdminComponent implements OnInit {
   private adminService = inject(AdminService);
   private notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
+  private realtimeService = inject(RealtimeService);
+  private readonly subscriptions = new Subscription();
 
   orders: Order[] = [];
   isLoading = false;
@@ -27,6 +31,16 @@ export class OrdersAdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+
+    this.subscriptions.add(
+      this.realtimeService.adminOrdersChanged$.subscribe(() => {
+        this.loadOrders();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
  loadOrders(): void {

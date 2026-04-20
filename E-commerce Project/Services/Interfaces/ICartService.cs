@@ -37,7 +37,7 @@ namespace E_commerce_Project.Services.Interfaces
         /// <summary>
         /// Clear all items from the cart.
         /// </summary>
-        Task<GeneralResponse<string>> ClearCartAsync(string userId);
+        Task<GeneralResponse<string>> ClearCartAsync(string userId, bool restoreStock = true);
 
         /// <summary>
         /// Get cart item count.

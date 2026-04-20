@@ -1,8 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService, User } from '../../../core/services/admin.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-users',
@@ -16,6 +18,8 @@ export class UsersComponent implements OnInit {
   private adminService = inject(AdminService);
   private notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
+  private realtimeService = inject(RealtimeService);
+  private destroyRef = inject(DestroyRef);
 
   users: User[] = [];
   filteredUsers: User[] = [];
@@ -38,6 +42,12 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUsers();
+
+    this.realtimeService.adminUsersChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadUsers();
+      });
   }
 
   // ================= LOAD USERS =================

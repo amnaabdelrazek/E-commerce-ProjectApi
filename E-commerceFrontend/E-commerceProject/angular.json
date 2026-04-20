@@ -60,7 +60,9 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "ssl": false,
+            "port": 4200
           },
           "configurations": {
             "production": {
@@ -70,11 +72,7 @@
               "buildTarget": "E-commerceProject:build:development"
             }
           },
-          "defaultConfiguration": "development",
-          "options": {
-            "ssl": true,
-            "port": 4200
-          }
+          "defaultConfiguration": "development"
         },
         "test": {
           "builder": "@angular/build:unit-test"

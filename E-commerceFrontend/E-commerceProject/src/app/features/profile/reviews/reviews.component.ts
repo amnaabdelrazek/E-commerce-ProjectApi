@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import { ReviewsService } from '../../../core/services/reviews.service';
@@ -10,6 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Review } from '../../../core/models/review.model';
+import { RealtimeService } from '../../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-reviews',
@@ -23,13 +26,21 @@ export class ReviewsComponent implements OnInit {
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly reviewsService = inject(ReviewsService);
   private readonly notification = inject(NotificationService);
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  readonly reviews = signal<any[]>([]);
+  readonly reviews = signal<Review[]>([]);
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
 
   ngOnInit() {
     this.loadReviews();
+
+    this.realtimeService.userReviewsChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadReviews();
+      });
   }
 
   loadReviews() {
@@ -44,7 +55,7 @@ export class ReviewsComponent implements OnInit {
 
     console.log('Loading user reviews...');
     this.reviewsService.getUserReviews().subscribe({
-      next: (response: any) => {
+      next: (response) => {
         console.log('Reviews loaded:', response);
         if (response.isSuccess && response.data) {
           this.reviews.set(response.data);
@@ -67,8 +78,9 @@ export class ReviewsComponent implements OnInit {
     void this.router.navigate(['/profile']);
   }
 
-  editReview(reviewId: number) {
-    console.log('Edit review:', reviewId);
+  editReview(review: Review) {
+    void this.router.navigate(['/products', review.productId]);
+    this.notification.info('Open the product page to update your review.');
   }
 
   deleteReview(reviewId: number) {

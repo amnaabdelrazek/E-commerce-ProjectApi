@@ -16,6 +16,7 @@ namespace E_commerce_Project.Services.Implementations
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICartService _cartService;
         private readonly IEmailService _emailService;
+        private readonly IRealtimeNotifier _realtimeNotifier;
         private readonly ILogger<OrderService> _logger;
         private const decimal DEFAULT_SHIPPING_COST = 10m;
         private const decimal FREE_SHIPPING_THRESHOLD = 100m;
@@ -26,12 +27,14 @@ namespace E_commerce_Project.Services.Implementations
             UserManager<ApplicationUser> userManager,
             ICartService cartService,
             IEmailService emailService,
+            IRealtimeNotifier realtimeNotifier,
             ILogger<OrderService> logger)
         {
             _context = context;
             _userManager = userManager;
             _cartService = cartService;
             _emailService = emailService;
+            _realtimeNotifier = realtimeNotifier;
             _logger = logger;
         }
         public async Task<GeneralResponse<OrderSummaryDto>> CalculateOrderSummaryAsync(
@@ -203,8 +206,6 @@ namespace E_commerce_Project.Services.Implementations
                     };
 
                     _context.OrderItems.Add(orderItem);
-
-                    cartItem.Product.StockQuantity -= cartItem.Quantity;
                 }
                 if (!string.IsNullOrEmpty(summary.AppliedPromoCode))
                 {
@@ -215,7 +216,7 @@ namespace E_commerce_Project.Services.Implementations
                         coupon.CurrentUsageCount++;
                     }
                 }
-                await _cartService.ClearCartAsync(user.Id);
+                await _cartService.ClearCartAsync(user.Id, restoreStock: false);
 
                 await _context.SaveChangesAsync();
 
@@ -234,6 +235,12 @@ namespace E_commerce_Project.Services.Implementations
                      _logger.LogError(ex, "Failed to send confirmation email"); 
                 }
                 var orderDto = MapOrderToDto(savedOrder!, savedOrder!.OrderItems.ToList());
+                var sellerUserIds = await GetSellerUserIdsForOrderAsync(savedOrder!.Id);
+
+                await _realtimeNotifier.NotifyOrderChangedAsync(savedOrder.Id, savedOrder.UserId, savedOrder.Status, "created", sellerUserIds);
+                await _realtimeNotifier.NotifyAdminOrdersChangedAsync(savedOrder.Id, savedOrder.Status, "created");
+                await _realtimeNotifier.NotifyAdminDashboardChangedAsync("order-created");
+                await _realtimeNotifier.NotifySellerDashboardChangedAsync(sellerUserIds, "order-created");
 
                 return GeneralResponse<OrderDto>.Success(orderDto, "Order created successfully");
             }
@@ -295,13 +302,47 @@ namespace E_commerce_Project.Services.Implementations
                 if (!validStatuses.Contains(newStatus))
                     return GeneralResponse<string>.Fail("Invalid order status");
 
-                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId && !o.IsDeleted);
+                var order = await _context.Orders
+                    .Include(o => o.OrderItems)
+                    .FirstOrDefaultAsync(o => o.Id == orderId && !o.IsDeleted);
                 if (order == null)
                     return GeneralResponse<string>.Fail("Order not found");
 
+                var previousStatus = order.Status;
                 order.Status = newStatus;
                 order.LastModifiedAt = DateTime.UtcNow;
+
+                if (newStatus == "Cancelled" && previousStatus != "Cancelled")
+                {
+                    foreach (var item in order.OrderItems.Where(oi => !oi.IsDeleted))
+                    {
+                        var product = await _context.Products.FindAsync(item.ProductId);
+                        if (product != null)
+                        {
+                            product.StockQuantity += item.Quantity;
+                        }
+                    }
+                }
+
                 await _context.SaveChangesAsync();
+
+                if (newStatus == "Cancelled" && previousStatus != "Cancelled")
+                {
+                    foreach (var item in order.OrderItems.Where(oi => !oi.IsDeleted))
+                    {
+                        var product = await _context.Products.FindAsync(item.ProductId);
+                        if (product != null)
+                        {
+                            await _realtimeNotifier.NotifyProductInventoryChangedAsync(product.Id, product.StockQuantity);
+                        }
+                    }
+                }
+
+                var sellerUserIds = await GetSellerUserIdsForOrderAsync(order.Id);
+                await _realtimeNotifier.NotifyOrderChangedAsync(order.Id, order.UserId, order.Status, "status-updated", sellerUserIds);
+                await _realtimeNotifier.NotifyAdminOrdersChangedAsync(order.Id, order.Status, "status-updated");
+                await _realtimeNotifier.NotifyAdminDashboardChangedAsync("order-status-updated");
+                await _realtimeNotifier.NotifySellerDashboardChangedAsync(sellerUserIds, "order-status-updated");
 
                 return GeneralResponse<string>.Success("", "Order status updated successfully");
             }
@@ -345,6 +386,21 @@ namespace E_commerce_Project.Services.Implementations
                 order.Status = "Cancelled";
                 order.LastModifiedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                foreach (var item in order.OrderItems.Where(oi => !oi.IsDeleted))
+                {
+                    var product = await _context.Products.FindAsync(item.ProductId);
+                    if (product != null)
+                    {
+                        await _realtimeNotifier.NotifyProductInventoryChangedAsync(product.Id, product.StockQuantity);
+                    }
+                }
+
+                var sellerUserIds = await GetSellerUserIdsForOrderAsync(order.Id);
+                await _realtimeNotifier.NotifyOrderChangedAsync(order.Id, order.UserId, order.Status, "cancelled", sellerUserIds);
+                await _realtimeNotifier.NotifyAdminOrdersChangedAsync(order.Id, order.Status, "cancelled");
+                await _realtimeNotifier.NotifyAdminDashboardChangedAsync("order-cancelled");
+                await _realtimeNotifier.NotifySellerDashboardChangedAsync(sellerUserIds, "order-cancelled");
 
                 return GeneralResponse<string>.Success("", "Order cancelled successfully");
             }
@@ -391,6 +447,19 @@ namespace E_commerce_Project.Services.Implementations
                     Quantity = oi.Quantity
                 }).ToList()
             };
+        }
+
+        private async Task<List<string>> GetSellerUserIdsForOrderAsync(int orderId)
+        {
+            return await _context.OrderItems
+                .Where(item => item.OrderId == orderId && !item.IsDeleted)
+                .Join(
+                    _context.Sellers,
+                    item => item.SellerId,
+                    seller => seller.id.ToString(),
+                    (_, seller) => seller.UserId)
+                .Distinct()
+                .ToListAsync();
         }
     }
 }

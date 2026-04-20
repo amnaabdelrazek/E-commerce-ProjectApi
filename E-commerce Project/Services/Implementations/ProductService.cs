@@ -17,14 +17,17 @@ namespace E_commerce_Project.Services.Implementations
         private readonly IGenericRepository<Product> _repo;
         private readonly IGenericRepository<Seller> _reposeller;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IRealtimeNotifier _realtimeNotifier;
       
 
         public ProductService(IGenericRepository<Product> repo,
-                              UserManager<ApplicationUser> userManager, IGenericRepository<Seller> reposeller)
+                              UserManager<ApplicationUser> userManager, IGenericRepository<Seller> reposeller,
+                              IRealtimeNotifier realtimeNotifier)
         {
             _repo = repo;
             _userManager = userManager;
             _reposeller = reposeller;
+            _realtimeNotifier = realtimeNotifier;
 
         }
 
@@ -60,6 +63,8 @@ namespace E_commerce_Project.Services.Implementations
 
             await _repo.AddAsync(product);
             await _repo.SaveAsync();
+            await _realtimeNotifier.NotifyAdminDashboardChangedAsync("product-created");
+            await _realtimeNotifier.NotifySellerDashboardChangedAsync(new[] { user.Id }, "product-created");
 
             return GeneralResponse<string>.Success("Product created");
         }
@@ -85,6 +90,9 @@ namespace E_commerce_Project.Services.Implementations
 
             _repo.Update(product);
             await _repo.SaveAsync();
+            await _realtimeNotifier.NotifyAdminDashboardChangedAsync("product-updated");
+            await _realtimeNotifier.NotifySellerDashboardChangedAsync(new[] { user.Id }, "product-updated");
+            await _realtimeNotifier.NotifyProductInventoryChangedAsync(product.Id, product.StockQuantity);
             return GeneralResponse<string>.Success("Product updated successfully");
         }
 
@@ -102,6 +110,8 @@ namespace E_commerce_Project.Services.Implementations
 
             _repo.Delete(product);
             await _repo.SaveAsync();
+            await _realtimeNotifier.NotifyAdminDashboardChangedAsync("product-deleted");
+            await _realtimeNotifier.NotifySellerDashboardChangedAsync(new[] { user.Id }, "product-deleted");
             return GeneralResponse<string>.Success("Product deleted");
         }
 
@@ -279,6 +289,8 @@ namespace E_commerce_Project.Services.Implementations
 
             _repo.Update(product);
             await _repo.SaveAsync();
+            await _realtimeNotifier.NotifySellerDashboardChangedAsync(new[] { user.Id }, "stock-updated");
+            await _realtimeNotifier.NotifyProductInventoryChangedAsync(product.Id, product.StockQuantity);
 
             return GeneralResponse<string>.Success($"Stock updated to {newQuantity}");
         }

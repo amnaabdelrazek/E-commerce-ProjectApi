@@ -1,9 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Cart, PromoCodeRequest } from '../../core/models/cart';
 import { CartService } from '../../core/services/cart-service';
 import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationService } from '../../core/services/notification.service';
+import { RealtimeService } from '../../core/services/realtime.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-cart-component',
   imports: [CurrencyPipe, RouterLink],
@@ -14,6 +16,8 @@ export class CartComponent {
   constructor(private router: Router, private sendcartService: CartService) {}
   private readonly cartService = inject(CartService);
   private readonly notification = inject(NotificationService);
+  private readonly realtimeService = inject(RealtimeService);
+  private readonly destroyRef = inject(DestroyRef);
   cartData = signal<Cart | null>(null);
   isLoading = signal(true);
   promoCode = signal('');
@@ -31,6 +35,12 @@ export class CartComponent {
   // })
   ngOnInit(): void {
     this.loadCart();
+
+    this.realtimeService.cartChanged$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadCart();
+      });
   }
 
   loadCart(): void{

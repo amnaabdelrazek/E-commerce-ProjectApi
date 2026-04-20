@@ -1,5 +1,6 @@
 ﻿using E_commerce_Project.Data;
 using E_commerce_Project.Helpers;
+using E_commerce_Project.Hubs;
 using E_commerce_Project.Models;
 using E_commerce_Project.Repositories.Implementations;
 using E_commerce_Project.Repositories.Interfaces;
@@ -56,6 +57,8 @@ namespace E_commerce_Project
             builder.Services.AddScoped<ICreditCardService, CreditCardService>();
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ISellerService, SellerService>();
+            builder.Services.AddScoped<IRealtimeNotifier, RealtimeNotifier>();
+            builder.Services.AddSignalR();
 
             // ================= JWT Authentication =================
             builder.Services.AddAuthentication(options =>
@@ -79,6 +82,22 @@ namespace E_commerce_Project
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
                     )
+                };
+
+                options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/commerce"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
@@ -126,9 +145,14 @@ namespace E_commerce_Project
                 options.AddPolicy("AllowAll", policy =>
                 {
                     policy
-                        .AllowAnyOrigin()
+                        .WithOrigins(
+                            "http://localhost:4200",
+                            "https://localhost:4200",
+                            "http://127.0.0.1:4200",
+                            "https://127.0.0.1:4200")
                         .AllowAnyMethod()
-                        .AllowAnyHeader();
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
             builder.Services.Configure<PayPalSettings>(
@@ -217,6 +241,7 @@ namespace E_commerce_Project
 
 
                 app.MapControllers();
+                app.MapHub<CommerceHub>("/hubs/commerce");
 
                 app.Run();
             }
