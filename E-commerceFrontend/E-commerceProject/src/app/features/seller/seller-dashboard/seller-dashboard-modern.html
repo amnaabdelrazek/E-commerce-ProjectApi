@@ -1,0 +1,122 @@
+<div class="dashboard-container">
+  
+  <!-- LOADING STATE -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your dashboard...</p>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div *ngIf="errorMessage" class="error-state">
+    <span>⚠️</span>
+    <h3>Oops! Something went wrong</h3>
+    <p>{{ errorMessage }}</p>
+    <button class="btn btn--primary" (click)="loadStats()">Try Again</button>
+  </div>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <ng-container *ngIf="!isLoading && !errorMessage">
+    
+    <!-- WELCOME HEADER -->
+    <div class="welcome-header">
+      <div>
+        <h1>Welcome to Your Store</h1>
+        <p>Manage your products, orders, and grow your business</p>
+      </div>
+      <div class="welcome-actions">
+        <a routerLink="/seller/products/new" class="welcome-btn">
+          <span>➕</span>
+          Add Product
+        </a>
+        <a routerLink="/seller/profile" class="welcome-btn">
+          <span>⚙️</span>
+          Settings
+        </a>
+      </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid">
+      
+      <!-- Total Earnings Card -->
+      <div class="stat-card revenue">
+        <div class="stat-icon">
+          💰
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Earnings</div>
+          <div class="stat-value">{{ (stats?.totalEarnings || 0) | currency }}</div>
+        </div>
+      </div>
+
+      <!-- Total Products Card -->
+      <div class="stat-card products">
+        <div class="stat-icon">
+          📦
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Products</div>
+          <div class="stat-value">{{ stats?.totalProducts || 0 }}</div>
+        </div>
+      </div>
+
+      <!-- Pending Orders Card -->
+      <div class="stat-card orders">
+        <div class="stat-icon">
+          📋
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-value">{{ stats?.pendingOrdersCount || 0 }}</div>
+        </div>
+      </div>
+
+      <!-- Out of Stock Card -->
+      <div class="stat-card customers">
+        <div class="stat-icon">
+          ⚠️
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Out of Stock</div>
+          <div class="stat-value">{{ stats?.outOfStockCount || 0 }}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DASHBOARD CONTENT SECTIONS -->
+    <div class="dashboard-content">
+      
+      <!-- RECENT ORDERS SECTION -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>Recent Orders</h2>
+          <a routerLink="/seller/orders" class="btn btn--secondary">View All</a>
+        </div>
+        
+        <div class="empty-state">
+          <span>📥</span>
+          <h3>No recent orders</h3>
+          <p>When you receive new orders, they will appear here.</p>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS SECTION -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>Quick Actions</h2>
+        </div>
+        
+        <div class="empty-state">
+          <span>🚀</span>
+          <h3>Ready to grow your store?</h3>
+          <p>Add new products, manage inventory, and increase sales.</p>
+          <a routerLink="/seller/products/new" class="btn btn--primary">Add Your First Product</a>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

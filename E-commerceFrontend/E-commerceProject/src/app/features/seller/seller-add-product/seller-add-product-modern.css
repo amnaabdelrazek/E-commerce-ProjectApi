@@ -1,0 +1,633 @@
+/* ==========================================
+   SELLER ADD PRODUCT - MODERN FORM UI
+   ========================================== */
+
+:root {
+  --color-primary: #4f46e5;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-text: #1f2937;
+  --color-text-light: #6b7280;
+  --color-border: #e5e7eb;
+
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-medium: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================
+   KEYFRAME ANIMATIONS
+   ========================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes successCheckmark {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes successGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* ==========================================
+   ADD PRODUCT CONTAINER
+   ========================================== */
+
+.add-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 100%);
+  padding: 32px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInUp var(--transition-smooth) ease-out 0.1s both;
+}
+
+/* ==========================================
+   FORM CARD - MODERN GLASS MORPHISM
+   ========================================== */
+
+.form-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: scaleIn var(--transition-smooth) ease-out both;
+}
+
+/* ==========================================
+   FORM HEADER
+   ========================================== */
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--color-border);
+  animation: slideInDown var(--transition-smooth) ease-out both;
+}
+
+.form-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  background: linear-gradient(135deg, var(--color-primary), #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  color: var(--color-text-light);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.close-btn:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+  transform: rotate(90deg);
+}
+
+/* ==========================================
+   FORM GROUPS & INPUTS
+   ========================================== */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeInUp var(--transition-medium) cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.form-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.form-group:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.form-group:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.form-group:nth-child(4) {
+  animation-delay: 0.25s;
+}
+
+.form-group:nth-child(n+5) {
+  animation-delay: calc(0.25s + ((var(--index, 5) - 4) * 0.05s));
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* ==========================================
+   INPUT FIELD STYLING
+   ========================================== */
+
+.form-control {
+  padding: 12px 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text);
+  background-color: #fafbfc;
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-control::placeholder {
+  color: var(--color-text-light);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+select.form-control {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+  padding-right: 40px;
+  color: var(--color-text);
+}
+
+/* ==========================================
+   FORM ROW (TWO COLUMN)
+   ========================================== */
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   IMAGE UPLOAD SECTION
+   ========================================== */
+
+.image-preview {
+  width: 100%;
+  height: 180px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fafbfc;
+  margin-bottom: 12px;
+  transition: all var(--transition-smooth);
+  overflow: hidden;
+  position: relative;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  animation: scaleIn var(--transition-smooth) ease-out;
+}
+
+.image-preview--empty {
+  color: var(--color-text-light);
+  font-size: 14px;
+  text-align: center;
+}
+
+.image-preview:hover:not(.image-preview--empty) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-control--file {
+  display: none;
+}
+
+.form-control--file + .file-upload-label {
+  display: block;
+  padding: 12px 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: #fafbfc;
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.form-control--file + .file-upload-label:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+/* ==========================================
+   FORM NOTES & HINTS
+   ========================================== */
+
+.field-note {
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin: 0;
+  display: block;
+  animation: fadeInUp var(--transition-smooth) ease-out 0.2s both;
+}
+
+.field-note.error {
+  color: var(--color-danger);
+}
+
+.field-note.success {
+  color: var(--color-success);
+}
+
+/* ==========================================
+   FORM VALIDATION
+   ========================================== */
+
+.form-error {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.02));
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideInDown var(--transition-smooth) ease-out both;
+}
+
+.form-error::before {
+  content: '⚠ ';
+  margin-right: 8px;
+}
+
+.form-control.ng-invalid.ng-touched {
+  border-color: var(--color-danger);
+  background-color: rgba(239, 68, 68, 0.02);
+}
+
+.form-control.ng-valid.ng-touched {
+  border-color: var(--color-success);
+  background-color: rgba(16, 185, 129, 0.02);
+}
+
+/* ==========================================
+   FORM ACTIONS
+   ========================================== */
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  animation: fadeInUp var(--transition-medium) cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+}
+
+.btn-submit,
+.btn-cancel {
+  flex: 1;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, var(--color-primary), #7c3aed);
+  color: white;
+  border: none;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+}
+
+.btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-submit.success {
+  background: linear-gradient(135deg, var(--color-success), #059669);
+  animation: successGlow 0.6s ease-out;
+}
+
+.btn-cancel {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-cancel:hover {
+  background: var(--color-border);
+}
+
+/* ==========================================
+   SUCCESS STATE
+   ========================================== */
+
+.success-message {
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  animation: slideInDown var(--transition-smooth) ease-out both;
+}
+
+.success-message::before {
+  content: '✓';
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-success);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  animation: successCheckmark 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  flex-shrink: 0;
+}
+
+.success-message p {
+  color: var(--color-success);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ==========================================
+   PROGRESS INDICATOR (for multi-step forms)
+   ========================================== */
+
+.form-progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.form-progress::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-border);
+  z-index: 0;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp var(--transition-smooth) ease-out backwards;
+}
+
+.progress-step:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.progress-step:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.progress-step:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.progress-step.active .step-circle,
+.progress-step.completed .step-circle {
+  background: linear-gradient(135deg, var(--color-primary), #7c3aed);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.progress-step.completed .step-circle::after {
+  content: '✓';
+  position: absolute;
+  animation: successCheckmark 0.4s ease-out;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--color-text-light);
+  transition: all var(--transition-smooth);
+}
+
+.step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-step.active .step-label,
+.progress-step.completed .step-label {
+  color: var(--color-primary);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 600px) {
+  .add-container {
+    padding: 16px;
+  }
+
+  .form-card {
+    padding: 24px;
+  }
+
+  .form-header {
+    margin-bottom: 24px;
+  }
+
+  .form-header h2 {
+    font-size: 22px;
+  }
+
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+  }
+
+  .image-preview {
+    height: 150px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-submit,
+  .btn-cancel {
+    width: 100%;
+  }
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .form-control:focus {
+    box-shadow: none;
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.form-control:focus:visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

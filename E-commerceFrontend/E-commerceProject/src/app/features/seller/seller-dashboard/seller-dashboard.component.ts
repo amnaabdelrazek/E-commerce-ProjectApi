@@ -5,12 +5,14 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   standalone: true,
-  
- selector: 'app-seller-dashboard',
- 
+  selector: 'app-seller-dashboard',
   imports: [CommonModule, RouterModule],
-  templateUrl: './seller-dashboard.component.html',
-  styleUrls: ['./seller-dashboard.component.css']
+  templateUrl: './seller-dashboard-modern.html',
+  styleUrls: [
+    './seller-dashboard.component.css',
+    './seller-dashboard-modern.css',
+    '../seller-animations.css'
+  ]
 })
 export class SellerDashboardComponent implements OnInit {
   stats: any = null;
