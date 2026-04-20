@@ -1,4 +1,5 @@
-﻿using E_commerce_Project.DTOs;
+﻿using E_commerce_Project.Data;
+using E_commerce_Project.DTOs;
 using E_commerce_Project.Models;
 using E_commerce_Project.Responses;
 using E_commerce_Project.Services.Interfaces;
@@ -12,11 +13,13 @@ namespace E_commerce_Project.Services.Implementations
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _env;
+        private readonly AppDbContext _dbContext;
 
-        public UserService(UserManager<ApplicationUser> userManager, IWebHostEnvironment env)
+        public UserService(UserManager<ApplicationUser> userManager, IWebHostEnvironment env, AppDbContext dbContext)
         {
             _userManager = userManager;
             _env = env;
+            _dbContext = dbContext;
         }
 
         public async Task<GeneralResponse<object>> GetProfileAsync(ClaimsPrincipal userPrincipal)
@@ -27,6 +30,11 @@ namespace E_commerce_Project.Services.Implementations
             if (user == null)
                 return GeneralResponse<object>.Fail("User not found");
 
+            // Calculate real counts from the database
+            var ordersCount = await _dbContext.Orders.CountAsync(o => o.UserId == userId);
+            var wishlistCount = await _dbContext.Wishlists.CountAsync(w => w.UserId == userId);
+            var reviewsCount = await _dbContext.Reviews.CountAsync(r => r.UserId == userId);
+
             return GeneralResponse<object>.Success(new
             {
                 id = user.Id,
@@ -35,9 +43,9 @@ namespace E_commerce_Project.Services.Implementations
                 city = user.City,
                 street = user.Street,
                 profileImageUrl = user.ProfileImageUrl,
-                ordersCount = 0,
-                wishlistCount = 0,
-                reviewsCount = 0
+                ordersCount = ordersCount,
+                wishlistCount = wishlistCount,
+                reviewsCount = reviewsCount
             });
         }
 

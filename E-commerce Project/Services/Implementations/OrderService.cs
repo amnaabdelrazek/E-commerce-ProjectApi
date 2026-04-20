@@ -252,6 +252,8 @@ namespace E_commerce_Project.Services.Implementations
 
                 var order = await _context.Orders
                     .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .Include(o => o.User)
                     .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == user.Id && !o.IsDeleted);
 
                 if (order == null)
@@ -275,6 +277,7 @@ namespace E_commerce_Project.Services.Implementations
 
                 var orders = await _context.Orders
                     .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
                     .Where(o => o.UserId == user.Id && !o.IsDeleted)
                     .OrderByDescending(o => o.CreatedAt)
                     .ToListAsync();
@@ -374,7 +377,9 @@ namespace E_commerce_Project.Services.Implementations
             {
                 Id = order.Id,
                 UserId = order.UserId,
+                UserFullName = order.User?.FullName ?? string.Empty,
                 Status = order.Status,
+                SubTotal = order.SubTotal,
                 TotalPrice = order.TotalPrice,
                 DiscountAmount = order.DiscountAmount,
                 PromoCode = order.AppliedPromoCode,
@@ -382,12 +387,21 @@ namespace E_commerce_Project.Services.Implementations
                 ShippingCost = order.ShippingCost,
                 PaymentMethod = order.PaymentMethod,
                 CreatedAt = order.CreatedAt,
+                DeliveryAddress = order.DeliveryAddress,
+                Email = order.Email,
+                PhoneNumber = order.PhoneNumber,
+                Notes = order.Notes,
                 Items = items.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
                     ProductId = oi.ProductId,
-                    ProductName = oi.ProductName,
-                    PriceAtPurchase = oi.PriceAtPurchase,
+                    ProductName = string.IsNullOrEmpty(oi.ProductName) && oi.Product != null 
+                        ? oi.Product.Name 
+                        : oi.ProductName,
+                    ImageUrl = oi.Product?.ImageUrl,
+                    PriceAtPurchase = oi.PriceAtPurchase > 0 && oi.Product != null
+                        ? oi.PriceAtPurchase
+                        : (oi.Product?.Price ?? 0),
                     Quantity = oi.Quantity
                 }).ToList()
             };
