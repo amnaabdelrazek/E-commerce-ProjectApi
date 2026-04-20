@@ -13,7 +13,8 @@
 
       <div class="form-group">
         <label>Description</label>
-        <textarea formControlName="description" rows="4" placeholder="Write a short product description" class="form-control"></textarea>
+        <textarea formControlName="description" rows="4" placeholder="Write a short product description"
+          class="form-control"></textarea>
       </div>
 
       <div class="form-group">
@@ -39,7 +40,19 @@
 
       <div class="form-group">
         <label>Product Image</label>
-        <input type="file" accept="image/*" class="form-control form-control--file" (change)="onImageSelected($event)" />
+
+        <div class="image-preview" *ngIf="currentImagePreview; else noImagePreview">
+          <img [src]="currentImagePreview" alt="Product preview" class="preview-img" />
+        </div>
+
+        <ng-template #noImagePreview>
+          <div class="image-preview image-preview--empty">
+            <span>No image selected yet</span>
+          </div>
+        </ng-template>
+
+        <input type="file" accept="image/*" class="form-control form-control--file"
+          (change)="onImageSelected($event)" />
         <small class="field-note" *ngIf="imageFileName">Selected: {{ imageFileName }}</small>
       </div>
 
@@ -48,14 +61,11 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="isLoading || isSubmitting">
-          <div class="button-content">
-            <span *ngIf="!isSubmitting">Create Product</span>
-            <span *ngIf="isSubmitting" class="spinner"></span>
-            <span *ngIf="isSubmitting">Processing...</span>
-          </div>
+
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting || isLoading">
+          {{ isSubmitting ? 'Processing...' : 'Create Product' }}
         </button>
+
       </div>
     </form>
   </div>
