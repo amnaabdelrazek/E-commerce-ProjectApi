@@ -19,7 +19,10 @@ type ModalMode = 'create' | 'edit';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './admin-products.component.html',
-  styleUrls: ['./admin-products.component.css']
+  styleUrls: [
+    './admin-products.component.css',
+    '../tables/tables-animations.css'
+  ]
 })
 export class AdminProductsComponent implements OnInit {
   private adminService = inject(AdminService);
