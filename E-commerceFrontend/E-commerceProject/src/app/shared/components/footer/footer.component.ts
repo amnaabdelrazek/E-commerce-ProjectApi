@@ -23,5 +23,12 @@ export class FooterComponent implements OnInit {
       next: (res) => this.categories.set(res?.data?.data ?? [])
     });
   }
+
+  scrollToTop(): void {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
 }
 

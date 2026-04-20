@@ -1,0 +1,45 @@
+/* ============================================================================
+   APP COMPONENT STYLES
+   ============================================================================
+   Global component-level styles for the application root component.
+   These styles ensure consistent spacing, typography, and animations across
+   the entire application.
+   ========================================================================== */
+
+/* Smooth page transitions */
+:host {\n  display: block;\n  animation: fadeIn var(--app-transition-lg) ease-out;\n}
+
+/* Ensure all inputs and textareas use the app's font */
+:host ::ng-deep input,
+:host ::ng-deep textarea,
+:host ::ng-deep select {\n  font-family: inherit;\n  font-size: inherit;\n}
+
+/* Improve Material components' visual hierarchy */
+:host ::ng-deep .mat-mdc-button,
+:host ::ng-deep .mat-mdc-raised-button {\n  transition: all var(--app-transition) !important;\n}
+
+/* Smooth scrolling behavior */
+:host ::ng-deep html {\n  scroll-behavior: smooth;\n}
+
+/* Custom scrollbar styling */
+:host ::ng-deep ::-webkit-scrollbar {\n  width: 8px;\n  height: 8px;\n}
+
+:host ::ng-deep ::-webkit-scrollbar-track {\n  background: var(--app-bg);\n}
+
+:host ::ng-deep ::-webkit-scrollbar-thumb {\n  background: color-mix(in srgb, var(--app-accent) 70%, transparent);\n  border-radius: 4px;\n  transition: background var(--app-transition);\n}
+
+:host ::ng-deep ::-webkit-scrollbar-thumb:hover {\n  background: var(--app-accent);\n}
+
+/* Improve focus states for accessibility */
+:host ::ng-deep a:focus-visible,\n:host ::ng-deep button:focus-visible {\n  outline: 2px solid var(--app-accent);\n  outline-offset: 2px;\n}
+
+/* Ensure consistent line-height across the app */
+:host ::ng-deep p {\n  line-height: 1.6;\n  margin: 0.5em 0;\n}
+
+/* Better list styling */
+:host ::ng-deep ul,\n:host ::ng-deep ol {\n  padding-left: 1.5em;\n}
+
+:host ::ng-deep li {\n  margin-bottom: 0.5em;\n}
+
+/* Print styles for better print quality */
+@media print {\n  :host ::ng-deep .no-print,\n  :host ::ng-deep nav,\n  :host ::ng-deep footer {\n    display: none;\n  }\n}

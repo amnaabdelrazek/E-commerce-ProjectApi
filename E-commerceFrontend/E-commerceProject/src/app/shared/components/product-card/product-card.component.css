@@ -1,22 +1,25 @@
 .pcard {
-  overflow: visible;
+  overflow: hidden;
   border-radius: 24px;
   border: 1px solid var(--app-border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(250, 245, 238, 0.94)),
-    radial-gradient(circle at top right, rgba(209, 161, 108, 0.14), transparent 28%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(250, 245, 238, 0.96)),
+    radial-gradient(circle at top right, rgba(209, 161, 108, 0.12), transparent 32%);
   cursor: pointer;
   outline: none;
   transition:
-    transform var(--app-transition),
-    box-shadow var(--app-transition),
+    transform var(--app-transition-lg),
+    box-shadow var(--app-transition-lg),
     border-color var(--app-transition);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .pcard:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--app-text) 18%, transparent);
-  box-shadow: var(--app-shadow-md);
+  transform: translateY(-8px);
+  border-color: color-mix(in srgb, var(--app-accent) 25%, transparent);
+  box-shadow: var(--app-shadow-lg);
 }
 
 .pcard:focus-visible {
@@ -26,15 +29,23 @@
 
 .pcard__media {
   position: relative;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(180deg, rgba(245, 239, 231, 0.4), rgba(245, 239, 231, 0.8));
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, rgba(245, 239, 231, 0.5), rgba(245, 239, 231, 0.9));
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
 }
 
 .pcard__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
+  transition: transform var(--app-transition-lg) ease;
+}
+
+.pcard:hover .pcard__img {
+  transform: scale(1.05);
 }
 
 .pcard__badge {
@@ -43,11 +54,14 @@
   left: 12px;
   font-size: 11px;
   font-weight: 800;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.96);
+  border: none;
+  box-shadow: 0 4px 12px rgba(36, 24, 19, 0.15);
   color: var(--app-danger);
+  letter-spacing: 0.05em;
+  animation: slideInDown 400ms ease-out;
 }
 
 .pcard__badge--ok {
@@ -67,23 +81,25 @@
   min-height: 44px;
   padding: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid var(--app-border);
+  background: rgba(255, 255, 255, 0.96);
+  border: none;
+  box-shadow: 0 4px 12px rgba(36, 24, 19, 0.15);
   color: var(--app-text);
   cursor: pointer;
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color var(--app-transition),
+    color var(--app-transition),
+    transform var(--app-transition),
+    box-shadow var(--app-transition);
   z-index: 10;
   pointer-events: auto;
+  animation: slideInRight 400ms ease-out;
 }
 
 .pcard__wishlist-btn:hover {
   background: rgba(255, 255, 255, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(36, 24, 19, 0.2);
+  transform: scale(1.15);
 }
 
 .pcard__wishlist-btn.active {
@@ -129,7 +145,11 @@
 }
 
 .pcard__body {
-  padding: 16px 16px 18px;
+  padding: 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .pcard__meta-row {

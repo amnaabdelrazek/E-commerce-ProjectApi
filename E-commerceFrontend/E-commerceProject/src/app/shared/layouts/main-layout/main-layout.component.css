@@ -3,10 +3,32 @@
   background: var(--app-bg);
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.layout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(1200px 800px at 0% 0%, rgba(209, 161, 108, 0.08), transparent 50%),
+    radial-gradient(900px 700px at 100% 0%, rgba(138, 86, 52, 0.06), transparent 45%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .layout__content {
   flex: 1;
   display: block;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 400ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layout__content {
+    animation: none;
+  }
 }
 
