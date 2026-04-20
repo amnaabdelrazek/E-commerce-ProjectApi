@@ -10,7 +10,7 @@ import { SellerInventoryItem, SellerService } from '../seller.service';
   
  selector: 'app-seller-dashboard',
  
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './seller-dashboard.component.html',
   styleUrls: ['./seller-dashboard.component.css']
 })

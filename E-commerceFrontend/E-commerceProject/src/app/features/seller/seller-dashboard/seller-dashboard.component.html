@@ -128,7 +128,7 @@
                   min="0"
                   step="1"
                   [ngModel]="getDraftStock(product.id)"
-                  (ngModelChange)="updateDraftStock(product.id, $event)"
+                  (ngModelChange)="updateDraftStock(product.id, $any($event))"
                   [disabled]="isSavingStock(product.id)"
                 />
               </label>
