@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/tokens/api-base-url.token';
 
 export interface SellerCreateProductDto {
@@ -12,7 +12,16 @@ export interface SellerCreateProductDto {
   isFeatured?: boolean;
 }
 
-interface GeneralResponse<T> {
+export interface SellerInventoryItem {
+  id: number;
+  name: string;
+  price: number;
+  stockQuantity: number;
+  imageUrl: string | null;
+  categoryName: string;
+}
+
+export interface GeneralResponse<T> {
   isSuccess: boolean;
   message: string;
   data: T;
@@ -27,6 +36,25 @@ export class SellerService {
   
   private apiUrl = `${this.apiBaseUrl}/api/Seller`;
 
+  private normalizeImageUrl(imageUrl: string | null): string | null {
+    if (!imageUrl) {
+      return null;
+    }
+
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+
+    return `${this.apiBaseUrl}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`;
+  }
+
+  private normalizeInventoryItem(item: SellerInventoryItem): SellerInventoryItem {
+    return {
+      ...item,
+      imageUrl: this.normalizeImageUrl(item.imageUrl)
+    };
+  }
+
   constructor() { }
 
   getDashboardStats(): Observable<any> {
@@ -35,6 +63,22 @@ export class SellerService {
 
   getSellerProfile(): Observable<any> {
     return this.http.get(`${this.apiUrl}/profile`);
+  }
+
+  getMyInventory(): Observable<GeneralResponse<SellerInventoryItem[]>> {
+    return this.http.get<GeneralResponse<SellerInventoryItem[]>>(`${this.apiBaseUrl}/api/Products/my-inventory`).pipe(
+      map((response) => ({
+        ...response,
+        data: (response.data || []).map((item) => this.normalizeInventoryItem(item))
+      }))
+    );
+  }
+
+  updateStock(productId: number, newQuantity: number): Observable<GeneralResponse<string>> {
+    return this.http.patch<GeneralResponse<string>>(
+      `${this.apiBaseUrl}/api/Products/${productId}/update-stock`,
+      newQuantity
+    );
   }
 
   updateSellerProfile(profileData: any): Observable<any> {

@@ -1,7 +1,5 @@
-
-﻿using E_commerce_Project.DTOs;
+using E_commerce_Project.DTOs;
 using E_commerce_Project.Migrations;
-
 using E_commerce_Project.Models;
 using E_commerce_Project.Repositories.Interfaces;
 using E_commerce_Project.Responses;
@@ -17,33 +15,25 @@ namespace E_commerce_Project.Services.Implementations
         private readonly IGenericRepository<Product> _repo;
         private readonly IGenericRepository<Seller> _reposeller;
         private readonly UserManager<ApplicationUser> _userManager;
-      
 
-        public ProductService(IGenericRepository<Product> repo,
-                              UserManager<ApplicationUser> userManager, IGenericRepository<Seller> reposeller)
+        public ProductService(
+            IGenericRepository<Product> repo,
+            UserManager<ApplicationUser> userManager,
+            IGenericRepository<Seller> reposeller)
         {
             _repo = repo;
             _userManager = userManager;
             _reposeller = reposeller;
-
         }
 
         // ================= CREATE =================
         public async Task<GeneralResponse<string>> CreateProductAsync(ClaimsPrincipal userPrincipal, CreateProductDto dto)
         {
             var user = await _userManager.GetUserAsync(userPrincipal);
-            var seller = await _reposeller
-    .FirstOrDefaultAsync(s => s.UserId == user.Id);
-            int sellerid;
             if (user == null)
                 return GeneralResponse<string>.Fail("User not found");
-            if (seller == null)
-                sellerid = 0;
-            else
-                sellerid = seller.id;
 
-
-
+            var seller = await _reposeller.FirstOrDefaultAsync(s => s.UserId == user.Id);
             if (seller == null)
                 return GeneralResponse<string>.Fail("Seller profile not found");
 
@@ -54,8 +44,7 @@ namespace E_commerce_Project.Services.Implementations
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity,
                 CategoryId = dto.CategoryId,
-                 SellerId = sellerid,
-
+                SellerId = seller.id,
             };
 
             await _repo.AddAsync(product);
@@ -64,17 +53,22 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success("Product created");
         }
 
-
-        // ================= UPDATE (Modified) =================
+        // ================= UPDATE =================
         public async Task<GeneralResponse<string>> UpdateProductAsync(int id, ClaimsPrincipal userPrincipal, UpdateProductDto dto)
         {
             var user = await _userManager.GetUserAsync(userPrincipal);
+            if (user == null)
+                return GeneralResponse<string>.Fail("User not found");
+
             var product = await _repo.GetByIdAsync(id);
+            if (product == null)
+                return GeneralResponse<string>.Fail("Product not found");
 
-            if (product == null) return GeneralResponse<string>.Fail("Product not found");
+            var seller = await _reposeller.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            if (seller == null && !userPrincipal.IsInRole("Admin"))
+                return GeneralResponse<string>.Fail("Seller profile not found");
 
-            // 🔐 Security Check: Only the owner (or an Admin) can edit
-            if (product.SellerId.ToString() != user.Id && !userPrincipal.IsInRole("Admin"))
+            if (product.SellerId != seller?.id && !userPrincipal.IsInRole("Admin"))
                 return GeneralResponse<string>.Fail("Unauthorized: You do not own this product");
 
             product.Name = dto.Name ?? product.Name;
@@ -88,16 +82,22 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success("Product updated successfully");
         }
 
-        // ================= DELETE (Modified) =================
+        // ================= DELETE =================
         public async Task<GeneralResponse<string>> DeleteProductAsync(int id, ClaimsPrincipal userPrincipal)
         {
             var user = await _userManager.GetUserAsync(userPrincipal);
+            if (user == null)
+                return GeneralResponse<string>.Fail("User not found");
+
             var product = await _repo.GetByIdAsync(id);
+            if (product == null)
+                return GeneralResponse<string>.Fail("Product not found");
 
-            if (product == null) return GeneralResponse<string>.Fail("Product not found");
+            var seller = await _reposeller.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            if (seller == null && !userPrincipal.IsInRole("Admin"))
+                return GeneralResponse<string>.Fail("Seller profile not found");
 
-            // 🔐 Security Check
-            if (product.SellerId.ToString() != user.Id && !userPrincipal.IsInRole("Admin"))
+            if (product.SellerId != seller?.id && !userPrincipal.IsInRole("Admin"))
                 return GeneralResponse<string>.Fail("Unauthorized");
 
             _repo.Delete(product);
@@ -105,15 +105,12 @@ namespace E_commerce_Project.Services.Implementations
             return GeneralResponse<string>.Success("Product deleted");
         }
 
-
-        // Services/Implementations/ProductService.cs
         public async Task<GeneralResponse<object>> GetAllProductsAsync(ProductFilterDto filter)
         {
             IQueryable<Product> query = _repo.Query()
                 .AsNoTracking()
                 .Include(p => p.Category);
 
-            // ================= FILTER =================
             if (!string.IsNullOrEmpty(filter.Name))
                 query = query.Where(p => p.Name.Contains(filter.Name));
 
@@ -126,7 +123,6 @@ namespace E_commerce_Project.Services.Implementations
             if (filter.MaxPrice.HasValue)
                 query = query.Where(p => p.Price <= filter.MaxPrice);
 
-            // ================= SORTING =================
             if (filter.SortBy?.ToLower() == "price")
             {
                 query = filter.SortDirection == "desc"
@@ -140,7 +136,6 @@ namespace E_commerce_Project.Services.Implementations
                     : query.OrderBy(p => p.Name);
             }
 
-            // ================= PAGINATION =================
             var totalCount = await query.CountAsync();
 
             var products = await query
@@ -166,6 +161,7 @@ namespace E_commerce_Project.Services.Implementations
                 Data = products
             });
         }
+
         // ================= GET BY ID =================
         public async Task<GeneralResponse<object>> GetProductByIdAsync(int id)
         {
@@ -194,22 +190,19 @@ namespace E_commerce_Project.Services.Implementations
         public async Task<GeneralResponse<string>> UploadProductImageAsync(int productId, ClaimsPrincipal userPrincipal, IFormFile file)
         {
             var user = await _userManager.GetUserAsync(userPrincipal);
-
             if (user == null)
                 return GeneralResponse<string>.Fail("User not found");
 
             var product = await _repo.GetByIdAsync(productId);
-
             if (product == null)
                 return GeneralResponse<string>.Fail("Product not found");
 
-            var seller = await _reposeller
-    .FirstOrDefaultAsync(s => s.UserId == user.Id);
-            // 🔐 تأكد إن صاحب المنتج
+            var seller = await _reposeller.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            if (seller == null)
+                return GeneralResponse<string>.Fail("Seller profile not found");
+
             if (product.SellerId != seller.id)
                 return GeneralResponse<string>.Fail("Unauthorized");
-
-           
 
             if (file == null || file.Length == 0)
                 return GeneralResponse<string>.Fail("Invalid file");
@@ -239,17 +232,22 @@ namespace E_commerce_Project.Services.Implementations
         public async Task<GeneralResponse<List<ProductListDto>>> GetSellerInventoryAsync(ClaimsPrincipal userPrincipal)
         {
             var user = await _userManager.GetUserAsync(userPrincipal);
-            if (user == null) return GeneralResponse<List<ProductListDto>>.Fail("User not found");
+            if (user == null)
+                return GeneralResponse<List<ProductListDto>>.Fail("User not found");
 
-            // We filter strictly by the logged-in Seller's ID
+            var seller = await _reposeller.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            if (seller == null)
+                return GeneralResponse<List<ProductListDto>>.Fail("Seller profile not found");
+
             var products = await _repo.Query()
                 .AsNoTracking()
-                .Where(p => p.SellerId.ToString() == user.Id)
+                .Where(p => p.SellerId == seller.id)
                 .Include(p => p.Category)
                 .Select(p => new ProductListDto
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    Description = p.Description,
                     Price = p.Price,
                     StockQuantity = p.StockQuantity,
                     ImageUrl = p.ImageUrl,
@@ -264,12 +262,18 @@ namespace E_commerce_Project.Services.Implementations
         public async Task<GeneralResponse<string>> UpdateStockAsync(int id, ClaimsPrincipal userPrincipal, int newQuantity)
         {
             var user = await _userManager.GetUserAsync(userPrincipal);
+            if (user == null)
+                return GeneralResponse<string>.Fail("User not found");
+
             var product = await _repo.GetByIdAsync(id);
+            if (product == null)
+                return GeneralResponse<string>.Fail("Product not found");
 
-            if (product == null) return GeneralResponse<string>.Fail("Product not found");
+            var seller = await _reposeller.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            if (seller == null)
+                return GeneralResponse<string>.Fail("Seller profile not found");
 
-            // 🔐 Security: Only the owner can change their stock
-            if (product.SellerId.ToString() != user.Id)
+            if (product.SellerId != seller.id)
                 return GeneralResponse<string>.Fail("Unauthorized");
 
             if (newQuantity < 0)
