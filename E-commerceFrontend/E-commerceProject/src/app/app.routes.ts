@@ -74,18 +74,18 @@ export const routes: Routes = [
           secondaryLink: '/register'
         }
       },
-      // ── Seller routes (lazy, guarded, inside MainLayout) ──
-      {
-        path: 'seller',
-        canActivate: [sellerGuard],
-        loadChildren: () =>
-          import('./features/seller/seller.module').then(m => m.SellerModule)
-      },
       { path: 'orders', component: OrdersComponent },
       { path: 'orders/:id', component: OrderDetailsComponent },
       { path: 'wishlist', component: WishlistComponent },
       { path: 'reviews', component: ReviewsComponent }
     ]
+  },
+
+  {
+    path: 'seller',
+    canActivate: [sellerGuard],
+    loadChildren: () =>
+      import('./features/seller/seller.module').then(m => m.SellerModule)
   },
 
   {

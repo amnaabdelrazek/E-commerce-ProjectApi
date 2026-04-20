@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CategoriesService } from '../../../core/services/categories.service';
@@ -10,11 +10,12 @@ import { ProductsService } from '../../../core/services/products.service';
 
 @Component({
   selector: 'app-seller-add-product',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './seller-add-product.component.html',
   styleUrl: './seller-add-product.component.css'
 })
-export class SellerAddProductComponent {
+export class SellerAddProductComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly productsService = inject(ProductsService);
@@ -36,8 +37,11 @@ export class SellerAddProductComponent {
   isSubmitting = false;
   selectedImageFile: File | null = null;
   imageFileName = '';
+  currentImagePreview: string | null = null;
+  imageHint = '';
 
   ngOnInit(): void {
+    console.log('SellerAddProductComponent initialized');
     this.loadCategories();
   }
 
@@ -46,41 +50,41 @@ export class SellerAddProductComponent {
   }
 
   onSubmit(): void {
+    console.log('Submit triggered');
+    console.log('Form Validity:', this.productForm.valid);
+    console.log('Form Value:', this.productForm.getRawValue());
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
       this.notification.error('Please complete all required product fields.');
       return;
     }
 
-    const formValue = this.productForm.getRawValue();
-    const payload: SellerCreateProductDto = {
-      ...formValue,
-      isFeatured: true
-    };
-
+    const payload = this.productForm.getRawValue();
     this.isSubmitting = true;
 
     this.sellerService.createProduct(payload).subscribe({
       next: (response) => {
         if (!response.isSuccess) {
           this.notification.error(response.message || 'Could not create product.');
+          this.isSubmitting = false;
           return;
         }
 
+        this.notification.success('Product created successfully.');
+
         if (!this.selectedImageFile) {
-          this.notification.success('Product created successfully.');
           this.router.navigate(['/seller/dashboard']);
           return;
         }
 
         this.uploadImageForCreatedProduct(payload.name, payload.description);
       },
-      error: () => {
+      error: (err) => {
+        console.error('Create product error:', err);
         this.notification.error('Failed to create product. Please try again.');
-      },
-      complete: () => {
         this.isSubmitting = false;
       }
+      // Note: complete is not used here because uploadImageForCreatedProduct is async
     });
   }
 
@@ -90,6 +94,18 @@ export class SellerAddProductComponent {
 
     this.selectedImageFile = file;
     this.imageFileName = file?.name ?? '';
+
+    if (!file) {
+      this.currentImagePreview = null;
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.currentImagePreview = typeof reader.result === 'string' ? reader.result : this.currentImagePreview;
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
   }
 
   private loadCategories(): void {
@@ -97,16 +113,9 @@ export class SellerAddProductComponent {
 
     this.categoriesService.getCategories(1, 100).subscribe({
       next: (response) => {
-        const payload = response as unknown as {
-          data?: { data?: Category[] } | Category[];
-        };
-
-        if (Array.isArray(payload?.data)) {
-          this.categories = payload.data;
-        } else {
-          this.categories = payload?.data?.data ?? [];
+        if (response.isSuccess) {
+          this.categories = response.data.data;
         }
-
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -119,10 +128,16 @@ export class SellerAddProductComponent {
   }
 
   private uploadImageForCreatedProduct(name: string, description: string): void {
+    // Attempt to find the product we just created to get its ID
     this.productsService.getProducts({ pageNumber: 1, pageSize: 50, name }).subscribe({
-      next: (productsResponse) => {
-        const products = productsResponse?.data?.data ?? [];
+      next: (response) => {
+        if (!response.isSuccess) {
+          this.notification.info('Product created, but we could not prepare image upload.');
+          this.router.navigate(['/seller/dashboard']);
+          return;
+        }
 
+        const products = response.data.data;
         const exactMatches = products.filter(
           (product) => product.name.trim().toLowerCase() === name.trim().toLowerCase()
         );
@@ -134,7 +149,7 @@ export class SellerAddProductComponent {
           ?? [...products].sort((a, b) => b.id - a.id)[0];
 
         if (!matchedProduct || !this.selectedImageFile) {
-          this.notification.info('Product created, but image upload requires editing the product later.');
+          this.notification.info('Product created. You can upload its image later from the edit page.');
           this.router.navigate(['/seller/dashboard']);
           return;
         }
@@ -142,23 +157,25 @@ export class SellerAddProductComponent {
         this.sellerService.uploadProductImage(matchedProduct.id, this.selectedImageFile).subscribe({
           next: (uploadResponse) => {
             if (!uploadResponse.isSuccess) {
-              this.notification.info('Product created, but image upload failed. You can upload it later.');
-              this.router.navigate(['/seller/dashboard']);
-              return;
+              this.notification.info('Product created, but image upload failed.');
+            } else {
+              this.notification.success('Product image uploaded successfully.');
             }
-
-            this.notification.success('Product and image uploaded successfully.');
             this.router.navigate(['/seller/dashboard']);
           },
           error: () => {
-            this.notification.info('Product created, but image upload failed. You can upload it later.');
+            this.notification.info('Product created, but image upload failed.');
             this.router.navigate(['/seller/dashboard']);
+          },
+          complete: () => {
+            this.isSubmitting = false;
           }
         });
       },
       error: () => {
-        this.notification.info('Product created, but image upload requires editing the product later.');
+        this.notification.info('Product created. You can upload its image later.');
         this.router.navigate(['/seller/dashboard']);
+        this.isSubmitting = false;
       }
     });
   }
