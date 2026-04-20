@@ -18,7 +18,10 @@ export class SellerDashboardComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
   private readonly notification = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
+<<<<<<< HEAD
   private readonly router = inject(Router);
+=======
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
 
   stats: any = null;
   isLoading = true;
@@ -28,7 +31,10 @@ export class SellerDashboardComponent implements OnInit {
   inventory: SellerInventoryItem[] = [];
   stockDrafts: Record<number, number> = {};
   savingStockIds = new Set<number>();
+<<<<<<< HEAD
   deletingProductIds = new Set<number>();
+=======
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
 
   ngOnInit(): void {
     this.loadStats();
@@ -102,10 +108,13 @@ export class SellerDashboardComponent implements OnInit {
     return this.savingStockIds.has(productId);
   }
 
+<<<<<<< HEAD
   isDeletingProduct(productId: number): boolean {
     return this.deletingProductIds.has(productId);
   }
 
+=======
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
   updateDraftStock(productId: number, value: string | number): void {
     const numericValue = Number(value);
     this.stockDrafts[productId] = Number.isFinite(numericValue) ? Math.max(0, Math.trunc(numericValue)) : 0;
@@ -156,6 +165,7 @@ export class SellerDashboardComponent implements OnInit {
       }
     });
   }
+<<<<<<< HEAD
 
   deleteProduct(product: SellerInventoryItem): void {
     if (this.isDeletingProduct(product.id)) {
@@ -202,4 +212,6 @@ export class SellerDashboardComponent implements OnInit {
   openEditProduct(productId: number): void {
     void this.router.navigate(['/seller/products', productId, 'edit']);
   }
+=======
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
 }

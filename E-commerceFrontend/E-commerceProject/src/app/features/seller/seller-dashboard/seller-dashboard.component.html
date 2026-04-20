@@ -73,6 +73,7 @@
           <div>
             <h2>Inventory Overview</h2>
             <p class="section-subtitle">Connected to your inventory, update, and delete product endpoints.</p>
+            <p class="section-subtitle">Connected to your `GetMyInventory` and `UpdateStock` product endpoints.</p>
           </div>
           <button type="button" class="btn btn--secondary" (click)="loadInventory()">Refresh</button>
         </div>
@@ -121,6 +122,7 @@
             </div>
 
             <div class="inventory-item__actions">
+<<<<<<< HEAD
               <div class="inventory-product-actions">
                 <button
                   type="button"
@@ -139,6 +141,8 @@
                 </button>
               </div>
 
+=======
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
               <label class="stock-editor">
                 <span>Stock quantity</span>
                 <input
@@ -147,7 +151,11 @@
                   step="1"
                   [ngModel]="getDraftStock(product.id)"
                   (ngModelChange)="updateDraftStock(product.id, $event)"
+<<<<<<< HEAD
                   [disabled]="isSavingStock(product.id) || isDeletingProduct(product.id)"
+=======
+                  [disabled]="isSavingStock(product.id)"
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
                 />
               </label>
 
@@ -156,14 +164,22 @@
                   type="button"
                   class="btn btn--ghost"
                   (click)="resetStock(product)"
+<<<<<<< HEAD
                   [disabled]="!hasStockChanged(product) || isSavingStock(product.id) || isDeletingProduct(product.id)">
+=======
+                  [disabled]="!hasStockChanged(product) || isSavingStock(product.id)">
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
                   Reset
                 </button>
                 <button
                   type="button"
                   class="btn btn--primary"
                   (click)="saveStock(product)"
+<<<<<<< HEAD
                   [disabled]="!hasStockChanged(product) || isSavingStock(product.id) || isDeletingProduct(product.id)">
+=======
+                  [disabled]="!hasStockChanged(product) || isSavingStock(product.id)">
+>>>>>>> ce1ab6c0731d6bd8b69ceaad7d407dfc7994540c
                   {{ isSavingStock(product.id) ? 'Saving...' : 'Update Stock' }}
                 </button>
               </div>
