@@ -6,13 +6,25 @@ import { CreditCardService } from '../../../core/services/credit-card.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../../core/services/cart-service';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
   imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './payment.component.html',
-  styleUrl: './payment.component.css'
+  styleUrl: './payment.component.css',
+  animations: [
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(20px)' }))
+      ])
+    ])
+  ]
 })
 export class PaymentComponent implements OnInit {
 

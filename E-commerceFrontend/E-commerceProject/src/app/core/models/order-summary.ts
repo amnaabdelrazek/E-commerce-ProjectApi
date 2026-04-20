@@ -5,6 +5,7 @@ export interface OrderSummary {
   taxAmount: number;
   shippingCost: number;
   taxRate: number;
+  freeShippingThreshold: number;
   total: number;
   items: any[]; 
 }

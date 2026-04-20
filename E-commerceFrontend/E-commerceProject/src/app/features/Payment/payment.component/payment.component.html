@@ -1,147 +1,260 @@
-<div class="checkout-page">
-
-  <!-- Stepper -->
-  <div class="stepper-buttons">
-    <button class="btn-step inactive">
-      🚚 Shipping
-    </button>
-
-    <div class="step-line"></div>
-
-    <button class="btn-step active">
-      💳 Payment
-    </button>
+<div class="payment-wrapper">
+  <!-- Premium Header Section -->
+  <div class="payment-header">
+    <div class="header-content">
+      <h1 class="header-title">Complete Your Payment</h1>
+      <p class="header-subtitle">Order ID: <span class="order-id-badge">{{ orderId }}</span></p>
+    </div>
   </div>
 
-  <div class="checkout-container">
-
-    <div class="card">
-
-      <h2 class="card-title">Payment Method</h2>
-      <p style="color: #666; margin-bottom: 20px;">Order ID: {{ orderId }}</p>
-
-      <!-- Payment Method Selection -->
-      <div style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+  <!-- Main Payment Container -->
+  <div class="payment-container">
+    <!-- Left Column: Payment Method Selection & Virtual Card -->
+    <div class="payment-left-column">
+      <!-- Payment Method Selection Cards -->
+      <div class="payment-methods-section">
+        <h2 class="section-title">Select Payment Method</h2>
         
-        <!-- Credit Card Option -->
-        <label class="payment-option" style="display: flex; align-items: center; margin-bottom: 15px; cursor: pointer;">
-          <input 
-            type="radio" 
-            name="payment" 
-            (click)="selectedPaymentMethod.set('credit-card')"
-            [checked]="selectedPaymentMethod() === 'credit-card'"
-            style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" />
-          <span style="font-weight: 500;">💳 Credit / Debit Card</span>
-        </label>
+        <div class="payment-methods-grid">
+          <!-- Credit Card Method -->
+          <div 
+            class="payment-method-card" 
+            [class.active]="selectedPaymentMethod() === 'credit-card'"
+            (click)="selectedPaymentMethod.set('credit-card')">
+            <div class="method-icon">💳</div>
+            <div class="method-label">Credit Card</div>
+            <div class="method-badge" *ngIf="selectedPaymentMethod() === 'credit-card'">✓</div>
+            <div class="method-glow" *ngIf="selectedPaymentMethod() === 'credit-card'"></div>
+          </div>
 
-        <!-- PayPal Option -->
-        <label class="payment-option" style="display: flex; align-items: center; cursor: pointer;">
-          <input 
-            type="radio" 
-            name="payment" 
-            (click)="selectedPaymentMethod.set('paypal')"
-            [checked]="selectedPaymentMethod() === 'paypal'"
-            style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" />
-          <span style="font-weight: 500;">🅿️ PayPal</span>
-        </label>
-       
-        <label class="payment-option" style="display: flex; align-items: center; cursor: pointer;">
-          <input 
-            type="radio" 
-            name="payment" 
-            (click)="selectedPaymentMethod.set('cash')"
-            [checked]="selectedPaymentMethod() === 'cash'"
-            style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" />
-          <span style="font-weight: 500;"> Cash on Delivery</span>
-        </label>
+          <!-- PayPal Method -->
+          <div 
+            class="payment-method-card" 
+            [class.active]="selectedPaymentMethod() === 'paypal'"
+            (click)="selectedPaymentMethod.set('paypal')">
+            <div class="method-icon">🅿️</div>
+            <div class="method-label">PayPal</div>
+            <div class="method-badge" *ngIf="selectedPaymentMethod() === 'paypal'">✓</div>
+            <div class="method-glow" *ngIf="selectedPaymentMethod() === 'paypal'"></div>
+          </div>
+
+          <!-- Cash on Delivery Method -->
+          <div 
+            class="payment-method-card" 
+            [class.active]="selectedPaymentMethod() === 'cash'"
+            (click)="selectedPaymentMethod.set('cash')">
+            <div class="method-icon">🤝</div>
+            <div class="method-label">Cash on Delivery</div>
+            <div class="method-badge" *ngIf="selectedPaymentMethod() === 'cash'">✓</div>
+            <div class="method-glow" *ngIf="selectedPaymentMethod() === 'cash'"></div>
+          </div>
+        </div>
       </div>
 
+      <!-- Virtual Credit Card Preview -->
+      <div class="virtual-card-section" *ngIf="selectedPaymentMethod() === 'credit-card'">
+        <h3 class="section-title">Card Preview</h3>
+        <div class="virtual-card">
+          <div class="card-background">
+            <!-- Card Chip -->
+            <div class="card-chip">
+              <div class="chip-squares"></div>
+            </div>
+
+            <!-- Card Details -->
+            <div class="card-display">
+              <div class="card-number-display">
+                {{ creditCardForm().cardNumber || '•••• •••• •••• ••••' }}
+              </div>
+              <div class="card-footer">
+                <div class="cardholder-display">
+                  <span class="label">CARD HOLDER</span>
+                  <span class="value">{{ creditCardForm().cardHolderName || 'YOUR NAME' }}</span>
+                </div>
+                <div class="card-expiry-display">
+                  <span class="label">EXPIRES</span>
+                  <span class="value">{{ creditCardForm().expiryDate || 'MM/YY' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Form & Payment Button -->
+    <div class="payment-right-column">
       <!-- Credit Card Form -->
-      <div *ngIf="selectedPaymentMethod() === 'credit-card'" [@.disabled]="true" style="animation: slideIn 0.3s ease-in;">
-        <h3 style="margin-bottom: 20px; font-size: 16px; color: #333;">Card Details</h3>
+      <div class="payment-form" *ngIf="selectedPaymentMethod() === 'credit-card'" [@slideIn]>
+        <h3 class="form-title">Enter Card Details</h3>
 
-        <input 
-          class="styled-input" 
-          type="text"
-          placeholder="Card Number (16 digits)"
-          [(ngModel)]="creditCardForm().cardNumber"
-          (input)="formatCardNumber($event)"
-          maxlength="19"
-          style="margin-bottom: 15px;" />
-
-        <input 
-          class="styled-input" 
-          type="text"
-          placeholder="Card Holder Name"
-          [(ngModel)]="creditCardForm().cardHolderName"
-          style="margin-bottom: 15px;" />
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-          <input 
-            class="styled-input" 
-            type="text"
-            placeholder="MM/YY"
-            [(ngModel)]="creditCardForm().expiryDate"
-            (input)="formatExpiry($event)"
-            maxlength="5" />
-          
-          <input 
-            class="styled-input" 
-            type="text"
-            placeholder="CVV"
-            [(ngModel)]="creditCardForm().cvv"
-            (input)="formatCVV($event)"
-            inputmode="numeric"
-            maxlength="4" />
+        <!-- Card Number Input -->
+        <div class="form-group">
+          <label class="form-label">Card Number</label>
+          <div class="input-wrapper">
+            <span class="input-icon">💳</span>
+            <input 
+              type="text"
+              class="form-input"
+              placeholder="0000 0000 0000 0000"
+              [(ngModel)]="creditCardForm().cardNumber"
+              (input)="formatCardNumber($event)"
+              maxlength="19"
+              autocomplete="cc-number" />
+            <span class="input-status" [class.valid]="creditCardForm().cardNumber.replace(/\s/g, '').length >= 13">
+              <span *ngIf="creditCardForm().cardNumber.replace(/\s/g, '').length >= 13">✓</span>
+            </span>
+          </div>
         </div>
 
+        <!-- Cardholder Name Input -->
+        <div class="form-group">
+          <label class="form-label">Cardholder Name</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text"
+              class="form-input"
+              placeholder="John Doe"
+              [(ngModel)]="creditCardForm().cardHolderName"
+              autocomplete="cc-name" />
+            <span class="input-status" [class.valid]="creditCardForm().cardHolderName.trim().length >= 3">
+              <span *ngIf="creditCardForm().cardHolderName.trim().length >= 3">✓</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Expiry & CVV Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Expiry Date</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📅</span>
+              <input 
+                type="text"
+                class="form-input"
+                placeholder="MM/YY"
+                [(ngModel)]="creditCardForm().expiryDate"
+                (input)="formatExpiry($event)"
+                maxlength="5"
+                autocomplete="cc-exp" />
+              <span class="input-status" [class.valid]="creditCardForm().expiryDate.match(/^\d{2}\/\d{2}$/)">
+                <span *ngIf="creditCardForm().expiryDate.match(/^\d{2}\/\d{2}$/)">✓</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CVV</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input 
+                type="text"
+                class="form-input"
+                placeholder="000"
+                [(ngModel)]="creditCardForm().cvv"
+                (input)="formatCVV($event)"
+                inputmode="numeric"
+                maxlength="4"
+                autocomplete="cc-csc" />
+              <span class="input-status" [class.valid]="creditCardForm().cvv.length >= 3">
+                <span *ngIf="creditCardForm().cvv.length >= 3">✓</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pay Button -->
         <button 
-          class="main-action-btn" 
-          (click)="processCreditCard()" 
+          class="btn-pay"
+          [class.processing]="isProcessing"
           [disabled]="isProcessing"
-          style="width: 100%; margin-bottom: 15px;">
-          {{ isProcessing ? '⏳ Processing...' : '💳 Pay Now' }}
+          (click)="processCreditCard()">
+          <span *ngIf="!isProcessing" class="btn-content">
+            <span class="btn-icon">💳</span>
+            <span class="btn-text">Pay Now</span>
+          </span>
+          <span *ngIf="isProcessing" class="btn-content">
+            <span class="spinner"></span>
+            <span class="btn-text">Processing...</span>
+          </span>
         </button>
       </div>
 
       <!-- PayPal Form -->
-      <div *ngIf="selectedPaymentMethod() === 'paypal'" style="animation: slideIn 0.3s ease-in;">
-        <p style="color: #666; margin-bottom: 20px; text-align: center;">
-          Click the button below to proceed with PayPal payment
-        </p>
-
-        <button 
-          class="main-action-btn" 
-          (click)="createPayPalPayment()" 
-          [disabled]="isProcessing"
-          style="width: 100%; margin-bottom: 15px; background: #0070ba;">
-          {{ isProcessing ? 'Processing...' : '🅿️ Proceed with PayPal' }}
-        </button>
-      </div>
-
-      <!--Cash-->
-      <div *ngIf="selectedPaymentMethod() === 'cash'" style="animation: slideIn 0.3s ease-in;">
-        <div style="padding: 20px; border: 1px dashed #2ecc71; border-radius: 8px; background: #f0fff4; margin-bottom: 20px;">
-          <p style="color: #27ae60; margin: 0; text-align: center; font-weight: 500;">
-            ✅ You have selected Cash on Delivery. You will pay when your order arrives.
+      <div class="payment-form paypal-form" *ngIf="selectedPaymentMethod() === 'paypal'" [@slideIn]>
+        <div class="paypal-content">
+          <div class="paypal-logo-large">🅿️</div>
+          <h3 class="paypal-title">Secure PayPal Payment</h3>
+          <p class="paypal-description">
+            You will be redirected to PayPal's secure checkout to complete your payment. Your payment information is encrypted and protected.
           </p>
+          <div class="paypal-features">
+            <div class="feature">
+              <span class="feature-icon">🔒</span>
+              <span>Secure & Encrypted</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">⚡</span>
+              <span>Fast & Easy</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">✓</span>
+              <span>Buyer Protection</span>
+            </div>
+          </div>
+        </div>
+        
+        <button 
+          class="btn-paypal"
+          [disabled]="isProcessing"
+          (click)="createPayPalPayment()">
+          <span *ngIf="!isProcessing">🅿️ Proceed with PayPal</span>
+          <span *ngIf="isProcessing">Processing...</span>
+        </button>
+      </div>
+
+      <!-- Cash on Delivery Form -->
+      <div class="payment-form cod-form" *ngIf="selectedPaymentMethod() === 'cash'" [@slideIn]>
+        <div class="cod-content">
+          <div class="cod-icon">🤝</div>
+          <h3 class="cod-title">Cash on Delivery</h3>
+          <p class="cod-description">
+            Pay securely when your order arrives. No payment needed now.
+          </p>
+          <div class="cod-benefits">
+            <div class="benefit">
+              <span class="benefit-icon">📦</span>
+              <span class="benefit-text">Inspect before paying</span>
+            </div>
+            <div class="benefit">
+              <span class="benefit-icon">💰</span>
+              <span class="benefit-text">Pay in cash or card</span>
+            </div>
+            <div class="benefit">
+              <span class="benefit-icon">✓</span>
+              <span class="benefit-text">No risk of fraud</span>
+            </div>
+          </div>
         </div>
 
         <button 
-          class="main-action-btn" 
-          (click)="processCASH()" 
+          class="btn-confirm-cod"
           [disabled]="isProcessing"
-          style="width: 100%; margin-bottom: 15px; background: #2ecc71; border-color: #2ecc71;">
-          {{ isProcessing ? '⏳ Confirming...' : '✅ Confirm Order' }}
+          (click)="processCASH()">
+          <span *ngIf="!isProcessing">✅ Confirm Order</span>
+          <span *ngIf="isProcessing">Confirming...</span>
         </button>
-        </div>
-      <!-- Back Button -->
-      <div class="row">
-        <button class="back-btn" routerLink="/checkout" [disabled]="isProcessing">Back</button>
       </div>
 
+      <!-- Back Button -->
+      <button 
+        class="btn-back"
+        routerLink="/checkout"
+        [disabled]="isProcessing">
+        ← Back to Checkout
+      </button>
     </div>
-
   </div>
 </div>
 

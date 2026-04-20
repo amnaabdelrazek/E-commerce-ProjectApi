@@ -17,7 +17,13 @@ export class CartService {
   readonly cartCount = signal(0);
 
   constructor() {
-    this.getCartCount();
+    // Safely initialize cart count without breaking the app if API fails
+    try {
+      this.getCartCount();
+    } catch (error) {
+      console.warn('⚠️ Cart initialization failed, continuing anyway', error);
+      this.cartCount.set(0);
+    }
   }
 
   // ================= ADD ITEM =================
@@ -56,7 +62,16 @@ export class CartService {
           this.cartCount.set(res.data);
         }
       },
-      error: () => this.cartCount.set(0)
+      error: (err) => {
+        console.warn('⚠️ Cart count API failed:', {
+          status: err?.status,
+          statusText: err?.statusText,
+          url: err?.url,
+          message: err?.error?.message || err?.message
+        });
+        // Set cart count to 0 if API fails, but don't crash the app
+        this.cartCount.set(0);
+      }
     });
   }
 
