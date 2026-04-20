@@ -155,6 +155,211 @@
   font-weight: 700;
 }
 
+.section-subtitle {
+  margin: 6px 0 0;
+  color: var(--app-muted);
+  font-size: 14px;
+}
+
+.inventory-loading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 16px;
+  color: var(--app-muted);
+}
+
+.spinner--small {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 0;
+}
+
+.inventory-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--app-radius-sm);
+  background: color-mix(in srgb, var(--app-danger) 8%, white);
+  border: 1px solid color-mix(in srgb, var(--app-danger) 16%, transparent);
+  color: var(--app-danger);
+}
+
+.inventory-error h3,
+.inventory-error p {
+  margin: 0;
+}
+
+.inventory-list {
+  display: grid;
+  gap: 16px;
+}
+
+.inventory-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: color-mix(in srgb, var(--app-surface-2) 85%, var(--app-bg));
+}
+
+.inventory-item__main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.inventory-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-accent) 10%, white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inventory-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inventory-thumb--empty {
+  color: var(--app-accent);
+}
+
+.inventory-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.inventory-copy__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.inventory-copy__top h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--app-text);
+}
+
+.inventory-copy p {
+  margin: 0 0 10px;
+  color: var(--app-muted);
+}
+
+.inventory-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: var(--app-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.inventory-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-success) 14%, white);
+  color: var(--app-success);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.inventory-badge--low {
+  background: color-mix(in srgb, var(--app-accent-2) 28%, white);
+  color: var(--app-accent);
+}
+
+.inventory-badge--empty {
+  background: color-mix(in srgb, var(--app-danger) 14%, white);
+  color: var(--app-danger);
+}
+
+.inventory-item__actions {
+  width: min(100%, 240px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inventory-product-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.btn--danger {
+  background: var(--app-danger);
+  color: #fff;
+  border-color: var(--app-danger);
+}
+
+.btn--danger:hover {
+  background: color-mix(in srgb, var(--app-danger) 88%, black);
+  border-color: color-mix(in srgb, var(--app-danger) 88%, black);
+  text-decoration: none;
+}
+
+.btn--disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.stock-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--app-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stock-editor input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  padding: 11px 14px;
+  font-size: 15px;
+}
+
+.inventory-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+.btn--ghost:hover {
+  background: color-mix(in srgb, var(--app-accent) 8%, white);
+  text-decoration: none;
+}
+
+.empty-state--compact {
+  padding: 28px 0 18px;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -222,5 +427,32 @@
 @media (max-width: 900px) {
   .dashboard-content {
     grid-template-columns: 1fr;
+  }
+
+  .inventory-item {
+    flex-direction: column;
+  }
+
+  .inventory-item__actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .inventory-copy__top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inventory-item__main {
+    align-items: flex-start;
+  }
+
+  .inventory-actions {
+    justify-content: stretch;
+  }
+
+  .inventory-actions .btn {
+    flex: 1;
   }
 }

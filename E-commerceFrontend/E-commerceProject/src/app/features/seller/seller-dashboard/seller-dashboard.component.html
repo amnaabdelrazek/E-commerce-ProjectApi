@@ -1,5 +1,4 @@
 <div class="container dashboard-container">
-  
   <div *ngIf="isLoading" class="loading-state">
     <div class="spinner"></div>
     <p>Loading your dashboard...</p>
@@ -13,6 +12,17 @@
   </div>
 
   <ng-container *ngIf="!isLoading && !errorMessage">
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Seller Dashboard</h1>
+        <p>Track your products and update stock from one place.</p>
+      </div>
+
+      <div class="header-actions">
+        <a routerLink="/seller/products/new" class="btn btn--secondary">Add Product</a>
+      </div>
+    </div>
+
     <!-- Stats Grid -->
     <div class="stats-grid">
       <div class="stat-card revenue">
@@ -58,21 +68,110 @@
 
     <!-- Dashboard Content Area -->
     <div class="dashboard-content">
-      <!-- Recent Orders or Activity -->
       <div class="section-card">
         <div class="section-header">
-          <h2>Recent Orders</h2>
-          <a routerLink="/seller/orders" class="btn btn--secondary">View All</a>
+          <div>
+            <h2>Inventory Overview</h2>
+            <p class="section-subtitle">Connected to your inventory, update, and delete product endpoints.</p>
+          </div>
+          <button type="button" class="btn btn--secondary" (click)="loadInventory()">Refresh</button>
         </div>
-        
-        <div class="empty-state">
-          <span class="material-icons">inbox</span>
-          <h3>No recent orders</h3>
-          <p>When you receive new orders, they will appear here.</p>
+
+        <div *ngIf="isInventoryLoading" class="inventory-loading">
+          <div class="spinner spinner--small"></div>
+          <p>Loading your inventory...</p>
+        </div>
+
+        <div *ngIf="!isInventoryLoading && inventoryErrorMessage" class="inventory-error">
+          <span class="material-icons">error_outline</span>
+          <div>
+            <h3>Inventory unavailable</h3>
+            <p>{{ inventoryErrorMessage }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="!isInventoryLoading && !inventoryErrorMessage && inventory.length === 0" class="empty-state empty-state--compact">
+          <span class="material-icons">inventory</span>
+          <h3>No products yet</h3>
+          <p>Add your first product to start managing stock here.</p>
+          <a routerLink="/seller/products/new" class="btn btn--primary">Create Product</a>
+        </div>
+
+        <div *ngIf="!isInventoryLoading && !inventoryErrorMessage && inventory.length > 0" class="inventory-list">
+          <article class="inventory-item" *ngFor="let product of inventory; trackBy: trackByProductId">
+            <div class="inventory-item__main">
+              <div class="inventory-thumb" [class.inventory-thumb--empty]="!product.imageUrl">
+                <img *ngIf="product.imageUrl" [src]="product.imageUrl" [alt]="product.name" />
+                <span *ngIf="!product.imageUrl" class="material-icons">inventory_2</span>
+              </div>
+
+              <div class="inventory-copy">
+                <div class="inventory-copy__top">
+                  <h3>{{ product.name }}</h3>
+                  <span class="inventory-badge" [class.inventory-badge--low]="product.stockQuantity < 5" [class.inventory-badge--empty]="product.stockQuantity === 0">
+                    {{ product.stockQuantity === 0 ? 'Out of stock' : product.stockQuantity < 5 ? 'Low stock' : 'In stock' }}
+                  </span>
+                </div>
+                <p>{{ product.categoryName || 'Uncategorized' }}</p>
+                <div class="inventory-meta">
+                  <span>{{ product.price | currency }}</span>
+                  <span>Product ID: {{ product.id }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="inventory-item__actions">
+              <div class="inventory-product-actions">
+                <button
+                  type="button"
+                  class="btn btn--secondary"
+                  (click)="openEditProduct(product.id)"
+                  [disabled]="isSavingStock(product.id) || isDeletingProduct(product.id)"
+                  [class.btn--disabled]="isSavingStock(product.id) || isDeletingProduct(product.id)">
+                  Edit Product
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--danger"
+                  (click)="deleteProduct(product)"
+                  [disabled]="isSavingStock(product.id) || isDeletingProduct(product.id)">
+                  {{ isDeletingProduct(product.id) ? 'Deleting...' : 'Delete Product' }}
+                </button>
+              </div>
+
+              <label class="stock-editor">
+                <span>Stock quantity</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  [ngModel]="getDraftStock(product.id)"
+                  (ngModelChange)="updateDraftStock(product.id, $event)"
+                  [disabled]="isSavingStock(product.id) || isDeletingProduct(product.id)"
+                />
+              </label>
+
+              <div class="inventory-actions">
+                <button
+                  type="button"
+                  class="btn btn--ghost"
+                  (click)="resetStock(product)"
+                  [disabled]="!hasStockChanged(product) || isSavingStock(product.id) || isDeletingProduct(product.id)">
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--primary"
+                  (click)="saveStock(product)"
+                  [disabled]="!hasStockChanged(product) || isSavingStock(product.id) || isDeletingProduct(product.id)">
+                  {{ isSavingStock(product.id) ? 'Saving...' : 'Update Stock' }}
+                </button>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
 
-      <!-- Quick Links or Alerts -->
       <div class="section-card">
         <div class="section-header">
           <h2>Quick Actions</h2>
@@ -81,7 +180,7 @@
         <div class="empty-state">
           <span class="material-icons">rocket_launch</span>
           <h3>Ready to grow?</h3>
-          <p>Add new products to your store to attract more customers.</p>
+          <p>Add new products, then return here to manage inventory updates instantly.</p>
           <a routerLink="/seller/products/new" class="btn btn--primary">Add Product</a>
         </div>
       </div>
