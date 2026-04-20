@@ -12,6 +12,15 @@ export interface SellerCreateProductDto {
   isFeatured?: boolean;
 }
 
+export interface SellerUpdateProductDto {
+  name: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  categoryId: number;
+  isFeatured?: boolean;
+}
+
 export interface SellerInventoryItem {
   id: number;
   name: string;
@@ -87,6 +96,14 @@ export class SellerService {
 
   createProduct(productData: SellerCreateProductDto): Observable<GeneralResponse<string | number>> {
     return this.http.post<GeneralResponse<string | number>>(`${this.apiBaseUrl}/api/Products`, productData);
+  }
+
+  updateProduct(productId: number, productData: SellerUpdateProductDto): Observable<GeneralResponse<string>> {
+    return this.http.put<GeneralResponse<string>>(`${this.apiBaseUrl}/api/Products/${productId}`, productData);
+  }
+
+  deleteProduct(productId: number): Observable<GeneralResponse<string>> {
+    return this.http.delete<GeneralResponse<string>>(`${this.apiBaseUrl}/api/Products/${productId}`);
   }
 
   uploadProductImage(productId: number, file: File): Observable<GeneralResponse<string>> {

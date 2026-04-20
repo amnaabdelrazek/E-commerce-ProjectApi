@@ -297,6 +297,29 @@
   gap: 14px;
 }
 
+.inventory-product-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.btn--danger {
+  background: var(--app-danger);
+  color: #fff;
+  border-color: var(--app-danger);
+}
+
+.btn--danger:hover {
+  background: color-mix(in srgb, var(--app-danger) 88%, black);
+  border-color: color-mix(in srgb, var(--app-danger) 88%, black);
+  text-decoration: none;
+}
+
+.btn--disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
 .stock-editor {
   display: flex;
   flex-direction: column;

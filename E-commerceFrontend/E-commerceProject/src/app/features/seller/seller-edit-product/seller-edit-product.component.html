@@ -1,0 +1,74 @@
+<div class="edit-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Edit Product</h2>
+      <button class="close-btn" (click)="goBack()" type="button">x</button>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading product details...</p>
+    </div>
+
+    <form *ngIf="!isLoading" [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Product Name</label>
+        <input type="text" formControlName="name" placeholder="e.g. Nordic Chair" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea formControlName="description" rows="4" placeholder="Write a short product description" class="form-control"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select formControlName="categoryId" class="form-control">
+          <option [ngValue]="0">Select category</option>
+          <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
+        </select>
+        <small class="field-note" *ngIf="categories.length === 0">No categories available yet.</small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price (EGP)</label>
+          <input type="number" formControlName="price" min="0" step="0.01" class="form-control" placeholder="0.00" />
+        </div>
+
+        <div class="form-group">
+          <label>Stock Quantity</label>
+          <input type="number" formControlName="stockQuantity" min="0" step="1" class="form-control" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Product Image</label>
+
+        <div class="image-preview" *ngIf="currentImagePreview; else noImagePreview">
+          <img [src]="currentImagePreview" alt="Product preview" class="preview-img" />
+        </div>
+
+        <ng-template #noImagePreview>
+          <div class="image-preview image-preview--empty">
+            <span>No image selected yet</span>
+          </div>
+        </ng-template>
+
+        <input type="file" accept="image/*" class="form-control form-control--file" (change)="onImageSelected($event)" />
+        <small class="field-note" *ngIf="imageFileName">Selected: {{ imageFileName }}</small>
+      </div>
+
+      <div class="form-error" *ngIf="productForm.invalid && productForm.touched">
+        Please fill all required fields with valid values.
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSubmitting">Cancel</button>
+        <button type="submit" class="btn-submit" [disabled]="isSubmitting || isLoading">
+          {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
 import { SellerInventoryItem, SellerService } from '../seller.service';
 
@@ -18,6 +18,7 @@ export class SellerDashboardComponent implements OnInit {
   private readonly sellerService = inject(SellerService);
   private readonly notification = inject(NotificationService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
 
   stats: any = null;
   isLoading = true;
@@ -27,6 +28,7 @@ export class SellerDashboardComponent implements OnInit {
   inventory: SellerInventoryItem[] = [];
   stockDrafts: Record<number, number> = {};
   savingStockIds = new Set<number>();
+  deletingProductIds = new Set<number>();
 
   ngOnInit(): void {
     this.loadStats();
@@ -100,6 +102,10 @@ export class SellerDashboardComponent implements OnInit {
     return this.savingStockIds.has(productId);
   }
 
+  isDeletingProduct(productId: number): boolean {
+    return this.deletingProductIds.has(productId);
+  }
+
   updateDraftStock(productId: number, value: string | number): void {
     const numericValue = Number(value);
     this.stockDrafts[productId] = Number.isFinite(numericValue) ? Math.max(0, Math.trunc(numericValue)) : 0;
@@ -149,5 +155,51 @@ export class SellerDashboardComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  deleteProduct(product: SellerInventoryItem): void {
+    if (this.isDeletingProduct(product.id)) {
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete product "${product.name}"? This action cannot be undone.`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.deletingProductIds.add(product.id);
+
+    this.sellerService.deleteProduct(product.id).subscribe({
+      next: (response) => {
+        if (!response?.isSuccess) {
+          this.notification.error(response?.message || 'Failed to delete product.');
+          this.deletingProductIds.delete(product.id);
+          this.cdr.detectChanges();
+          return;
+        }
+
+        this.inventory = this.inventory.filter((item) => item.id !== product.id);
+
+        const updatedDrafts = { ...this.stockDrafts };
+        delete updatedDrafts[product.id];
+        this.stockDrafts = updatedDrafts;
+
+        this.savingStockIds.delete(product.id);
+        this.notification.success(response.message || 'Product deleted successfully.');
+        this.deletingProductIds.delete(product.id);
+        this.loadStats();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to delete product', err);
+        this.notification.error('Failed to delete product. Please try again.');
+        this.deletingProductIds.delete(product.id);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openEditProduct(productId: number): void {
+    void this.router.navigate(['/seller/products', productId, 'edit']);
   }
 }
