@@ -21,24 +21,27 @@ mat-card-header {
 
 h1 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 900;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  color: var(--app-text);
+  letter-spacing: -0.02em;
 }
 
 .empty-state {
   text-align: center;
   padding: 80px 32px;
-  background: linear-gradient(135deg, rgba(251, 146, 60, 0.05), rgba(209, 161, 108, 0.05));
-  border-radius: 12px;
-  border: 2px dashed rgba(251, 146, 60, 0.3);
+  background: var(--app-surface-2);
+  border-radius: 16px;
+  border: 1px dashed var(--app-border);
 }
 
 .empty-icon {
   font-size: 80px;
   width: 80px;
   height: 80px;
-  color: rgba(251, 146, 60, 0.4);
+  color: var(--app-accent);
   margin: 0 auto 16px;
+  opacity: 0.6;
 }
 
 .empty-state h2 {
@@ -59,13 +62,17 @@ h1 {
 }
 
 .review-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  border-radius: 16px;
+  box-shadow: var(--app-shadow-sm);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+  transition: all var(--app-transition-lg);
 }
 
 .review-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--app-shadow-md);
+  border-color: color-mix(in srgb, var(--app-accent) 30%, transparent);
+  transform: translateY(-4px);
 }
 
 mat-card-header {
@@ -117,11 +124,11 @@ mat-card-content {
 
 .star {
   font-size: 18px;
-  color: rgba(209, 161, 108, 0.3);
+  color: var(--app-border);
 }
 
 .star.filled {
-  color: #fbbf24;
+  color: var(--app-accent);
 }
 
 .rating-text {
