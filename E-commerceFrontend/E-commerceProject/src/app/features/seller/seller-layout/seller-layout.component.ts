@@ -9,11 +9,7 @@ import { Subscription, filter } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './seller-layout.component.html',
-  styleUrls: [
-    './seller-layout.component.css',
-    './seller-layout-modern.css',
-    '../seller-animations.css'
-  ]
+  styleUrls: ['./seller-layout.component.css']
 })
 export class SellerLayoutComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
