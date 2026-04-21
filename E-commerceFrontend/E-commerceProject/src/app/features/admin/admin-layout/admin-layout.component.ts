@@ -9,10 +9,7 @@ import { Subscription, filter } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './admin-layout.component.html',
-  styleUrls: [
-    './admin-layout.component.css',
-    './admin-layout-animations.css'
-  ]
+  styleUrls: ['./admin-layout.component.css']
 })
 export class AdminLayoutComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);

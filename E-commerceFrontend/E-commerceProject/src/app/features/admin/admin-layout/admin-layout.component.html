@@ -1,3 +1,94 @@
+<!-- <div class="admin-wrapper">
+  <aside [class.sidebar-open]="sidebarOpen" class="sidebar">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Admin Panel</h2>
+      <button title="Toggle Sidebar" class="sidebar-toggle-mobile" (click)="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">D</span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/products" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">P</span>
+            <span class="nav-text">Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/categories" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">C</span>
+            <span class="nav-text">Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/orders" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">O</span>
+            <span class="nav-text">Orders</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/users" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">U</span>
+            <span class="nav-text">Users</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/sellers-mangement" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">S</span>
+            <span class="nav-text">Sellers</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/coupons" routerLinkActive="active" class="nav-link">
+            <span class="nav-icon">C</span>
+            <span class="nav-text">Coupons</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+        <span class="user-name">{{ userName }}</span>
+      </div>
+      <button (click)="logout()" class="btn btn-logout">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <button title="Toggle Sidebar" class="toggle-sidebar-btn" (click)="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <div class="header-spacer"></div>
+      <a class="header-profile-link" [routerLink]="profileRoute" aria-label="Open admin profile">
+        <div class="header-profile-avatar">{{ userInitial }}</div>
+        <span class="header-profile-name">{{ userName || 'Admin' }}</span>
+      </a>
+    </div>
+
+    <div class="main-body">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <div *ngIf="sidebarOpen" class="sidebar-overlay" (click)="toggleSidebar()"></div>
+</div> -->
+
+
 <div class="admin-wrapper">
   <aside [class.sidebar-open]="sidebarOpen" class="sidebar">
     <div class="sidebar-header">

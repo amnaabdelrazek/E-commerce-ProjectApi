@@ -47,21 +47,18 @@
   margin: 0 auto;
 }
 
-.page-title {
-  margin: 0 0 12px;
-  font-size: 32px;
+/* .page-title {
+  margin: 0 0 8px 0;
+  font-size: 28px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #f1f5f9;
+  color: #f5efe8;
 }
 
 .page-subtitle {
   margin: 0;
-  font-size: 15px;
-  color: #cbd5e1;
-  font-weight: 500;
-}
-
+  font-size: 14px;
+  color: rgba(245, 239, 232, 0.8);
+} */
 /* ===== LOADING STATE ===== */
 .loading-container {
   display: flex;
