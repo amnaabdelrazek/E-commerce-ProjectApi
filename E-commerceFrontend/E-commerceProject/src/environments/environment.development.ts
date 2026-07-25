@@ -2,5 +2,5 @@ import { IEnvironment } from "./ienvironment";
 
 export const environment:IEnvironment = {
     production: false,
-    apiUrl:"http://localhost:5250"
+    apiUrl:"http://mult-vendor-ecommerce.runasp.net"
 };
