@@ -9,7 +9,9 @@
     color-mix(in srgb, var(--app-bg) 92%, rgba(255, 255, 255, 0.3) 8%)
   );
   border-bottom: 1px solid color-mix(in srgb, var(--app-text) 8%, transparent);
-  box-shadow: 0 2px 12px rgba(36, 24, 19, 0.04);\n  animation: slideInDown 400ms ease-out;\n}
+  box-shadow: 0 2px 12px rgba(36, 24, 19, 0.04);
+  animation: slideInDown 400ms ease-out;
+}
 
 .nav__inner,
 .nav__brand,
