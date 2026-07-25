@@ -3,6 +3,7 @@ import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.co
 import { SellerProfileComponent } from './seller-profile/seller-profile.component';
 import { SellerAddProductComponent } from './seller-add-product/seller-add-product.component';
 import { SellerLayoutComponent } from './seller-layout/seller-layout.component';
+import { SellerEditProductComponent } from './seller-edit-product/seller-edit-product.component';
 
 export const SELLER_ROUTES: Routes = [
   {
@@ -23,6 +24,11 @@ export const SELLER_ROUTES: Routes = [
         path: 'products/new',
         component: SellerAddProductComponent,
         data: { title: 'Add New Product' }
+      },
+      {
+        path: 'products/:id/edit',
+        component: SellerEditProductComponent,
+        data: { title: 'Edit Product' }
       },
       {
         path: '',

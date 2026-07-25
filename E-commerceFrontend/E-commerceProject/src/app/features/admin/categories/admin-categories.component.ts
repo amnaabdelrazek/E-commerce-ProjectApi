@@ -16,7 +16,10 @@ type CategoryModalMode = 'create' | 'edit';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './admin-categories.component.html',
-  styleUrls: ['./admin-categories.component.css']
+  styleUrls: [
+    './admin-categories.component.css',
+    '../tables/tables-animations.css'
+  ]
 })
 export class AdminCategoriesComponent implements OnInit {
   private adminService = inject(AdminService);

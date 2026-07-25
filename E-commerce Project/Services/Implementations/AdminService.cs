@@ -233,17 +233,24 @@ namespace E_commerce_Project.Services.Implementations
                 UserFullName = o.User.FullName,
                 UserId = o.UserId,
                 Status = o.Status,
+                SubTotal = o.SubTotal,
                 TotalPrice = o.TotalPrice,
                 DiscountAmount = o.DiscountAmount,
+                PromoCode = o.AppliedPromoCode,
                 TaxAmount = o.TaxAmount,
                 ShippingCost = o.ShippingCost,
                 PaymentMethod = o.PaymentMethod,
                 CreatedAt = o.CreatedAt,
+                DeliveryAddress = o.DeliveryAddress,
+                Email = o.Email,
+                PhoneNumber = o.PhoneNumber,
+                Notes = o.Notes,
                 Items = o.OrderItems.Select(oi => new OrderItemDto
                 {
                     Id = oi.Id,
                     ProductId = oi.ProductId,
                     ProductName = oi.Product?.Name ?? string.Empty,
+                    PriceAtPurchase = oi.PriceAtPurchase > 0 ? oi.PriceAtPurchase : (oi.Product?.Price ?? 0),
                     Quantity = oi.Quantity,
                 }).ToList()
             }).ToList();

@@ -1,6 +1,6 @@
-<div *ngIf="isLoading" class="loading-overlay">
+<div *ngIf="isLoading" class="loading-overlay" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Loading content">
     <div class="spinner">
-        <div class="spinner-border"></div>
+        <div class="spinner-border" aria-hidden="true"></div>
         <p class="loading-text">Loading...</p>
     </div>
 </div>

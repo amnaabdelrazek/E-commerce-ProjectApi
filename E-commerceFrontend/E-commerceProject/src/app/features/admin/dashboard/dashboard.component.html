@@ -1,10 +1,10 @@
-<div class="dashboard-container">
+﻿<div class="dashboard-container">
 
-  <!-- Header -->
+  <!-- Header Banner (In the Image) -->
   <div class="dashboard-header">
     <div class="header-content">
       <h1 class="page-title">Dashboard</h1>
-      <p class="page-subtitle">Welcome back! Here's your business overview.</p>
+      <!-- <p class="page-subtitle">Welcome back! Here's your business overview.</p> -->
     </div>
   </div>
 
@@ -14,9 +14,9 @@
     <p class="loading-text">Loading dashboard...</p>
   </div>
 
-  <!-- Stats Cards -->
+  <!-- Top Stats Cards (In the Image: Total Users, Orders, Revenue, Coupons) -->
   <div *ngIf="!isLoading && cards.length > 0" class="stats-grid">
-    <div *ngFor="let card of cards; let i = index" class="stat-card" [style.--card-color]="card.color">
+    <div *ngFor="let card of cards; let i = index" class="stat-card">
       <div class="stat-icon">{{ card.icon }}</div>
       <div class="stat-content">
         <h3 class="stat-title">{{ card.title }}</h3>
@@ -25,60 +25,53 @@
     </div>
   </div>
 
-  <!-- Charts Section -->
-  <div *ngIf="!isLoading && dashboardData && (barChartData || pieChartData)" class="dashboard-sections">
+  <!-- Charts Section (In the Image: Top Selling Products & Top Buyers) -->
+  <div *ngIf="!isLoading && dashboardData" class="dashboard-content">
 
-    <!-- Top Products (Bar Chart) -->
+    <!-- Top Selling Products (Bar Chart) -->
     <div class="section-card" *ngIf="barChartData">
-      <div class="section-header">
-        <h2 class="section-title">Top Selling Products</h2>
-      </div>
-      <div class="chart-wrapper bar-chart-wrapper">
+      <h2 class="section-title">Top Selling Products</h2>
+      <div class="chart-wrapper">
         <canvas baseChart [data]="barChartData" [options]="barChartOptions" type="bar">
         </canvas>
       </div>
     </div>
 
-    <!-- Top Buyers (Doughnut Chart) -->
+    <!-- Top Buyers (Pie Chart) -->
     <div class="section-card" *ngIf="pieChartData">
-      <div class="section-header">
-        <h2 class="section-title">Top Buyers</h2>
-      </div>
-      <div class="chart-wrapper pie-chart-wrapper">
+      <h2 class="section-title">Top Buyers</h2>
+      <div class="chart-wrapper">
         <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" type="doughnut">
         </canvas>
       </div>
     </div>
 
-  </div>
-
-  <!-- Business Overview -->
-  <div *ngIf="dashboardData" class="section-card">
-    <div class="section-header">
+    <!-- Business Overview (Bottom table-like structure in image) -->
+    <div class="section-card">
       <h2 class="section-title">Business Overview</h2>
+      <div class="overview-grid">
+        <div class="overview-item">
+          <span class="overview-label">Pending Orders</span>
+          <span class="overview-value">{{ dashboardData.pendingOrders || 0 }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Active Users</span>
+          <span class="overview-value">{{ dashboardData.activeUsers || 0 }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Total Orders</span>
+          <span class="overview-value">{{ dashboardData.totalOrders || 0 }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Revenue</span>
+          <span class="overview-value">${{ dashboardData.totalRevenue.toLocaleString() }}</span>
+        </div>
+        <div class="overview-item">
+          <span class="overview-label">Total Coupons</span>
+          <span class="overview-value">{{ dashboardData.totalCoupons || 0 }}</span>
+        </div>
+      </div>
     </div>
-    <div class="overview-grid">
-      <div class="overview-item">
-        <span class="overview-label">Pending Orders</span>
-        <span class="overview-value">{{ dashboardData.pendingOrders || 0 }}</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">Active Users</span>
-        <span class="overview-value">{{ dashboardData.activeUsers || 0 }}</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">Total Orders</span>
-        <span class="overview-value">{{ dashboardData.totalOrders || 0 }}</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">Revenue</span>
-        <span class="overview-value">${{ dashboardData.totalRevenue.toFixed(0) }}</span>
-      </div>
-      <div class="overview-item">
-        <span class="overview-label">Coupons</span>
-        <span class="overview-value">{{ dashboardData.totalCoupons || 0 }}</span>
-      </div>
-    </div>
-  </div>
 
+  </div>
 </div>

@@ -1,0 +1,142 @@
+<div class="add-container">
+  
+  <div class="form-card">
+    
+    <!-- FORM HEADER -->
+    <div class="form-header">
+      <h2>Create New Product</h2>
+      <button class="close-btn" (click)="goBack()" type="button" title="Go back">×</button>
+    </div>
+
+    <!-- FORM START -->
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      
+      <!-- PRODUCT NAME -->
+      <div class="form-group">
+        <label for="productName">Product Name</label>
+        <input 
+          type="text" 
+          id="productName"
+          formControlName="name" 
+          placeholder="e.g., Nordic Chair, Designer Lamp, Premium Headset" 
+          class="form-control" />
+      </div>
+
+      <!-- PRODUCT DESCRIPTION -->
+      <div class="form-group">
+        <label for="productDesc">Description</label>
+        <textarea 
+          id="productDesc"
+          formControlName="description" 
+          rows="4" 
+          placeholder="Write a short product description to attract customers"
+          class="form-control"></textarea>
+      </div>
+
+      <!-- CATEGORY -->
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select 
+          id="category"
+          formControlName="categoryId" 
+          class="form-control">
+          <option [ngValue]="0">Select a category</option>
+          <option *ngFor="let category of categories" [ngValue]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+        <small class="field-note" *ngIf="!isLoading && categories.length === 0">
+          No categories available yet. <a href="/seller/products">Create one first</a>
+        </small>
+      </div>
+
+      <!-- PRICE & STOCK QUANTITY (Two Column) -->
+      <div class="form-row">
+        
+        <!-- PRICE -->
+        <div class="form-group">
+          <label for="price">Price (EGP)</label>
+          <input 
+            type="number" 
+            id="price"
+            formControlName="price" 
+            min="0" 
+            step="0.01" 
+            class="form-control" 
+            placeholder="0.00" />
+        </div>
+
+        <!-- STOCK QUANTITY -->
+        <div class="form-group">
+          <label for="stock">Stock Quantity</label>
+          <input 
+            type="number" 
+            id="stock"
+            formControlName="stockQuantity" 
+            min="0" 
+            step="1" 
+            class="form-control" 
+            placeholder="0" />
+        </div>
+        
+      </div>
+
+      <!-- PRODUCT IMAGE UPLOAD -->
+      <div class="form-group">
+        <label for="productImage">Product Image</label>
+
+        <!-- IMAGE PREVIEW -->
+        <div class="image-preview" *ngIf="currentImagePreview; else noImagePreview">
+          <img [src]="currentImagePreview" alt="Product preview" class="preview-img" />
+        </div>
+
+        <!-- NO IMAGE PREVIEW -->
+        <ng-template #noImagePreview>
+          <div class="image-preview image-preview--empty">
+            <span>📷 No image selected yet</span>
+          </div>
+        </ng-template>
+
+        <!-- FILE INPUT -->
+        <input 
+          type="file" 
+          id="productImage"
+          accept="image/*" 
+          class="form-control form-control--file"
+          (change)="onImageSelected($event)" />
+        <label for="productImage" class="file-upload-label">
+          Choose Image
+        </label>
+        
+        <small class="field-note" *ngIf="imageFileName">
+          ✓ Selected: {{ imageFileName }}
+        </small>
+      </div>
+
+      <!-- FORM VALIDATION ERROR -->
+      <div class="form-error" *ngIf="productForm.invalid && productForm.touched">
+        Please fill all required fields with valid values.
+      </div>
+
+      <!-- FORM ACTIONS -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn-submit" 
+          [disabled]="isSubmitting || isLoading">
+          {{ isSubmitting ? '⏳ Processing...' : '✨ Create Product' }}
+        </button>
+        <button 
+          type="button"
+          class="btn-cancel" 
+          (click)="goBack()">
+          Cancel
+        </button>
+      </div>
+
+    </form>
+    <!-- FORM END -->
+
+  </div>
+
+</div>

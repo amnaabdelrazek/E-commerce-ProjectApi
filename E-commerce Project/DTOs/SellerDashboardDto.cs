@@ -1,4 +1,4 @@
-﻿namespace E_commerce_Project.DTOs
+namespace E_commerce_Project.DTOs
 {
     public class SellerDashboardDto
     {

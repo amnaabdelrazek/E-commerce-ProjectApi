@@ -27,21 +27,27 @@ export interface Order {
   userId: string;
   userFullName: string;
   status: string;
+  subTotal: number;
   totalPrice: number;
-  discountAmount?: number;
-  taxAmount?: number;
-  shippingCost?: number;
+  discountAmount: number;
+  promoCode?: string;
+  taxAmount: number;
+  shippingCost: number;
   paymentMethod: string;
   createdAt: string;
-  items?: OrderItem[];
+  items: OrderItem[];
+  deliveryAddress?: string;
+  email?: string;
+  phoneNumber?: string;
+  notes?: string;
 }
 
 export interface OrderItem {
   id: number;
   productId: number;
   productName: string;
+  imageUrl?: string;
   quantity: number;
-  price: number;
   priceAtPurchase: number;
   itemTotal: number;
 }

@@ -6,6 +6,7 @@ namespace E_commerce_Project.DTOs
         public string? UserId { get; set; }
         public string UserFullName { get; set; }
         public string Status { get; set; } = "Pending";
+        public decimal SubTotal { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal DiscountAmount { get; set; }
         public string? PromoCode { get; set; }
@@ -14,5 +15,9 @@ namespace E_commerce_Project.DTOs
         public string PaymentMethod { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
+        public string? DeliveryAddress { get; set; }
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Notes { get; set; }
     }
 }

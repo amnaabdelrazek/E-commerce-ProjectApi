@@ -9,7 +9,10 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './orders-admin.component.html',
-  styleUrls: ['./orders-admin.component.css']
+  styleUrls: [
+    './orders-admin.component.css',
+    '../tables/tables-animations.css'
+  ]
 })
 export class OrdersAdminComponent implements OnInit {
   private adminService = inject(AdminService);

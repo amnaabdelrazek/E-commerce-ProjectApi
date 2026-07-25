@@ -28,7 +28,10 @@ interface DashboardCard {
   standalone: true,
   imports: [CommonModule, BaseChartDirective],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'],
+  styleUrls: [
+    './dashboard.component.css',
+    './dashboard-animations.css'
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit, OnDestroy {

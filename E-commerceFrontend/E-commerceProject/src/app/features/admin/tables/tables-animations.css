@@ -1,0 +1,657 @@
+/* ==========================================
+   TABLES - PREMIUM ROW & INTERACTION ANIMATIONS
+   ========================================== */
+
+:root {
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-medium: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --color-primary: #4f46e5;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-bg: #f8f9fa;
+  --color-border: #e5e7eb;
+  --color-text: #1f2937;
+  --color-text-light: #6b7280;
+}
+
+/* ==========================================
+   KEYFRAME ANIMATIONS
+   ========================================== */
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes rowHighlight {
+  0% {
+    background-color: transparent;
+  }
+  100% {
+    background-color: rgba(79, 70, 229, 0.03);
+  }
+}
+
+@keyframes rowBorderAccent {
+  from {
+    box-shadow: inset 4px 0 0 transparent;
+  }
+  to {
+    box-shadow: inset 4px 0 0 var(--color-primary);
+  }
+}
+
+@keyframes popScale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes buttonBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.08);
+  }
+  75% {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================
+   TABLE CONTAINER ANIMATIONS
+   ========================================== */
+
+.table-container {
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  animation: fadeInRow var(--transition-smooth) ease-out 0.3s both;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+/* ==========================================
+   TABLE STYLING WITH ANIMATIONS
+   ========================================== */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+thead {
+  background-color: #f9fafb;
+  border-bottom: 2px solid var(--color-border);
+}
+
+thead th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all var(--transition-fast);
+}
+
+thead th:hover {
+  background-color: #f3f4f6;
+  color: var(--color-primary);
+}
+
+/* ==========================================
+   TABLE ROWS - DYNAMIC FADE-IN
+   ========================================== */
+
+tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: all var(--transition-smooth);
+  animation: fadeInRow var(--transition-smooth) ease-out forwards;
+}
+
+/* Stagger animation for dynamically loaded rows using nth-child */
+tbody tr:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+tbody tr:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+tbody tr:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+tbody tr:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+tbody tr:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+tbody tr:nth-child(n+6) {
+  animation-delay: calc(0.25s + ((var(--index, 5)) * 0.03s));
+}
+
+/* ==========================================
+   TABLE ROW HOVER EFFECT
+   ========================================== */
+
+tbody tr:hover {
+  background-color: rgba(79, 70, 229, 0.03);
+  box-shadow: inset 4px 0 0 var(--color-primary);
+  animation: none; /* Prevent animation conflicts with hover */
+}
+
+tbody tr:hover td {
+  color: var(--color-text);
+}
+
+/* ==========================================
+   TABLE CELLS STYLING
+   ========================================== */
+
+td {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--color-text-light);
+  transition: all var(--transition-fast);
+}
+
+/* Primary column (first column) - bold on row hover */
+tbody tr:hover td:first-child {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Status Badge Animations */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  animation: slideInRight var(--transition-smooth) ease-out 0.3s both;
+}
+
+.status-badge:hover {
+  transform: scale(1.08);
+}
+
+.status-badge.active {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+}
+
+.status-badge.inactive {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}
+
+.status-badge.pending {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+}
+
+.status-badge.rejected {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}
+
+/* Status indicator dot animation */
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: pulseIndicator 2s ease-in-out infinite;
+}
+
+@keyframes pulseIndicator {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+/* ==========================================
+   ACTION BUTTONS - POP ANIMATION
+   ========================================== */
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--color-text-light);
+  cursor: pointer;
+  font-size: 16px;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Pop animation on hover */
+.action-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-color: rgba(79, 70, 229, 0.05);
+  animation: popScale 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.action-btn:active {
+  animation: buttonBounce 0.3s ease-out;
+}
+
+/* Action button icon animation */
+.action-btn svg {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--transition-fast);
+}
+
+.action-btn:hover svg {
+  transform: scale(1.15);
+}
+
+/* Specific action button colors */
+.action-btn.edit {
+  color: #3b82f6;
+}
+
+.action-btn.edit:hover {
+  color: #3b82f6;
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.action-btn.delete {
+  color: var(--color-danger);
+}
+
+.action-btn.delete:hover {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.action-btn.view {
+  color: var(--color-success);
+}
+
+.action-btn.view:hover {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+/* ==========================================
+   ACTION BUTTONS GROUP ANIMATION
+   ========================================== */
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: slideInRight var(--transition-smooth) ease-out 0.3s both;
+}
+
+.action-buttons button {
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+tbody tr:hover .action-buttons button {
+  opacity: 1;
+}
+
+/* ==========================================
+   PILL-SHAPED ACTION BUTTONS
+   ========================================== */
+
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background-color: white;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition-smooth);
+  white-space: nowrap;
+}
+
+.btn-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: rgba(79, 70, 229, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+  animation: popScale 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn-pill.primary {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.btn-pill.primary:hover {
+  background-color: #4338ca;
+  border-color: #4338ca;
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+}
+
+.btn-pill.secondary {
+  background-color: #f3f4f6;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btn-pill.secondary:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-pill.danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.btn-pill.danger:hover {
+  background-color: var(--color-danger);
+  color: white;
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+}
+
+.btn-pill.success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.btn-pill.success:hover {
+  background-color: var(--color-success);
+  color: white;
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+/* ==========================================
+   PAGINATION BUTTON ANIMATIONS
+   ========================================== */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.pagination button,
+.pagination a {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: white;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination button:hover,
+.pagination a:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background-color: rgba(79, 70, 229, 0.05);
+  transform: scale(1.1);
+  animation: popScale 0.3s ease-out;
+}
+
+.pagination button.active,
+.pagination a.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   EMPTY TABLE STATE
+   ========================================== */
+
+.empty-table-state {
+  padding: 60px 20px;
+  text-align: center;
+  animation: fadeInRow var(--transition-smooth) ease-out 0.3s both;
+}
+
+.empty-table-state svg {
+  width: 80px;
+  height: 80px;
+  opacity: 0.4;
+  margin-bottom: 16px;
+  animation: slideInDown var(--transition-smooth) ease-out both;
+}
+
+.empty-table-state h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 8px 0;
+  animation: slideInDown var(--transition-smooth) ease-out 0.1s both;
+}
+
+.empty-table-state p {
+  font-size: 14px;
+  color: var(--color-text-light);
+  margin: 0;
+  animation: slideInDown var(--transition-smooth) ease-out 0.2s both;
+}
+
+/* ==========================================
+   TABLE TOOLBAR ANIMATIONS
+   ========================================== */
+
+.table-toolbar {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  animation: slideInDown var(--transition-smooth) ease-out both;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: white;
+  transition: all var(--transition-fast);
+}
+
+.search-box:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.search-box input::placeholder {
+  color: #9ca3af;
+}
+
+/* ==========================================
+   RESPONSIVE TABLE ANIMATIONS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .table-container {
+    border-radius: 8px;
+  }
+
+  th,
+  td {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .btn-pill {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .table-toolbar {
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  th,
+  td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .action-buttons {
+    gap: 2px;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    margin: 0 2px;
+    font-size: 12px;
+  }
+
+  .action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn-pill {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  /* Hide some columns on mobile for readability */
+  .hide-mobile {
+    display: none;
+  }
+}
+
+/* ==========================================
+   ACCESSIBILITY - RESPECT MOTION PREFERENCES
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  tbody tr:hover {
+    background-color: transparent;
+  }
+
+  .action-btn:hover {
+    animation: none;
+  }
+}

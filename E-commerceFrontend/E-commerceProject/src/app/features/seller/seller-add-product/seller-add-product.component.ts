@@ -12,8 +12,12 @@ import { ProductsService } from '../../../core/services/products.service';
   selector: 'app-seller-add-product',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './seller-add-product.component.html',
-  styleUrl: './seller-add-product.component.css'
+  templateUrl: './seller-add-product-modern.html',
+  styleUrls: [
+    './seller-add-product.component.css',
+    './seller-add-product-modern.css',
+    '../seller-animations.css'
+  ]
 })
 export class SellerAddProductComponent implements OnInit {
   private readonly sellerService = inject(SellerService);

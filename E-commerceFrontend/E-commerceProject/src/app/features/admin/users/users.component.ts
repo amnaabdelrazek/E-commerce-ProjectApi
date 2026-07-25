@@ -9,7 +9,10 @@ import { NotificationService } from '../../../core/services/notification.service
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css']
+  styleUrls: [
+    './users.component.css',
+    '../tables/tables-animations.css'
+  ]
 })
 export class UsersComponent implements OnInit {
 

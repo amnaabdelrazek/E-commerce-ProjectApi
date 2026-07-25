@@ -21,7 +21,7 @@
                     Percentage (%)
                 </button>
                 <button type="button" [class.active]="!isPercentage()" (click)="isPercentage.set(false)">
-                    Fixed Amount (EGP)
+                    Fixed Amount ($)
                 </button>
             </div>
 
@@ -35,7 +35,7 @@
                                (ngModelChange)="discount.set($event)"
                                [placeholder]="isPercentage() ? '0 - 100' : '0.00'" 
                                class="form-control">
-                        <span class="icon">{{ isPercentage() ? '%' : 'EGP' }}</span>
+                        <span class="icon">{{ isPercentage() ? '%' : '$' }}</span>
                     </div>
                 </div>
 

@@ -2,12 +2,12 @@ import { routes } from './../../../app.routes';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { AdminService, Coupon } from '../../../core/services/admin.service';
 import Swal from 'sweetalert2';
-import { DatePipe, CurrencyPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-coupons-component',
   standalone: true,
-  imports: [DatePipe, CurrencyPipe, RouterLink],
+  imports: [DatePipe, RouterLink],
   templateUrl: './coupons-component.html',
   styleUrl: './coupons-component.css',
 })

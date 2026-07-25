@@ -1,0 +1,86 @@
+<div class="admin-wrapper">
+  <!-- SIDEBAR -->
+  <aside [class.sidebar-open]="sidebarOpen" class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        <h1 class="sidebar-title">Admin</h1>
+      </div>
+      <button title="Toggle Sidebar" class="sidebar-toggle-mobile" (click)="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li class="nav-item" *ngFor="let item of [
+          {route: '/admin/dashboard', label: 'Dashboard', icon: 'M13 2H3v10h10V2z M21 2h-10v10h10V2z M13 12H3v10h10v-10z M21 12h-10v10h10v-10z'},
+          {route: '/admin/products', label: 'Products', icon: 'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10v7'},
+          {route: '/admin/categories', label: 'Categories', icon: 'M12 2H2v10h10V2z M22 2h-8v10h8V2z M12 12H2v10h10v-10z M22 12h-8v10h8v-10z'},
+          {route: '/admin/orders', label: 'Orders', icon: 'M9 21a1 1 0 100-2 1 1 0 000 2z M20 21a1 1 0 100-2 1 1 0 000 2z M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6'},
+          {route: '/admin/users', label: 'Users', icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 7a4 4 0 100-8 4 4 0 000 8z'},
+          {route: '/admin/sellers-mangement', label: 'Sellers', icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M9 7a4 4 0 100-8 4 4 0 000 8z M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75'},
+          {route: '/admin/coupons', label: 'Coupons', icon: 'M5 7h14 M5 7a2 2 0 00-2 2v6a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2 M9 11h6'}
+        ]">
+          <a [routerLink]="item.route" routerLinkActive="active" class="nav-link" [attr.data-label]="item.label">
+            <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path [attr.d]="item.icon"/>
+            </svg>
+            <span class="nav-text">{{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+        <div class="user-details">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">Administrator</span>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout">
+        <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 3H6a2 2 0 00-2 2v14a2 2 0 002 2h4 M17 16l4-4m-4 4l4-4 M17 12h4"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <!-- HEADER -->
+    <div class="main-header">
+      <button title="Toggle Sidebar" class="toggle-sidebar-btn" (click)="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="header-title-group">
+        <h1 class="page-title">{{ pageTitle }}</h1>
+      </div>
+      <div class="header-actions">
+        <a class="header-profile-link" [routerLink]="profileRoute" aria-label="Open admin profile">
+          <div class="header-profile-avatar">{{ userInitial }}</div>
+          <span class="header-profile-name">{{ userName || 'Admin' }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="main-body">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- OVERLAY -->
+  <div *ngIf="sidebarOpen" class="sidebar-overlay" (click)="toggleSidebar()"></div>
+</div>

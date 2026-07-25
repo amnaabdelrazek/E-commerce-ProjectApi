@@ -62,11 +62,11 @@
                                 @if (coupon.discountPercentage) {
                                 {{ coupon.discountPercentage }}%
                                 } @else {
-                                {{ coupon.discountAmount | currency:'EGP ' }}
+                                {{ coupon.discountAmount  }} $
                                 }
                             </span>
                         </td>
-                        <td>{{ coupon.minimumPurchaseAmount | currency:'EGP ' }}</td>
+                        <td>{{ coupon.minimumPurchaseAmount }} $</td>
                         <td style="color: #7f8c8d;">
                             {{ coupon.expiryDate | date:'mediumDate' }}
                         </td>

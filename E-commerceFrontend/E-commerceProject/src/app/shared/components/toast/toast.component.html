@@ -1,5 +1,5 @@
-<div class="toast-container">
-    <div *ngFor="let toast of toasts" [ngClass]="getToastClass(toast.type)">
+<div class="toast-container" role="region" aria-live="polite" aria-label="Notifications">
+    <div *ngFor="let toast of toasts" [ngClass]="getToastClass(toast.type)" role="alert" [attr.aria-live]="toast.type === 'error' ? 'assertive' : 'polite'">
         <div class="toast-content">
             <span class="toast-message">{{ toast.message }}</span>
             <button class="toast-close" (click)="removeToast(toast.id)" aria-label="Close notification">
